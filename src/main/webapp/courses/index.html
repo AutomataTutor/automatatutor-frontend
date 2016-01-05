@@ -1,0 +1,30 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+
+	<lift:Courses.showall> </lift:Courses.showall>
+
+	<lift:Courses.renderenrollmentform form="POST">
+		<h2> Enroll in course </h2>
+
+		<table>
+			<tr>
+				<td> Course ID: </td>
+				<td> <enrollmentform:courseidfield> </enrollmentform:courseidfield> </td>
+			</tr>
+			<tr>
+				<td> Course Password: </td>
+				<td> <enrollmentform:coursepasswordfield> </enrollmentform:coursepasswordfield> </td>
+			</tr>
+			<tr>
+				<td> </td>
+				<td> <enrollmentform:enrollbutton> </enrollmentform:enrollbutton> </td>
+			</tr>
+		</table>
+	</lift:Courses.renderenrollmentform>
+</div>
+</body>
+
+</html>

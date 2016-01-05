@@ -1,0 +1,53 @@
+<div>
+	<script type="text/javascript" src="/javascript/alphabetUtil.js"> </script>
+
+	<h2> Create a new Pumping Lemma problem of the form L={a^i1 b^i2... such that i1=i2...} </h2>
+
+	<h4> Language Syntax </h4>
+
+	Please have your language description <emph>L</emph> be over the grammar <emph>L:= a^i | a | a* | a+ | Sigma* | Sigma+ | L L</emph> 
+	where <emph>a</emph> is a symbol in Sigma and <emph>i</emph> is a free integer variable.
+	<br /> 
+	Please let your constraint <emph>C</emph> be over the the grammar C:= i>j | i=j | i>=j | (C or C) | (C and C)
+	<br />
+
+	<h4> Problem Definition </h4>
+
+	<lift:Identity form="POST">
+	<table> 
+		<tr>
+			<td> Alphabet (separated by spaces): </td>
+			<td> <createform:alphabetfield> </createform:alphabetfield> </td>
+		</tr> 
+		<tr>
+			<td> Language Description (e.g. a^n b^m): </td>
+			<td> <createform:languagefield> </createform:languagefield> </td>
+		<tr>
+			<td> Constraint Description (e.g. n=m): </td>	
+			<td> <createform:constraintfield> </createform:constraintfield> </td>
+		</tr>
+		<tr>
+			<td> Pumping String (e.g. a^p b^p): </td>	
+			<td> <createform:pumpingstrfield> </createform:pumpingstrfield> </td>
+		</tr> 
+		<tr>
+			<td> Short Description: </td>
+			<td> <createform:shortdescription> </createform:shortdescription> </td>
+		</tr>
+		<tr> 
+			<td> Long Description (will appear in the problem in the form of "Construct a regular expression that recognizes the following language: {long description}"): </td>
+			<td> <createform:longdescription> </createform:longdescription> </td>
+		</tr>
+		<tr> 
+			<td> </td>
+			<td> <createform:submit> </createform:submit> </td>
+		</tr>
+	</lift:Identity>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Parsing Error: </h3>
+		<ul>
+			<div id="parsingerror"/>
+		</ul>
+	</div>
+</div> 

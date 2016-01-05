@@ -1,0 +1,25 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+		<h2> Pose a problem </h2>
+		<lift:Problemsets.renderposeproblem form="POST">
+			<table>
+				<tr>
+					<td> Max Grade: </td>
+					<td> <poseproblemform:maxgradefield> </poseproblemform:maxgradefield> </td>
+				</tr>
+				<tr>
+					<td> Number of attempts allowed: </td>
+					<td> <poseproblemform:attemptsfield> </poseproblemform:attemptsfield>
+				</tr>				
+				<tr>
+					<td> </td>
+					<td> <poseproblemform:posebutton> </poseproblemform:posebutton> </td>
+				</tr>
+			</table>
+		</lift:Problemsets>
+	</div>
+  </body>
+</html>

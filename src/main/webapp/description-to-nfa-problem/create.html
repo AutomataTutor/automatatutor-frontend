@@ -1,0 +1,56 @@
+<div>
+		
+	<script type="text/javascript" src="/javascript/alphabetUtil.js"> </script>
+	
+	<script type="text/javascript">
+		function setAlphabet() {		
+		    var alphabet = parseAlphabet();
+			if(alphabetChecks(alphabet)){
+				Editor.canvas.setEpsilon(document.getElementById('epsilonCheck').checked);
+				Editor.canvas.setAlphabet(alphabet);	
+			}
+		}
+	</script>
+
+	<h2> Create a new description to NFA problem </h2>
+
+	<form id="alphabetForm" action="">
+		Note that resetting the alphabet will also reset the whole automaton <br />
+		Alphabet (separated by spaces): 
+		<input type="text" id="alphabetField"><br>
+		Allow epsilon transitions <input type="checkbox" id="epsilonCheck" checked><br>
+		<input type="button" value="Set Alphabet and Epsilon" onclick="setAlphabet()">
+	</form>
+
+	<lift:embed what="/description-to-nfa-problem/applet"> </lift:embed>
+		
+	<script type="text/javascript">
+		// On load, set the alphabet to a,b as standard.
+		document.getElementById('alphabetField').value = "a b";
+		setAlphabet();
+	</script>
+	
+	<lift:Identity form="POST">
+	<table> 
+		<tr> 
+			<td> </td>
+			<td> <createform:automaton> </createform:automaton> </td>
+		</tr>
+		<tr> 
+			<td> Select NFA category: </td>
+			<td> <createform:category> </createform:category> </td>
+		</tr>
+		<tr> 
+			<td> Short Description: </td>
+			<td> <createform:shortdescription> </createform:shortdescription> </td>
+		</tr>
+		<tr> 
+			<td> Long Description (will appear in the problem in the form of "Construct a NFA that recognizes the following language: {long description}"): </td>
+			<td> <createform:longdescription> </createform:longdescription> </td>
+		</tr>
+		<tr> 
+			<td> </td>
+			<td> <createform:submit> </createform:submit> </td>
+		</tr>
+	</lift:Identity>
+</div> 

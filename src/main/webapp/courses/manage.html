@@ -1,0 +1,53 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+
+	<h2>Manage Course</h2>
+
+	<lift:Courses.rendermanage form="POST">
+		<!-- We do not use the simpler form <formfield:name />
+			since that confuses lift's binding -->
+		<table>
+			<tr>
+				<td> Name of the Course: </td>
+				<td> <courseinfo:name> </courseinfo:name>	</td>
+			</tr>
+			<tr>
+				<td> Contact Email: </td>
+				<td> <courseinfo:contact> </courseinfo:contact> </td>
+			</tr>
+			<tr>
+				<td> </td>
+				<td> <courseinfo:submitbutton> </courseinfo:submitbutton> </td>
+			</tr>
+		</table>
+	</lift:Courses.rendermanage>
+
+	<h3> Posed Problem Sets </h3>
+	<lift:Courses.renderposedproblemsets>	</lift:Courses.renderposedproblemsets>
+
+	<lift:Courses.renderenrollment form="POST">
+		<h3> Enrolled Students </h3>
+
+		<enrollment:enrolled-students> </enrollment:enrolled-students>
+
+		<h3> Enroll Students </h3>
+
+		<table>
+			<tr>
+				<td> Course ID: </td>
+				<td> <enrollment:courseid> </enrollment:courseid> </td>
+			</tr>
+			<tr>
+				<td> Password: </td>
+				<td> <enrollment:coursepassword> </enrollment:coursepassword> </td>
+			</tr>
+		</table>
+
+	</lift:Courses.renderenrollment>
+
+</div>
+</body>
+</html>

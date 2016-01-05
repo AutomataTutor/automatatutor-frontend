@@ -1,0 +1,29 @@
+<div>
+	<h3> Solve DFA construction problem </h3>
+	<div class="probdesc">
+	Construct an automaton that recognizes the following language of strings over the alphabet 
+	<dfaeditform:alphabettext> </dfaeditform:alphabettext>:</br> 
+	<dfaeditform:problemdescription> </dfaeditform:problemdescription> 
+	</div>
+	</br>
+
+	<lift:embed what="/dfa-construction/applet"> </lift:embed>
+
+	<form class="lift:form">
+		<dfaeditform:alphabetscript> </dfaeditform:alphabetscript>
+		<dfaeditform:lastattemptscript> </dfaeditform:lastattemptscript>
+		<dfaeditform:automatondescriptionfield> </dfaeditform:automatondescriptionfield>
+		
+		<dfaeditform:submitbutton> </dfaeditform:submitbutton>
+		<dfaeditform:returnlink> </dfaeditform:returnlink>
+	</form>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Grade: <span id="grade" /> </h3>
+		<h3> Feedback: </h3>
+		<ul>
+			<div id="feedback"/>
+		</ul>
+	</div>
+
+</div> 

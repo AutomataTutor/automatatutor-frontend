@@ -1,0 +1,46 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title>
+</head>
+<body class="lift:content_id=main">
+
+
+
+<div id="main" class="lift:surround?with=default;at=content">
+
+	<h2>Configure problem set for posing</h2>
+
+	<link rel="stylesheet" href="/stylesheets/jquery-ui.css">
+	<script type="text/javascript" src="/javascript/lib/jquery-2.1.1.min.js"></script>
+	<script type="text/javascript" src="/javascript/lib/jquery-ui.js"> </script>
+	<script type="text/javascript" src="/javascript/lib/jquery-ui-timepicker-addon.js"> </script>
+	
+	<lift:Courses.renderposeproblemset form="POST">
+		<table>
+			<tr>	
+				<div id="datepicker"></div>			
+				<td> Start date (must be parsable by java.util.DateFormat#parse): </td>
+				<td> <poseproblemsetform:startdatefield> </poseproblemsetform:startdatefield> </td>
+			</tr>
+			<tr>
+				<td> End date (must be parsable by java.util.DateFormat#parse): </td>
+				<td> <poseproblemsetform:enddatefield> </poseproblemsetform:enddatefield> </td>
+			</tr>
+			<tr>
+				<td> Pose questions in random order: </td>
+				<td> <poseproblemsetform:randomorderfield> </poseproblemsetform:randomorderfield>
+			</tr>
+			<tr>
+				<td> </td>
+				<td> <poseproblemsetform:posebutton> </poseproblemsetform:posebutton> </td>
+			</tr>
+		</table>
+	</lift:Courses>
+
+	<script>
+	$("#startdate").datetimepicker({timeFormat: "hh:mm tt"});
+	$("#enddate").datetimepicker({timeFormat: "hh:mm tt"});	
+	</script>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<div>
+	<h2> Solve NFA to DFA problem </h2>
+	<h3> Solve NFA to DFA problem </h3>
+	Construct a DFA that recognizes the language accepted by the following NFA
+	<dfaeditform:alphabettext> </dfaeditform:alphabettext>:</br> 
+	<dfaeditform:problemdescription> </dfaeditform:problemdescription> </br></br>
+
+	
+	<lift:embed what="/nfa-to-dfa-problem/applet"> </lift:embed>
+
+	
+	<form class="lift:form">
+		<nfatodfaform:setupscript> </nfatodfaform:setupscript>
+		<nfatodfaform:submitbutton> </nfatodfaform:submitbutton>
+	</form>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Grade: <span id="grade" /> </h3>
+		<h3> Feedback: </h3>
+		<ul>
+			<div id="feedback"/>
+		</ul>
+	</div>	
+
+</div> 

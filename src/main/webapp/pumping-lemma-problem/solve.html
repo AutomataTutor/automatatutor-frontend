@@ -1,0 +1,47 @@
+<div>
+			
+	<link rel="stylesheet" href="/stylesheets/pumpinglemma.css" type="text/css"/>
+
+	<script type="text/javascript" src="/javascript/lib/d3.min.js"></script>
+	<script type="text/javascript" src="/javascript/includePL.js"></script>
+	<script type="text/javascript" src="/javascript/pumpinglemma.js"></script>
+
+
+	<h3> Pumping Lemma problem </h3>
+	
+	<div class="probdesc"> 
+	Provide a pumping string for the language	
+	over the alphabet
+	<plsolveform:alphabettext> </plsolveform:alphabettext>:</br> 
+	<div align="center">
+		{ <plsolveform:languagedescription> </plsolveform:languagedescription>  | 
+		<plsolveform:constraintdescription> </plsolveform:constraintdescription> }
+	</div>
+	</div>
+
+	<form class="lift:form">
+		Your pumping string (e.g. a^p b^(p+1)): 
+		<plsolveform:pumpingstringfield> </plsolveform:pumpingstringfield> <br />		
+		<plsolveform:generatesplitsbutton> </plsolveform:generatesplitsbutton>
+		
+	</form>
+
+	<div id="splitdisplay" style="display:none" class="probdesc">
+		<form class="lift:form">			
+			<div id="splitsdiv"></div>		
+		</form>	
+	</div>
+	
+	
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Grade: <span id="grade" /> </h3>
+		<h3> Feedback: </h3>
+		<ul>
+			<div id="feedback"/>
+		</ul>
+	</div>
+	
+	<plsolveform:returnlink> </plsolveform:returnlink> <br />
+	
+
+</div> 

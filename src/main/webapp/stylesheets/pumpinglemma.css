@@ -1,0 +1,58 @@
+svg {
+  cursor: default;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+
+  background: #FFFFFF;
+}
+
+svg:not(.active):not(.ctrl) {
+  cursor: crosshair;
+}
+
+
+text.warning {
+  fill: #B20000;
+}
+
+path.link {
+  fill: none;
+  stroke: #000;
+  stroke-width: 2.5px;
+  cursor: default;
+}
+
+path.link:hover {
+  stroke-width: 3.5px;
+}
+
+
+path.link.expanded {
+  stroke-width: 3.5px;
+}
+
+
+svg:not(.active):not(.ctrl) path.link {
+  cursor: pointer;
+}
+
+text {
+  font: 15px sans-serif;
+  pointer-events: none;
+}
+
+text.id {
+  text-anchor: middle;
+  font-weight: bold;
+  pointer-events: none;
+}
+
+#automata_tutor #svgcanvaspl {
+    background-color: #FFFFFF;
+    width: 750px;
+    height: 100px;
+    margin: 0px;
+}

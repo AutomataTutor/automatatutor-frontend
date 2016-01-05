@@ -1,0 +1,38 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
+<body class="lift:content_id=main">
+<div id="main" class="lift:surround?with=default;at=content">
+
+<lift:Users.showuser form="POST">
+	<table>
+		<tr>
+			<td> First Name: </td>
+			<td> <userdisplay:firstname /> </td>
+		</tr>
+		<tr>
+			<td> Last Name: </td>
+			<td> <userdisplay:lastname /> </td>
+		</tr>
+		<tr>
+			<td> Email Address: </td>
+			<td> <userdisplay:email /> </td>
+		</tr>
+		<tr>
+			<td> </td>
+			<td> 
+				<userdisplay:studentrolechange> </userdisplay:studentrolechange> <br />
+				<userdisplay:instructorrolechange> </userdisplay:instructorrolechange> <br />
+				<userdisplay:adminrolechange> </userdisplay:adminrolechange> <br />
+			</td>
+		</tr>
+		<tr>
+			<td> </td>
+			<td> <userdisplay:submitbutton> </userdisplay:submitbutton> </td>
+	</table>
+
+</lift:Users>
+
+</div>
+</body>
+</html>
