@@ -1478,22 +1478,16 @@ $.SvgCanvas = function(container, config, deterministic) {
 		    
 		    var transArray = [];
 		    for(var j = 0; j < alphabet.length; j++){
-				if(alphabet[j] === read) transArray.push(true);
-				else transArray.push(false);
+		    	transArray.push(alphabet[j] === read)
 		    }
 
-		    var fromNode, toNode;
-		    for(var j = 0; j < nodes.length; j++){
-				if(nodes[j].id === from){
-				    fromNode = nodes[j];
-				}
-				if(nodes[j].id === to){
-				    toNode = nodes[j];
-				}
-		    }
+		    var fromNodeIndex = nodes.findIndex(function (node) { return node.id == from});
+		    var fromNode = nodes[fromNodeIndex];
+		    
+		    var toNodeIndex = nodes.findIndex(function (node) { return node.id == to});
+		    var toNode = nodes[toNodeIndex];
 
-		    var refl = false;
-		    if(fromNode === toNode)	refl = true;
+		    var refl = (fromNode === toNode);
 
 		    links.push({source: fromNode, target: toNode, trans: transArray, reflexive: refl});
 		}
