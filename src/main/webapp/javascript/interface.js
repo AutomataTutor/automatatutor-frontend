@@ -1437,89 +1437,88 @@ $.SvgCanvas = function(container, config, deterministic) {
      */
     this.setAutomaton = function (xml) {
 
-	if(!started)
-	    this.initialize();
+		if(!started) {
+		    this.initialize();
+		}
 
-	var xmlDoc = Utils.text2xml(xml);
-	var alph = xmlDoc.getElementsByTagName("alphabet")[0];
-	var symbolTags = alph.getElementsByTagName("symbol");
-	var symbols = new Array();
-	for (i = 0; i < symbolTags.length; i++) {
-	    symbols.push(symbolTags[i].firstChild.nodeValue.trim());
-	}
-	this.setAlphabet(symbols);
+		var xmlDoc = Utils.text2xml(xml);
+		var alph = xmlDoc.getElementsByTagName("alphabet")[0];
+		var symbolTags = alph.getElementsByTagName("symbol");
+		var symbols = new Array();
+		for (i = 0; i < symbolTags.length; i++) {
+		    symbols.push(symbolTags[i].firstChild.nodeValue.trim());
+		}
+		this.setAlphabet(symbols);
 
-	initial_node = null;
-	nodes = [];
-	links = [];
-	nodes.length = 0;
-	links.length = 0;
-	resetMouseVars();
-	restart();
+		initial_node = null;
+		nodes = [];
+		links = [];
+		nodes.length = 0;
+		links.length = 0;
+		resetMouseVars();
+		restart();
 
-	var stateTags = xmlDoc.getElementsByTagName("stateSet")[0].getElementsByTagName("state");
-	for (i = 0; i < stateTags.length; i++) {
-	    var currState = stateTags[i];
-	    var posX = parseFloat(currState.getElementsByTagName("posX")[0].firstChild.nodeValue);
-	    var posY = parseFloat(currState.getElementsByTagName("posY")[0].firstChild.nodeValue);
-	    var nodeId = parseInt(currState.getElementsByTagName("label")[0].firstChild.nodeValue);
-	    addNode(posX, posY);
-	    nodes[nodes.length - 1].id = nodeId;
-	}
+		var stateTags = xmlDoc.getElementsByTagName("stateSet")[0].getElementsByTagName("state");
+		for (i = 0; i < stateTags.length; i++) {
+		    var currState = stateTags[i];
+		    var posX = parseFloat(currState.getElementsByTagName("posX")[0].firstChild.nodeValue);
+		    var posY = parseFloat(currState.getElementsByTagName("posY")[0].firstChild.nodeValue);
+		    var nodeId = parseInt(currState.getElementsByTagName("label")[0].firstChild.nodeValue);
+		    addNode(posX, posY);
+		    nodes[nodes.length - 1].id = nodeId;
+		}
 
-	//TODO merge edges that have the same source+target and concat the labels
-	var edgeTags = xmlDoc.getElementsByTagName("transitionSet")[0].getElementsByTagName("transition");
-	for (i = 0; i < edgeTags.length; i++) {
-	    var currEdge = edgeTags[i];
-	    var from = parseInt(currEdge.getElementsByTagName("from")[0].firstChild.nodeValue);
-	    var to = parseInt(currEdge.getElementsByTagName("to")[0].firstChild.nodeValue);
-	    var read = currEdge.getElementsByTagName("read")[0].firstChild.nodeValue.trim();
-	    
-	    var transArray = [];
-	    for(var j = 0; j < alphabet.length; j++){
-		if(alphabet[j] === read)
-		    transArray.push(true);
-		else
-		    transArray.push(false);
-	    }
+		//TODO merge edges that have the same source+target and concat the labels
+		var edgeTags = xmlDoc.getElementsByTagName("transitionSet")[0].getElementsByTagName("transition");
+		for (i = 0; i < edgeTags.length; i++) {
+		    var currEdge = edgeTags[i];
+		    var from = parseInt(currEdge.getElementsByTagName("from")[0].firstChild.nodeValue);
+		    var to = parseInt(currEdge.getElementsByTagName("to")[0].firstChild.nodeValue);
+		    var read = currEdge.getElementsByTagName("read")[0].firstChild.nodeValue.trim();
+		    
+		    var transArray = [];
+		    for(var j = 0; j < alphabet.length; j++){
+				if(alphabet[j] === read) transArray.push(true);
+				else transArray.push(false);
+		    }
 
+		    var fromNode, toNode;
+		    for(var j = 0; j < nodes.length; j++){
+				if(nodes[j].id === from){
+				    fromNode = nodes[j];
+				}
+				if(nodes[j].id === to){
+				    toNode = nodes[j];
+				}
+		    }
 
-	    var fromNode, toNode;
-	    for(var j = 0; j < nodes.length; j++){
-		if(nodes[j].id === from)
-		    fromNode = nodes[j];
-		if(nodes[j].id === to)
-		    toNode = nodes[j];
-	    }
+		    var refl = false;
+		    if(fromNode === toNode)	refl = true;
 
-	    var refl = false;
-	    if(fromNode === toNode)
-		refl = true;
+		    links.push({source: fromNode, target: toNode, trans: transArray, reflexive: refl});
+		}
 
-	    links.push({source: fromNode, target: toNode, trans: transArray, reflexive: refl});
-	}
+		var accTags = xmlDoc.getElementsByTagName("acceptingSet")[0].getElementsByTagName("state");
+		for (i = 0; i < accTags.length; i++) {
+		    var nodeId = parseInt(accTags[i].getAttribute('sid'));
+		    
+		    for(var j = 0; j < nodes.length; j++){
+			if(nodes[j].id === nodeId)
+			    nodes[j].accepting = true;
+		    }
+		}
 
-	var accTags = xmlDoc.getElementsByTagName("acceptingSet")[0].getElementsByTagName("state");
-	for (i = 0; i < accTags.length; i++) {
-	    var nodeId = parseInt(accTags[i].getAttribute('sid'));
-	    
-	    for(var j = 0; j < nodes.length; j++){
-		if(nodes[j].id === nodeId)
-		    nodes[j].accepting = true;
-	    }
-	}
+		var initTag = xmlDoc.getElementsByTagName("initState")[0].getElementsByTagName("state");
+		var initId = parseInt(initTag[0].getAttribute('sid'));
+		initial_node = nodes[0];
+		for(i = 0; i < nodes.length; i++) {
+		    if(nodes[i].id === initId){
+				nodes[i].initial = true;
+				initial_node = nodes[i];
+		    }
+		}
 
-	var initTag = xmlDoc.getElementsByTagName("initState")[0].getElementsByTagName("state");
-	var initId = parseInt(initTag[0].getAttribute('sid'));
-	initial_node = nodes[0];
-	for(i = 0; i < nodes.length; i++) {
-	    if(nodes[i].id === initId){
-		nodes[i].initial = true;
-		initial_node = nodes[i];
-	    }
-	}
-
-	restart();
+		restart();
     }
 
     /**
@@ -1527,13 +1526,14 @@ $.SvgCanvas = function(container, config, deterministic) {
      *
      */
     this.exportAlphabet = function () {
-	//Alphabet
-	var alpha = "	<alphabet>\n";
-	for (var i = 0; i < alphabet.length; i++)
-	    alpha = alpha + " <symbol>" + alphabet[i] + "</symbol>\n";
-	alpha = alpha + "	</alphabet>\n";
+		//Alphabet
+		var alpha = "	<alphabet>\n";
+		for (var i = 0; i < alphabet.length; i++){
+		    alpha = alpha + " <symbol>" + alphabet[i] + "</symbol>\n";
+		}
+		alpha = alpha + "	</alphabet>\n";
 
-	return alpha;
+		return alpha;
     }
 
     /**
@@ -1541,144 +1541,145 @@ $.SvgCanvas = function(container, config, deterministic) {
      *
      */
     this.exportAutomatonHint = function () {
-	var aut = this.exportAutomaton();
-	var level = "<level>" + $('input[name=feedlev]:radio:checked').val() + "</level>\n";
-	var metrics = "<metrics>" + $('input[name=enabFeed]:checkbox:checked').map(function (value, index) { return value; }).get().join(",") + "</metrics>\n"
+		var aut = this.exportAutomaton();
+		var level = "<level>" + $('input[name=feedlev]:radio:checked').val() + "</level>\n";
+		var metrics = "<metrics>" + $('input[name=enabFeed]:checkbox:checked').map(function (value, index) { return value; }).get().join(",") + "</metrics>\n"
 
-	return "<automatonHint>\n" + aut + level + metrics + "</automatonHint>";
+		return "<automatonHint>\n" + aut + level + metrics + "</automatonHint>";
     }
 
     //export a simple text version
     this.exportAutomaton = function () {
-	//Alphabet
-	var alpha = this.exportAlphabet();
+		//Alphabet
+		var alpha = this.exportAlphabet();
 
-	//States
-	var states = "	<stateSet>\n";
+		//States
+		var states = "	<stateSet>\n";
 
-	var accepting = new Array(),
-	    init = false,
-	    initState = "<initState><state sid='" + initial_node.id + "' /></initState>";
+		var accepting = new Array(),
+		init = false,
+		initState = "<initState><state sid='" + initial_node.id + "' /></initState>";
 
-	for(var i = 0; i < nodes.length; i++){
-	    if(nodes[i].accepting)
-		accepting.push(nodes[i].id);
+		for(var i = 0; i < nodes.length; i++){
+			if(nodes[i].accepting){
+				accepting.push(nodes[i].id);
+			}
 
-	    states = states + "		<state sid='" + nodes[i].id + "' ><label>" + nodes[i].id + "</label><posX>" + Math.round(parseFloat(nodes[i].x)) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y)) + "</posY></state>\n";
+			states = states + "		<state sid='" + nodes[i].id + "' ><label>" + nodes[i].id + "</label><posX>" + Math.round(parseFloat(nodes[i].x)) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y)) + "</posY></state>\n";
 
-	}
-	states = states + "	</stateSet>\n";
-
-	// Transitions
-	var transitions = "	<transitionSet>\n";
-
-	var transitionNo = 0;
-	for(var i = 0; i < links.length; i++){
-	    if(!links[i].hidden){
-		var fromId = links[i].source.id;
-		var toId = links[i].target.id;
-		var edgeDistance = 30 + "";
-		var labels = [];
-
-		for(var j = 0; j < alphabet.length; j++){
-		    if(links[i].trans[j])
-			labels.push(alphabet[j]);
 		}
+		states = states + "	</stateSet>\n";
 
-		for(var j = 0; j < labels.length; j++) {
-		    transitions = transitions + "		<transition tid='" + transitionNo + "'>\n"
-			+ "			<from>" + fromId + "</from>\n"
-			+ "			<to>" + toId + "</to>\n"
-			+ "			<read>" + labels[j] + "</read>\n"
-			+ "			<edgeDistance>" + edgeDistance + "</edgeDistance>\n"
-			+ "		</transition>\n";
-		    transitionNo = transitionNo + 1;
+		// Transitions
+		var transitions = "	<transitionSet>\n";
+
+		var transitionNo = 0;
+		for(var i = 0; i < links.length; i++){
+			if(!links[i].hidden){
+				var fromId = links[i].source.id;
+				var toId = links[i].target.id;
+				var edgeDistance = 30 + "";
+				var labels = [];
+
+				for(var j = 0; j < alphabet.length; j++){
+					if(links[i].trans[j])
+						labels.push(alphabet[j]);
+				}
+
+				for(var j = 0; j < labels.length; j++) {
+					transitions = transitions + "		<transition tid='" + transitionNo + "'>\n"
+					+ "			<from>" + fromId + "</from>\n"
+					+ "			<to>" + toId + "</to>\n"
+					+ "			<read>" + labels[j] + "</read>\n"
+					+ "			<edgeDistance>" + edgeDistance + "</edgeDistance>\n"
+					+ "		</transition>\n";
+					transitionNo = transitionNo + 1;
+				}
+			}
 		}
-	    }
-	}
-	transitions = transitions + "	</transitionSet>\n";
+		transitions = transitions + "	</transitionSet>\n";
 
-	var acc = "	<acceptingSet>\n"
-	for (var i = 0; i < accepting.length; i++) {
-	    acc = acc + "		<state sid='" + accepting[i] + "'/>\n"
-	}
-	acc = acc + "	</acceptingSet>\n"
+		var acc = "	<acceptingSet>\n"
+		for (var i = 0; i < accepting.length; i++) {
+			acc = acc + "		<state sid='" + accepting[i] + "'/>\n"
+		}
+		acc = acc + "	</acceptingSet>\n"
 
-	var ret = "<automaton>\n" + alpha + states + transitions + acc + initState + "</automaton>\n";
-	return ret;
-    }
+		var ret = "<automaton>\n" + alpha + states + transitions + acc + initState + "</automaton>\n";
+		return ret;
+	}
 
     /**
      * Clears the interface
      *
      */
-    this.clear = function () {
-	nodes = [];
-	links = [];
-	nodes.length = 0;
-	links.length = 0;
-	initial_node = null;
+     this.clear = function () {
+     	nodes = [];
+     	links = [];
+     	nodes.length = 0;
+     	links.length = 0;
+     	initial_node = null;
 
-	resetMouseVars();
+     	resetMouseVars();
 
-	restart();
-    }
+     	restart();
+     }
 
     /**
      * Sets the alphabet
      *
      */
-    this.setAlphabet = function (alph) {
-	alphabet = alph;
+     this.setAlphabet = function (alph) {
+     	alphabet = alph;
 
-	if(epsilonTrans && !deterministic){
-	    alphabet.push('ε');
-	}
+     	if(epsilonTrans && !deterministic){
+     		alphabet.push('ε');
+     	}
 
-	this.initialize();
-    }
+     	this.initialize();
+     }
 
     /**
      * Sets whether or not to use epsilon transitions
      *
      */
-    this.setEpsilon = function(b) {
-	epsilonTrans = b;
+     this.setEpsilon = function(b) {
+     	epsilonTrans = b;
 
-	this.setAlphabet(alphabet);
-    }
+     	this.setAlphabet(alphabet);
+     }
 
     /**
      * Locks the interface, so it is static display
      *
      */
-    this.lockCanvas = function() {
-	svg.style('pointer-events', 'none');
-	hoverPath.style('pointer-events', 'none');
-	path.style('pointer-events', 'none');
-	hoverMenu.style('pointer-events', 'none');
-	circle.style('pointer-events', 'none');
-	labels.style('pointer-events', 'none');
+     this.lockCanvas = function() {
+     	svg.style('pointer-events', 'none');
+     	hoverPath.style('pointer-events', 'none');
+     	path.style('pointer-events', 'none');
+     	hoverMenu.style('pointer-events', 'none');
+     	circle.style('pointer-events', 'none');
+     	labels.style('pointer-events', 'none');
 
-	trashLabel.style('visibility', 'hidden');
-	clearRect.style('visibility', 'hidden');
-	clearText.style('visibility', 'hidden');
-    }
+     	trashLabel.style('visibility', 'hidden');
+     	clearRect.style('visibility', 'hidden');
+     	clearText.style('visibility', 'hidden');
+     }
 
     /**
      * Unlocks the interface, so it is interactive
      *
      */
-    this.unlockCanvas = function() {
-	svg.style('pointer-events', 'auto');
-	hoverPath.style('pointer-events', 'auto');
-	path.style('pointer-events', 'auto');
-	hoverMenu.style('pointer-events', 'auto');
-	circle.style('pointer-events', 'auto');
-	labels.style('pointer-events', 'auto');
+     this.unlockCanvas = function() {
+     	svg.style('pointer-events', 'auto');
+     	hoverPath.style('pointer-events', 'auto');
+     	path.style('pointer-events', 'auto');
+     	hoverMenu.style('pointer-events', 'auto');
+     	circle.style('pointer-events', 'auto');
+     	labels.style('pointer-events', 'auto');
 
-	trashLabel.style('visibility', 'visible');
-	clearRect.style('visibility', 'visible');
-	clearText.style('visibility', 'visible');
-    }
+     	trashLabel.style('visibility', 'visible');
+     	clearRect.style('visibility', 'visible');
+     	clearText.style('visibility', 'visible');
+     }
 }
