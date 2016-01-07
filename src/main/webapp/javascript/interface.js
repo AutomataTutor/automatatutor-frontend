@@ -1369,26 +1369,19 @@ $.SvgCanvas = function(container, config, deterministic) {
 				    var menu_items = $('#cmenu_canvas > li');
 				    menu_items.disableContextMenu();
 				    if(hover_node){
-					var initBool = hover_node.initial;
-					var acceptingBool = hover_node.accepting;
-					var reflexBool = hover_node.reflexiveNum > 0;
-					if(initBool && acceptingBool && reflexBool){
-					    menu_items.enableContextMenuItems('#non-final,#flip');
-					} else if(initBool && acceptingBool){
-					    menu_items.enableContextMenuItems('#non-final');
-					} else if (acceptingBool && reflexBool) {
-					    menu_items.enableContextMenuItems('#non-final,#remove,#init,#flip');
-					} else if (acceptingBool) {
-					    menu_items.enableContextMenuItems('#non-final,#remove,#init');
-					} else if (initBool && reflexBool) {
-					    menu_items.enableContextMenuItems('#final,#flip');
-					} else if (initBool) {
-					    menu_items.enableContextMenuItems('#final');
-					} else if (reflexBool) {
-					    menu_items.enableContextMenuItems('#remove,#final,#init,#flip');
-					} else {
-					    menu_items.enableContextMenuItems('#remove,#final,#init');
-					}
+						if(hover_node.accepting) {
+							menu_items.enableContextMenuItems('#non-final');
+						} else {
+							menu_items.enableContextMenuItems('#final');
+						}
+
+						if(hover_node.reflexiveNum > 0) {
+							menu_items.enableContextMenuItems('#flip')
+						}
+
+						if(!(hover_node.initial)) {
+							menu_items.enableContextMenuItems('#remove,#init')
+						}
 				    } else if (hover_link) {
 					if(hover_label && !deterministic && hover_link.reflexive) {
 					    menu_items.enableContextMenuItems('#remove_edge_label,#flip_edge');
