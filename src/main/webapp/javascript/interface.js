@@ -1245,19 +1245,15 @@ $.SvgCanvas = function(container, config, deterministic) {
      */
     function addNode(x, y) {
 	// insert new node at point
-	var idNum = -1;
-	for(var i = nodes.length - 1; i > -1; i--) {
-	    var good = true;
-	    for(var j = 0; j < nodes.length; j++) {
-		if(nodes[j].id === i)
-		    good = false;
-	    }
-	    if(good)
-		idNum = i;
-	}
-
-	if(idNum === -1)
-	    idNum = nodes.length;
+	var idNum = (function () {
+    		/* Since all id's are in the range [0,nodes.length), the last iteration of the for-loop
+		 	 * will return. Earlier iterations may return early */
+    		for(var i = 0; i <= nodes.length; i++) {
+				if(!nodes.some(function (node, index, array) { return node.id === i })) {
+					return i
+				}
+			}
+    	})();
 
 	var reflNum = 0;
 	if(deterministic)
