@@ -1309,95 +1309,93 @@ $.SvgCanvas = function(container, config, deterministic) {
      * Describes the right click menu for interface
      *
      */
-    $(container).contextMenu({
-	menu: 'cmenu_canvas',
-	inSpeed: 200,
-	outSpeed: 300
-    },
-				function(action, el, pos, evt) {
-				    switch ( action ) {
-				    case 'add':
-					addNode(mouse_x, mouse_y);
-					restart();
-					break;
-				    case 'remove':
-					spliceLinksForNode(menu_node);
-					nodes.splice(nodes.indexOf(menu_node), 1);
-					hidden_link = null;
-					linkNums(links);
-					restart();
-					break;
-				    case 'final':
-				    case 'non-final':
-					menu_node.accepting = !menu_node.accepting;
-					restart();
-					break;
-				    case 'init':
-					for(var i = 0; i < nodes.length; i++)
-					    nodes[i].initial = false;
-					menu_node.initial = true;
-					initial_node = menu_node;
-					restart();
-					break;
-				    case 'flip':
-					menu_node.flip = !menu_node.flip;
-					restart();
-					break;
-				    case 'flip_edge':
-					menu_link.source.flip = !menu_link.source.flip;
-					restart();
-					break;
-				    case 'remove_edge':
-					var toSplice = links.filter( function(l) {
-					    return (l.source === menu_link.source && l.target === menu_link.target);
-					});
-
-					toSplice.map(function(l) {
-					    links.splice(links.indexOf(l), 1);
-					});
-					restart();
-					break;
-				    case 'remove_edge_label':
-					links.splice(links.indexOf(menu_link), 1);
-					restart();
-					break;
-				    default:
-					break;
-				    }
-				},
-				function(e) {
-				    var menu_items = $('#cmenu_canvas > li');
-				    menu_items.disableContextMenu();
-				    if(hover_node){
-						if(hover_node.accepting) {
-							menu_items.enableContextMenuItems('#non-final');
-						} else {
-							menu_items.enableContextMenuItems('#final');
-						}
-
-						if(hover_node.reflexiveNum > 0) {
-							menu_items.enableContextMenuItems('#flip')
-						}
-
-						if(!(hover_node.initial)) {
-							menu_items.enableContextMenuItems('#remove,#init')
-						}
-				    } else if (hover_link) {
-					if(hover_label && !deterministic && hover_link.reflexive) {
-					    menu_items.enableContextMenuItems('#remove_edge_label,#flip_edge');
-					} else if(hover_label && !deterministic) {
-					    menu_items.enableContextMenuItems('#remove_edge_label');
-					}  else if(hover_link.reflexive && !deterministic) {
-					    menu_items.enableContextMenuItems('#remove_edge,#flip_edge');
-					} else if (hover_link.reflexive && deterministic) {
-					    menu_items.enableContextMenuItems('#flip_edge');
-					} else if (!deterministic) {
-					    menu_items.enableContextMenuItems('#remove_edge');
-					}
-				    } else {
-					menu_items.enableContextMenuItems('#add');
-				    }
+    $(container).contextMenu(
+    	{menu: 'cmenu_canvas', inSpeed: 200, outSpeed: 300},
+		function(action, el, pos, evt) {
+		    switch ( action ) {
+		    case 'add':
+				addNode(mouse_x, mouse_y);
+				restart();
+				break;
+		    case 'remove':
+				spliceLinksForNode(menu_node);
+				nodes.splice(nodes.indexOf(menu_node), 1);
+				hidden_link = null;
+				linkNums(links);
+				restart();
+				break;
+		    case 'final':
+		    case 'non-final':
+				menu_node.accepting = !menu_node.accepting;
+				restart();
+				break;
+		    case 'init':
+				for(var i = 0; i < nodes.length; i++) {
+				    nodes[i].initial = false;
+				}
+				menu_node.initial = true;
+				initial_node = menu_node;
+				restart();
+				break;
+		    case 'flip':
+				menu_node.flip = !menu_node.flip;
+				restart();
+				break;
+		    case 'flip_edge':
+				menu_link.source.flip = !menu_link.source.flip;
+				restart();
+				break;
+		    case 'remove_edge':
+				var toSplice = links.filter( function(l) {
+				    return (l.source === menu_link.source && l.target === menu_link.target);
 				});
+
+				toSplice.map(function(l) {
+				    links.splice(links.indexOf(l), 1);
+				});
+				restart();
+				break;
+		    case 'remove_edge_label':
+				links.splice(links.indexOf(menu_link), 1);
+				restart();
+				break;
+		    default:
+				break;
+		    }
+		},
+		function(e) {
+		    var menu_items = $('#cmenu_canvas > li');
+		    menu_items.disableContextMenu();
+		    if(hover_node){
+				if(hover_node.accepting) {
+					menu_items.enableContextMenuItems('#non-final');
+				} else {
+					menu_items.enableContextMenuItems('#final');
+				}
+
+				if(hover_node.reflexiveNum > 0) {
+					menu_items.enableContextMenuItems('#flip')
+				}
+
+				if(!(hover_node.initial)) {
+					menu_items.enableContextMenuItems('#remove,#init')
+				}
+		    } else if (hover_link) {
+				if(hover_label && !deterministic && hover_link.reflexive) {
+				    menu_items.enableContextMenuItems('#remove_edge_label,#flip_edge');
+				} else if(hover_label && !deterministic) {
+				    menu_items.enableContextMenuItems('#remove_edge_label');
+				}  else if(hover_link.reflexive && !deterministic) {
+				    menu_items.enableContextMenuItems('#remove_edge,#flip_edge');
+				} else if (hover_link.reflexive && deterministic) {
+				    menu_items.enableContextMenuItems('#flip_edge');
+				} else if (!deterministic) {
+				    menu_items.enableContextMenuItems('#remove_edge');
+				}
+		    } else {
+				menu_items.enableContextMenuItems('#add');
+		    }
+		});
 
     /**
      * Public function to initialize the interface
