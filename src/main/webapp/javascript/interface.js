@@ -1,7 +1,7 @@
 /**
  * @file Interface for drawing automata
  *
- * @author Matthew Weaver [mweaver223@gmail.com]
+ * @author Matthew Weaver [mweaver223@gmail.com], Alexander Weinert [weinert@react.uni-saarland.de]
  */
 $.SvgCanvas = function(container, config, deterministic) {
 
