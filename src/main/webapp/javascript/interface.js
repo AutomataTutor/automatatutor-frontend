@@ -226,20 +226,20 @@ $.SvgCanvas = function(container, config, deterministic) {
 	.attr('y', 30)
 	.text("This text should be changed before displaying!");
 
-    // vars related to line displayed when dragging new nodes
     var t = [];
-    for(var i = 0; i < alphabet.length; i++)
-	t[i] = false;
+    for(var i = 0; i < alphabet.length; i++) {
+		t[i] = false;
+	}
     var drag_trans = t;
     var drag_line = svg.append('svg:path')
-	.attr('id', 'drag_line')
-	.attr('class', 'link dragline hidden')
-	.attr('d', 'M0,0L0,0');
+		.attr('id', 'drag_line')
+		.attr('class', 'link dragline hidden')
+		.attr('d', 'M0,0L0,0');
     var drag_label = svg.append('svg:text')
-	.text(function(d) { return makeLabel(drag_trans); })
-	.attr('class', 'transLabel hidden')
-	.attr('x', 0)
-	.attr('y', 0);
+		.text(function(d) { return makeLabel(drag_trans); })
+		.attr('class', 'transLabel hidden')
+		.attr('x', 0)
+		.attr('y', 0);
 
     // mouse event vars
     var selected_node = null,    // Node selected by mouse in intervace
