@@ -3,7 +3,13 @@
  *
  * @author Matthew Weaver [mweaver223@gmail.com], Alexander Weinert [weinert@react.uni-saarland.de]
  */
-$.SvgCanvas = function(container, config, deterministic) {
+$.SvgCanvas = function(container, config, deterministic, style) {
+
+	if (style === undefined) style = 'detbuchiaut'
+
+	if (['detbuchiaut', 'nondetbuchiaut', 'buchigame', 'paritygame'].indexOf(style) == -1) {
+		throw new Error("Unknown style " + style)
+	}
 
     var Utils = this.Utils = function() {
 
