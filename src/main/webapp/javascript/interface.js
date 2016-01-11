@@ -2,6 +2,11 @@
  * @file Interface for drawing automata
  *
  * @author Matthew Weaver [mweaver223@gmail.com], Alexander Weinert [weinert@react.uni-saarland.de]
+ * @param deterministic Legacy parameter, will be removed soon. For now, the styles detbuchiaut and nondetbuchiaut are
+ *	overridden by this parameter.
+ * @param style Optional. The type of automaton-like thing to be drawn.
+ *	May be one of 'detbuchiaut', 'nondetbuchiaut', 'buchigame', 'paritygame'.
+ * 	Defaults to 'detbuchiaut' if none is given
  */
 $.SvgCanvas = function(container, config, deterministic, style) {
 
