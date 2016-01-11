@@ -168,9 +168,18 @@ $.SvgCanvas = function(container, config, deterministic, style) {
     var init_x2 = 0;
     var init_y = 0;
     var init_line = svg.append('svg:path')
-	.attr('class', 'link initLine')
-	.attr('d', 'M' + init_x1 + ',' + init_y + ' L' + init_x2 + "," + init_y )
-	.style('marker-end', 'url(#end-arrow)');
+		.attr('d', 'M' + init_x1 + ',' + init_y + ' L' + init_x2 + "," + init_y )
+		.style('marker-end', 'url(#end-arrow)');
+
+	if (style == 'detbuchiaut' || style == 'nondetbuchiaut') {
+		init_line.attr('class', 'link initLine')
+	}
+	else if (style === 'buchigame' || style == 'paritygame') {
+		init_line.attr('class', 'link initLine hidden')
+	}
+	else {
+		throw new Error("Unknown style " + style)
+	}
 
     // larger active areas for mouse events for varies parts of interface
     var hoverPath = svg.append('svg:g').selectAll('path'),
