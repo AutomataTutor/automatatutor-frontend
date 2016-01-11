@@ -246,6 +246,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	.attr('y', 30)
 	.text("This text should be changed before displaying!");
 
+    // vars related to line displayed when dragging new nodes
     var t = [];
     for(var i = 0; i < alphabet.length; i++) {
 		t[i] = false;
@@ -307,17 +308,20 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	// draws labels above paths
 	labels.attr('x', function(d) {
 	    if(d.reflexive) {
-		var angle = Math.PI / 2;
-		if(d.source.flip)
-		    angle = 3 * Math.PI / 2;
-		var x = Math.round(d.source.x + nodeRadius * Math.cos(angle));
-		var y = Math.round(d.source.y + nodeRadius * Math.sin(angle));
-		var ax = Math.round(70 * Math.cos(angle + Math.PI / 4));
-		var bx = Math.round(70 * Math.cos(angle - Math.PI / 4));
-		if(d.source.reflexiveNum > 1)
-		    return x + (ax + bx) / 2 + ((d.linknum - (.5 + d.source.reflexiveNum/2 ))/d.source.reflexiveNum)*(15*d.source.reflexiveNum);
-		else
-		    return x + (ax + bx) / 2;
+			var angle = Math.PI / 2;
+			if(d.source.flip) {
+			    angle = 3 * Math.PI / 2;
+			}
+			var x = Math.round(d.source.x + nodeRadius * Math.cos(angle));
+			var y = Math.round(d.source.y + nodeRadius * Math.sin(angle));
+			var ax = Math.round(70 * Math.cos(angle + Math.PI / 4));
+			var bx = Math.round(70 * Math.cos(angle - Math.PI / 4));
+			if(d.source.reflexiveNum > 1) {
+			    return x + (ax + bx) / 2 + ((d.linknum - (.5 + d.source.reflexiveNum/2 ))/d.source.reflexiveNum)*(15*d.source.reflexiveNum);
+			}
+			else {
+			    return x + (ax + bx) / 2;
+			}
 	    }
 
 	    var dx = d.target.x - d.source.x;
@@ -328,25 +332,32 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	    var edgeDeviation = 30;
 	    var textDeviation = 20;
 	    var edgeindex = d.linknum;
-	    if(edgeindex > 0)
-		edgeindex = 1;
-	    if(d.flat)
-		edgeindex = 0;
+	    if(edgeindex > 0) {
+			edgeindex = 1;
+		}
+	    if(d.flat) {
+			edgeindex = 0;
+		}
 	    var deviation = edgeDeviation*edgeindex;
 	    var textDev = ((deviation > 0) ? textDeviation : -textDeviation) + ((deviation * 3) / 4);
 	    if(edgeindex === 0){
-		if(d.source.x>d.target.x)
-		    textDev = textDev + 38;
-		else
-		    textDev = textDev + 18;
+			if(d.source.x>d.target.x) {
+			    textDev = textDev + 38;
+			}
+			else {
+			    textDev = textDev + 18;
+			}
 	    }
 	    edgeindex = d.linknum;
 	    var totindex = d.totnum;
-	    if(totindex > 1)
-		return (d.source.x + d.target.x) / 2 + Math.cos(nangle) * (textDev - 8) + ((edgeindex - (.5 + totindex/2))/totindex)*(15*totindex);
-	    else
-		return (d.source.x + d.target.x) / 2 + Math.cos(nangle) * (textDev - 8); })
-	    .attr('y', function(d) {
+	    if(totindex > 1) {
+			return (d.source.x + d.target.x) / 2 + Math.cos(nangle) * (textDev - 8) + ((edgeindex - (.5 + totindex/2))/totindex)*(15*totindex);
+		}
+	    else {
+			return (d.source.x + d.target.x) / 2 + Math.cos(nangle) * (textDev - 8);
+		}
+	})
+    .attr('y', function(d) {
 		if(d.reflexive) {
 		    var angle = Math.PI / 2;
 		    if(d.source.flip)
@@ -355,9 +366,12 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		    var y = Math.round(d.source.y + nodeRadius * Math.sin(angle));
 		    var ay = Math.round(70 * Math.sin(angle + Math.PI / 4));
 		    var by = Math.round(70 * Math.sin(angle - Math.PI / 4));
-		    if(y > d.source.y)
-			return y + 10 + (ay + by) / 2;
-		    return y + (ay + by) / 2;
+		    if(y > d.source.y) {
+				return y + 10 + (ay + by) / 2;
+			}
+			else {
+		    	return y + (ay + by) / 2;
+			}
 
 		}
 
@@ -369,10 +383,12 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		var edgeDeviation = 30;
 		var textDeviation = 20;
 		var edgeindex = d.linknum;
-		if(edgeindex > 0)
+		if(edgeindex > 0) {
 		    edgeindex = 1;
-		if(d.flat)
+		}
+		if(d.flat) {
 		    edgeindex = 0;
+		}
 		var deviation = edgeDeviation*edgeindex;
 		var textDev = ((deviation > 0) ? textDeviation : -textDeviation) + ((deviation * 3) / 4);
 		if(edgeindex === 0){
@@ -389,7 +405,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		}
 
 
-		return (d.source.y + d.target.y) / 2 + Math.sin(nangle) * textDev; });
+		return (d.source.y + d.target.y) / 2 + Math.sin(nangle) * textDev;
+	});
 
 	//updates circle position
 	circle.attr('transform', function(d) {
@@ -532,138 +549,137 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	    .style('stroke', '#5B90B2')
 	    .classed('accepting', function(d) { return d.accepting; })
 	    .on('mouseover', function(d) {
-		// enlarge target node
-		hover_node = d;
-		menu_node = hover_node;
-		d.menu_visible = true;
-		showMenu = true;
-		d3.select(this).attr('transform', 'scale(1.1)');
-		restart();
-		return;
+			// enlarge target node
+			hover_node = d;
+			menu_node = hover_node;
+			d.menu_visible = true;
+			showMenu = true;
+			d3.select(this).attr('transform', 'scale(1.1)');
+			restart();
+			return;
 	    })
 	    .on('mouseout', function(d) {
-		// unenlarge target node
-		hover_node = null;
-		showMenu = false;
-		d3.select(this).attr('transform', '');
-		return;
+			// unenlarge target node
+			hover_node = null;
+			showMenu = false;
+			d3.select(this).attr('transform', '');
+			return;
 	    })
 	    .on('dblclick', function(d) {
-		d.accepting = !d.accepting;
-		restart();
-		return;
+			d.accepting = !d.accepting;
+			restart();
+			return;
 	    })
 	    .on('mousedown', function(d) {
-		if(d3.event.button === 1 || d3.event.button === 2) return;
-		hidden_link = null;
-		selected_node = d;
+			if(d3.event.button === 1 || d3.event.button === 2) return;
+			hidden_link = null;
+			selected_node = d;
 
-		circle.call(node_drag);
-		svg.classed('ctrl', true);
-		draggingNode = true;
+			circle.call(node_drag);
+			svg.classed('ctrl', true);
+			draggingNode = true;
 
-		resetMouseVars();
-		restart();
-		return;
+			resetMouseVars();
+			restart();
+			return;
 	    })
 	    .on('mouseup', function(d) {
-		circle
-		    .on('mousedown.drag', null)
-		    .on('touchstart.drag', null);
-		svg.classed('ctrl', false);
-		draggingNode = false;
+			circle
+			    .on('mousedown.drag', null)
+			    .on('touchstart.drag', null);
+			svg.classed('ctrl', false);
+			draggingNode = false;
 
+			if(!mousedown_node) return;
 
-		if(!mousedown_node) return;
+			// needed by FF
+			drag_line
+			    .classed('hidden', true)
+			    .style('marker-end', '');
+			drag_label
+			    .classed('hidden', true);
 
-		// needed by FF
-		drag_line
-		    .classed('hidden', true)
-		    .style('marker-end', '');
-		drag_label
-		    .classed('hidden', true);
+			// check for drag-to-self
+			mouseup_node = d;
 
-		// check for drag-to-self
-		mouseup_node = d;
+			// unenlarge target node
+			d3.select(this).attr('transform', '');
 
-		// unenlarge target node
-		d3.select(this).attr('transform', '');
-
-		if(draggingEntire){
-		    // add link to graph (update if exists)
-		    for(var i = 0; i < alphabet.length; i++)
-		    {
-			if(drag_trans[i]){
-			    var t = []
-			    for(var j = 0; j < alphabet.length; j++){
-				t[j] = false;
+			if(draggingEntire) {
+			    // add link to graph (update if exists)
+			    for(var i = 0; i < alphabet.length; i++) {
+					if(drag_trans[i]){
+					    var t = []
+					    for(var j = 0; j < alphabet.length; j++){
+							t[j] = false;
+					    }
+					    t[i] = true;
+					    var refl = false;
+					    if(mousedown_node === mouseup_node) {
+						refl = true;
+						mousedown_node.reflexiveNum++;
+					    }
+					    links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: t});
+					}
 			    }
-			    t[i] = true;
-			    var refl = false;
-			    if(mousedown_node === mouseup_node) {
-				refl = true;
-				mousedown_node.reflexiveNum++;
+
+			    if(mousedown_link.reflexive)
+				mousedown_link.source.reflexiveNum = mousedown_link.source.reflexiveNum - mousedown_link.trans.length;
+			    links.splice(links.indexOf(mousedown_link), 1);
+			}
+			else if (newLink === true && !deterministic) {
+			    
+			    var multiplicityIssue = false;
+
+			    for(var i = 0; i < links.length; i++) {
+					var transIssue = false;
+					for(var j = 0; j < alphabet.length; j++) {
+					    if(links[i].trans[j] && drag_trans[j])
+						transIssue = true;
+					}
+					if(links[i].source === mousedown_node && links[i].target === mouseup_node && transIssue) {
+					    multiplicityIssue = true;
+					}
+			    }	
+
+			    var epsilonIssue = epsilonTrans && (mousedown_node === mouseup_node) && drag_trans[alphabet.length -1];
+
+			    if(!multiplicityIssue && !epsilonIssue){
+					var refl = false;
+					if(mousedown_node === mouseup_node) {
+					    refl = true;
+					    mousedown_node.reflexiveNum++;
+					}
+					links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: drag_trans});
 			    }
-			    links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: t});
 			}
-		    }
+			else {
+			    if(mousedown_link.reflexive) {
+					mousedown_link.source.reflexiveNum--;
+					mousedown_link.reflexive = false;
+			    }
 
-		    if(mousedown_link.reflexive)
-			mousedown_link.source.reflexiveNum = mousedown_link.source.reflexiveNum - mousedown_link.trans.length;
-		    links.splice(links.indexOf(mousedown_link), 1);
-		}
-		else if (newLink === true && !deterministic) {
-		    
-		    var multiplicityIssue = false;
+			    mousedown_link.target = d;
 
-		    for(var i = 0; i < links.length; i++){
-			var transIssue = false;
-			for(var j = 0; j < alphabet.length; j++){
-			    if(links[i].trans[j] && drag_trans[j])
-				transIssue = true;
+			    if(mousedown_link.target === mousedown_link.source) {
+					mousedown_link.source.reflexiveNum++;
+					mousedown_link.reflexive = true;
+			    }
 			}
-			if(links[i].source === mousedown_node && links[i].target === mouseup_node && transIssue)
-			    multiplicityIssue = true;
-		    }	
-
-		    var epsilonIssue = epsilonTrans && (mousedown_node === mouseup_node) && drag_trans[alphabet.length -1];
-
-		    if(!multiplicityIssue && !epsilonIssue){
-
-			var refl = false;
-			if(mousedown_node === mouseup_node) {
-			    refl = true;
-			    mousedown_node.reflexiveNum++;
+			var t = [];
+			for(var i = 0; i < alphabet.length; i++) {
+			    t[i] = false;
 			}
-			links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: drag_trans});
-		    }
-		}
-		else {
-		    if(mousedown_link.reflexive) {
-			mousedown_link.source.reflexiveNum--;
-			mousedown_link.reflexive = false;
-		    }
+			drag_trans = t;
 
-		    mousedown_link.target = d;
+			linkNums(links);
 
-		    if(mousedown_link.target === mousedown_link.source) {
-			mousedown_link.source.reflexiveNum++;
-			mousedown_link.reflexive = true;
-		    }
-		}
-		var t = [];
-		for(var i = 0; i < alphabet.length; i++)
-		    t[i] = false;
-		drag_trans = t;
-
-		linkNums(links);
-
-		draggingLink = false;
-		draggingEntire = false;
-		newLink = false;
-		hidden_link = null;
-		resetMouseVars();
-		restart();
+			draggingLink = false;
+			draggingEntire = false;
+			newLink = false;
+			hidden_link = null;
+			resetMouseVars();
+			restart();
 	    });
 
 	// show node IDs
