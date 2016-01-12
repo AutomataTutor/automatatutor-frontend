@@ -1,0 +1,11 @@
+.cache-main
+.cache-tests
+.classpath
+.project
+.settings/
+console.devmode.log
+develop.db.mv.db
+project/project/
+project/target/
+target/
+src/main/resources/props/default.props
