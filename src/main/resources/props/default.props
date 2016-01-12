@@ -1,0 +1,10 @@
+db.driver=org.h2.Driver
+db.url=jdbc:h2:./develop.db
+grader.url=http://automatagrader.com/Service1.asmx
+grader.methodnamespace=http://automatagrader.com
+
+mail.transport.protocol=smtp
+mail.smtp.host=email-smtp.us-west-2.amazonaws.com
+mail.smtp.port=25
+mail.smtp.starttls.enable=true
+mail.smtp.auth=true

@@ -1,0 +1,4 @@
+db.driver=org.h2.Driver
+db.url=jdbc:h2:mem:
+grader.url=http://127.0.0.1:53861/Service1.asmx
+grader.methodnamespace=http://automatagrader.com
