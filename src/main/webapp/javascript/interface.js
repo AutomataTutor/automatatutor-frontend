@@ -18,59 +18,59 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 
     var Utils = this.Utils = function() {
 
-	var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+		var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
 
-	return {	   
-		
-	    "toXml": function(str) {
-		return $('<p/>').text(str).html();
-	    },
-	    
-	    "fromXml": function(str) {
-		return $('<p/>').html(str).text();
-	    },
-	    
-	    "convertToXMLReferences": function(input) {
-		var output = '';
-		for (var n = 0; n < input.length; n++){
-		    var c = input.charCodeAt(n);
-		    if (c < 128) {
-			output += input[n];
-		    }
-		    else if(c > 127) {
-			output += ("&#" + c + ";");
+		return {	   
+			
+		    "toXml": function(str) {
+			return $('<p/>').text(str).html();
+		    },
+		    
+		    "fromXml": function(str) {
+			return $('<p/>').html(str).text();
+		    },
+		    
+		    "convertToXMLReferences": function(input) {
+			var output = '';
+			for (var n = 0; n < input.length; n++){
+			    var c = input.charCodeAt(n);
+			    if (c < 128) {
+				output += input[n];
+			    }
+			    else if(c > 127) {
+				output += ("&#" + c + ";");
+			    }
+			}
+			return output;
+		    },
+		    
+		    "rectsIntersect": function(r1, r2) {
+			return r2.x < (r1.x+r1.width) && 
+			    (r2.x+r2.width) > r1.x &&
+			    r2.y < (r1.y+r1.height) &&
+			    (r2.y+r2.height) > r1.y;
+		    },
+		    
+		    "snapToAngle": function(x1,y1,x2,y2) {
+			var snap = Math.PI/4; // 45 degrees
+			var dx = x2 - x1;
+			var dy = y2 - y1;
+			var angle = Math.atan2(dy,dx);
+			var dist = Math.sqrt(dx * dx + dy * dy);
+			var snapangle= Math.round(angle/snap)*snap;
+			var x = x1 + dist*Math.cos(snapangle);  
+			var y = y1 + dist*Math.sin(snapangle);
+			return {x:x, y:y, a:snapangle};
+		    },
+		    
+		    // TODO: This only works in firefox, find cross-browser compatible method
+		    "text2xml": function(sXML) {
+			var dXML = new DOMParser();
+			dXML.async = false;
+			var out = dXML.parseFromString(sXML, "text/xml");
+			return out;
 		    }
 		}
-		return output;
-	    },
-	    
-	    "rectsIntersect": function(r1, r2) {
-		return r2.x < (r1.x+r1.width) && 
-		    (r2.x+r2.width) > r1.x &&
-		    r2.y < (r1.y+r1.height) &&
-		    (r2.y+r2.height) > r1.y;
-	    },
-	    
-	    "snapToAngle": function(x1,y1,x2,y2) {
-		var snap = Math.PI/4; // 45 degrees
-		var dx = x2 - x1;
-		var dy = y2 - y1;
-		var angle = Math.atan2(dy,dx);
-		var dist = Math.sqrt(dx * dx + dy * dy);
-		var snapangle= Math.round(angle/snap)*snap;
-		var x = x1 + dist*Math.cos(snapangle);  
-		var y = y1 + dist*Math.sin(snapangle);
-		return {x:x, y:y, a:snapangle};
-	    },
-	    
-	    // TODO: This only works in firefox, find cross-browser compatible method
-	    "text2xml": function(sXML) {
-		var dXML = new DOMParser();
-		dXML.async = false;
-		var out = dXML.parseFromString(sXML, "text/xml");
-		return out;
-	    }
-	}
 
     }();
     
