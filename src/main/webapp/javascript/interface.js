@@ -16,7 +16,13 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		throw new Error("Unknown style " + style)
 	}
 
-	var behavior = {
+	var globalBehavior = {
+		node: {
+			radius: 15
+		}
+	}
+
+	var styleBehavior = {
 		'detbuchiaut': {
 			node: {
 				label: function(node_data) { return node_data.id }
@@ -40,7 +46,9 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 				label: function(node_data) { return node_data.priority }
 			}
 		}
-	}[style];
+	};
+
+	var behavior = $.extend(true, {}, globalBehavior, styleBehavior[style])
 
     var Utils = this.Utils = function() {
 
@@ -103,7 +111,6 @@ $.SvgCanvas = function(container, config, deterministic, style) {
     // set up SVG for D3
     var width = config.dimensions[0];
     var height = config.dimensions[1];
-    var nodeRadius = 15;
 
     var started = false;
     var locked = false;
@@ -319,8 +326,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
     function tick() {
 
 	//updates loc of init state arrow
-	init_x1 = initial_node.x - 48 - nodeRadius;
-	init_x2 = initial_node.x - 5 - nodeRadius;
+	init_x1 = initial_node.x - 48 - behavior.node.radius;
+	init_x2 = initial_node.x - 5 - behavior.node.radius;
 	init_y = initial_node.y;
 	init_line.attr('d', 'M' + init_x1 + ',' + init_y + ' L' + init_x2 + "," + init_y );
 
@@ -338,8 +345,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 			if(d.source.flip) {
 			    angle = 3 * Math.PI / 2;
 			}
-			var x = Math.round(d.source.x + nodeRadius * Math.cos(angle));
-			var y = Math.round(d.source.y + nodeRadius * Math.sin(angle));
+			var x = Math.round(d.source.x + behavior.node.radius * Math.cos(angle));
+			var y = Math.round(d.source.y + behavior.node.radius * Math.sin(angle));
 			var ax = Math.round(70 * Math.cos(angle + Math.PI / 4));
 			var bx = Math.round(70 * Math.cos(angle - Math.PI / 4));
 			if(d.source.reflexiveNum > 1) {
@@ -388,8 +395,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		    var angle = Math.PI / 2;
 		    if(d.source.flip)
 			angle = 3 * Math.PI / 2;
-		    var x = Math.round(d.source.x + nodeRadius * Math.cos(angle));
-		    var y = Math.round(d.source.y + nodeRadius * Math.sin(angle));
+		    var x = Math.round(d.source.x + behavior.node.radius * Math.cos(angle));
+		    var y = Math.round(d.source.y + behavior.node.radius * Math.sin(angle));
 		    var ay = Math.round(70 * Math.sin(angle + Math.PI / 4));
 		    var by = Math.round(70 * Math.sin(angle - Math.PI / 4));
 		    if(y > d.source.y) {
@@ -571,7 +578,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 
 	g.append('svg:circle')
 	    .attr('class', 'node')
-	    .attr('r', nodeRadius)
+	    .attr('r', behavior.node.radius)
 	    .style('stroke', '#5B90B2')
 	    .classed('accepting', function(d) { return d.accepting; })
 	    .on('mouseover', function(d) {
@@ -727,7 +734,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	    menus.append('svg:circle')
 		.attr('class', 'hoverMenu visible')
 		.classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); })
-		.attr('r', nodeRadius + 20)
+		.attr('r', behavior.node.radius + 20)
 		.on('mouseover', function(d) {
 		    showMenu = true;
 		})
@@ -752,7 +759,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 			    angle = 3*Math.PI/2 - (alphabet.length * Math.PI / 12) + (i + 1) * Math.PI/6;
 			if(epsilonTrans && i === alphabet.length - 1)
 			    angle = Math.PI/2;
-			return (nodeRadius + 10) * Math.cos(angle);
+			return (behavior.node.radius + 10) * Math.cos(angle);
 		    })
 		    .attr('y', function() {
 			var angle = 3*Math.PI/2 - (alphabet.length * Math.PI / 12) + (i + .5) * Math.PI/6;
@@ -760,7 +767,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 			    angle = 3*Math.PI/2 - (alphabet.length * Math.PI / 12) + (i + 1) * Math.PI/6;
 			if(epsilonTrans && i === alphabet.length - 1)
 			    angle = Math.PI/2;
-			return (nodeRadius + 10) * Math.sin(angle) + 5;
+			return (behavior.node.radius + 10) * Math.sin(angle) + 5;
 		    })
 		    .on('mouseover', function(d) {
 			d.menu_visible = true;
@@ -815,8 +822,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	    var angle = Math.PI / 2;
 	    if(d.source.flip)
 		angle = 3 * Math.PI / 2;
-	    var x = Math.round(d.source.x + nodeRadius * Math.cos(angle));
-	    var y = Math.round(d.source.y + nodeRadius * Math.sin(angle));
+	    var x = Math.round(d.source.x + behavior.node.radius * Math.cos(angle));
+	    var y = Math.round(d.source.y + behavior.node.radius * Math.sin(angle));
 	    var x1 = Math.round(80 * Math.cos(angle + Math.PI / 4));
 	    var y1 = Math.round(80 * Math.sin(angle + Math.PI / 4));
 	    var x2 = Math.round(80 * Math.cos(angle - Math.PI / 4));
@@ -857,12 +864,12 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	var bx = third2x + Math.cos(nangle) * deviation;
 
 	var len1 = Math.sqrt((ax - x1) * (ax - x1) + (ay - y1) * (ay - y1));
-	var boundary1x = x1 + nodeRadius * (ax - x1) / len1;
-	var boundary1y = y1 + nodeRadius * (ay - y1) / len1;
+	var boundary1x = x1 + behavior.node.radius * (ax - x1) / len1;
+	var boundary1y = y1 + behavior.node.radius * (ay - y1) / len1;
 
 	var len2 = Math.sqrt((bx - x2) * (bx - x2) + (by - y2) * (by - y2));
-	var boundary2x = x2 + (nodeRadius + 4) * (bx - x2) / len2;
-	var boundary2y = y2 + (nodeRadius + 4) * (by - y2) / len2;
+	var boundary2x = x2 + (behavior.node.radius + 4) * (bx - x2) / len2;
+	var boundary2y = y2 + (behavior.node.radius + 4) * (by - y2) / len2;
 
 	return 'M' + boundary1x + ',' + boundary1y + ' C' + ax + ',' + ay + ' ' + bx + ',' + by + ' ' + boundary2x + ',' + boundary2y;
     }
@@ -980,8 +987,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	var textDev = 20;
 
 	// update drag line
-	var x = Math.round(mousedown_node.x + nodeRadius * Math.cos(angle));
-	var y = Math.round(mousedown_node.y + nodeRadius * Math.sin(angle));
+	var x = Math.round(mousedown_node.x + behavior.node.radius * Math.cos(angle));
+	var y = Math.round(mousedown_node.y + behavior.node.radius * Math.sin(angle));
 	drag_line.attr('d', function() {
 	    if(hover_node === mousedown_node){
 		var x1 = Math.round(80 * Math.cos(angle + Math.PI / 4));
