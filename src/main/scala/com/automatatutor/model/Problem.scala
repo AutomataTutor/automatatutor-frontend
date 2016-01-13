@@ -6,6 +6,8 @@ import com.automatatutor.snippet.NFAToDFAProblemSnippet
 import com.automatatutor.snippet.ProblemSnippet
 import com.automatatutor.snippet.RegExConstructionSnippet
 import com.automatatutor.snippet.PumpingLemmaProblemSnippet
+import net.liftweb.common.Empty
+import net.liftweb.common.Full
 import net.liftweb.mapper.By
 import net.liftweb.mapper.IdPK
 import net.liftweb.mapper.LongKeyedMapper
@@ -17,17 +19,31 @@ import net.liftweb.mapper.MappedLongForeignKey
 
 class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	def getSingleton = ProblemType
+	
+	val DFAConstructionTypeName = "English to DFA"
+	val NFAConstructionTypeName = "English to NFA"
+	val NFAToDFATypeName = "NFA to DFA"
+	val EnglishToRegExTypeName = "English to Regular Expression"
+	val PLTypeName = "Pumping Lemma Proof"
 
     val knownProblemTypes : Map[String, ProblemSnippet] = Map(
-        "English to DFA" -> DFAConstructionSnippet,
-        "English to NFA" -> NFAProblemSnippet,
-        "NFA to DFA" -> NFAToDFAProblemSnippet,
-        "English to Regular Expression" -> RegExConstructionSnippet,
-        "Pumping Lemma Proof" -> PumpingLemmaProblemSnippet)
+        DFAConstructionTypeName -> DFAConstructionSnippet,
+        NFAConstructionTypeName -> NFAProblemSnippet,
+        NFAToDFATypeName -> NFAToDFAProblemSnippet,
+        EnglishToRegExTypeName -> RegExConstructionSnippet,
+        PLTypeName -> PumpingLemmaProblemSnippet)
 	
 	object problemTypeName extends MappedString(this, 200)
   
 	def getProblemSnippet() : ProblemSnippet = knownProblemTypes(this.problemTypeName.is)
+	
+	def getSpecificProblem(generalProblem: Problem): SpecificProblem[_] = this.problemTypeName.get match {
+	  case DFAConstructionTypeName => DFAConstructionProblem.findByGeneralProblem(generalProblem)
+	  case NFAConstructionTypeName => NFAConstructionProblem.findByGeneralProblem(generalProblem)
+	  case NFAToDFATypeName => NFAToDFAProblem.findByGeneralProblem(generalProblem)
+	  case EnglishToRegExTypeName => RegExConstructionProblem.findByGeneralProblem(generalProblem)
+	  case PLTypeName => PumpingLemmaProblem.findByGeneralProblem(generalProblem)
+	}
 }
 
 object ProblemType extends ProblemType with LongKeyedMetaMapper[ProblemType] {
@@ -65,6 +81,27 @@ class Problem extends LongKeyedMapper[Problem] with IdPK {
 	  return (if(this.isPosed) { List("Problem is posed in some problem set")} else { List() }) ++ (if(this.isPublic) { List("Problem is public") } else { List() })
 	}
 	override def delete_! : Boolean = if(!this.canBeDeleted) { return false } else { return super.delete_! }
+	
+	def shareWithUserByEmail(email: String) : Boolean = {
+	  val otherUser = User.findByEmail(email) match {
+	    case Full(user) => user
+	    case _ => return false
+	  }
+	  
+	  val copiedGeneralProblem = new Problem
+	  copiedGeneralProblem.problemType(this.problemType.get)
+	  copiedGeneralProblem.makePrivate
+	  copiedGeneralProblem.createdBy(otherUser)
+	  copiedGeneralProblem.shortDescription(this.shortDescription.get)
+	  copiedGeneralProblem.longDescription(this.longDescription.get)
+	  copiedGeneralProblem.save()
+	  
+	  val copiedSpecificProblem: SpecificProblem[_] = this.problemType.obj.openOrThrowException("Every problem must have an associated type").getSpecificProblem(this).copy()
+	  copiedSpecificProblem.setGeneralProblem(copiedGeneralProblem)
+	  copiedSpecificProblem.save()
+	  
+	  return true
+	}
 }
 
 object Problem extends Problem with LongKeyedMetaMapper[Problem] {
@@ -73,6 +110,8 @@ object Problem extends Problem with LongKeyedMetaMapper[Problem] {
 }
 
 abstract trait SpecificProblem[T] {
+  /// Does not save the modified problem. Caller has to do that manually by calling save()
   def setGeneralProblem(newProblem: Problem)
-  def copy(): T
+  def save(): Boolean
+  def copy(): SpecificProblem[T]
 }
