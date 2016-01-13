@@ -1303,7 +1303,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 
     /**
      * Adds a node to the interface
-     *
+     * Does not yet draw the node, this only happens after calling restart()
      */
     function addNode(x, y) {
 	// insert new node at point
@@ -1321,6 +1321,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	if(deterministic)
 	    reflNum = alphabet.length;
 	
+	// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
 	var node = {id: idNum, initial: false, accepting: false, reflexiveNum: reflNum, flip: true, menu_visible: false};
 	node.x = x;
 	node.y = y;
