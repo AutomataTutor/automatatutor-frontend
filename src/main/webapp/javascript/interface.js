@@ -16,6 +16,32 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		throw new Error("Unknown style " + style)
 	}
 
+	var behavior = {
+		'detbuchiaut': {
+			node: {
+				label: function(node_data) { return node_data.id }
+			}
+		},
+
+		'nondetbuchiaut': {
+			node: {
+				label: function(node_data) { return node_data.id }
+			}
+		},
+
+		'buchigame': {
+			node: {
+				label: function(node_data) { return "" }
+			}
+		},
+
+		'paritygame': {
+			node: {
+				label: function(node_data) { return node_data.priority }
+			}
+		}
+	}[style];
+
     var Utils = this.Utils = function() {
 
 		var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -684,10 +710,10 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 
 	// show node IDs
 	g.append('svg:text')
-	    .attr('x', 0)
-	    .attr('y', 5)
-	    .attr('class', 'id')
-	    .text(function(d) { return d.id; });
+		.attr('x', 0)
+		.attr('y', 5)
+		.attr('class', 'id')
+		.text(behavior.node.label);
 
 	// remove old nodes
 	circle.exit().remove();
