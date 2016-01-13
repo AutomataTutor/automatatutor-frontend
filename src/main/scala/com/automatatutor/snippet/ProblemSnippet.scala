@@ -24,11 +24,13 @@ object chosenProblemType extends RequestVar[ProblemType](null)
 
 class Problems {
   def renderindex ( ignored : NodeSeq ) : NodeSeq = {
+
     val usersProblems = Problem.findAllByCreator(User.currentUser openOrThrowException("We should only be on this page if there is a user logged in"))
 
     val completeTable = TableHelper.renderTableWithHeader(usersProblems,
         ("Problem Type", (problem : Problem) => Text(problem.getTypeName)),
         ("Description", (problem : Problem) => Text(problem.shortDescription.is)),
+        ("", (problem : Problem) => new ProblemRenderer(problem).renderSharingWidget),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderTogglePublicLink),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderDeleteLink))
     

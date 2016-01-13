@@ -9,6 +9,7 @@ import net.liftweb.http.js.JsCmds._
 import com.automatatutor.model.Problem
 import scala.xml.Text
 import com.automatatutor.model.User
+import net.liftweb.http.S
 
 class ProblemRenderer(problem : Problem) {
   def renderDeleteLink : NodeSeq = {
@@ -31,5 +32,13 @@ class ProblemRenderer(problem : Problem) {
     } else {
       return NodeSeq.Empty
     }
+  }
+  
+  def renderSharingWidget : NodeSeq = {
+    def shareWithFeedback(email: String) = {
+      if (problem.shareWithUserByEmail(email)) { S.notice("Successfully shared with " + email) } 
+      else { S.error("Could not find user " + email) }
+    }
+    <form action="/problems/index"> { SHtml.text("", shareWithFeedback(_)) } <input type="submit" value="Share"/> </form>
   }
 }
