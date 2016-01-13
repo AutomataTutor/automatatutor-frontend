@@ -26,7 +26,7 @@ object DFAConstructionProblemCategory extends DFAConstructionProblemCategory wit
   def exists (typeName : String) : Boolean = !findAll(By(DFAConstructionProblemCategory.categoryName, typeName)).isEmpty
 }
 
-class DFAConstructionProblem extends LongKeyedMapper[DFAConstructionProblem] with IdPK {
+class DFAConstructionProblem extends LongKeyedMapper[DFAConstructionProblem] with IdPK with SpecificProblem[DFAConstructionProblem] {
 	def getSingleton = DFAConstructionProblem
 
 	object problemId extends MappedLongForeignKey(this, Problem)
@@ -36,6 +36,16 @@ class DFAConstructionProblem extends LongKeyedMapper[DFAConstructionProblem] wit
 	def getXmlDescription : NodeSeq = XML.loadString(this.automaton.is)
 	
 	def getAlphabet : Seq[String] = (getXmlDescription \ "alphabet" \ "symbol").map(_.text)
+	
+	override def copy(): DFAConstructionProblem = {
+	  val retVal = new DFAConstructionProblem
+	  retVal.problemId(this.problemId.get)
+	  retVal.automaton(this.automaton.get)
+	  retVal.category(this.category.get)
+	  return retVal
+	}
+	
+	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
 }
 
 object DFAConstructionProblem extends DFAConstructionProblem with LongKeyedMetaMapper[DFAConstructionProblem] {

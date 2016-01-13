@@ -10,7 +10,7 @@ import net.liftweb.mapper.MappedText
 import scala.xml.XML
 import scala.xml.NodeSeq
 
-class NFAToDFAProblem extends LongKeyedMapper[NFAToDFAProblem] with IdPK {
+class NFAToDFAProblem extends LongKeyedMapper[NFAToDFAProblem] with IdPK with SpecificProblem[NFAToDFAProblem] {
 	def getSingleton = NFAToDFAProblem
 
 	object problemId extends MappedLongForeignKey(this, Problem)
@@ -19,6 +19,15 @@ class NFAToDFAProblem extends LongKeyedMapper[NFAToDFAProblem] with IdPK {
 	def getXmlDescription : NodeSeq = XML.loadString(this.automaton.is)
 	
 	def getAlphabet : Seq[String] = (getXmlDescription \ "alphabet" \ "symbol").map(_.text)
+
+	override def copy(): NFAToDFAProblem = {
+	  val retVal = new NFAToDFAProblem
+	  retVal.problemId(this.problemId.get)
+	  retVal.automaton(this.automaton.get)
+	  return retVal
+	}
+	
+	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
 }
 
 object NFAToDFAProblem extends NFAToDFAProblem with LongKeyedMetaMapper[NFAToDFAProblem] {

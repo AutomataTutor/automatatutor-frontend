@@ -26,7 +26,7 @@ object NFAConstructionProblemCategory extends NFAConstructionProblemCategory wit
   def exists (typeName : String) : Boolean = !findAll(By(NFAConstructionProblemCategory.categoryName, typeName)).isEmpty
 }
 
-class NFAConstructionProblem extends LongKeyedMapper[NFAConstructionProblem] with IdPK {
+class NFAConstructionProblem extends LongKeyedMapper[NFAConstructionProblem] with IdPK with SpecificProblem[NFAConstructionProblem] {
 	def getSingleton = NFAConstructionProblem
 
 	object problemId extends MappedLongForeignKey(this, Problem)
@@ -41,6 +41,16 @@ class NFAConstructionProblem extends LongKeyedMapper[NFAConstructionProblem] wit
 	def getEpsilon : Boolean = 
 		(getXmlDescription \ "epsilon").isEmpty || 
 		(getXmlDescription \ "epsilon").map(_.text).head.replaceAll(" ", "").toBoolean
+
+	override def copy(): NFAConstructionProblem = {
+	  val retVal = new NFAConstructionProblem
+	  retVal.problemId(this.problemId.get)
+	  retVal.automaton(this.automaton.get)
+	  retVal.category(this.category.get)
+	  return retVal
+	}
+	
+	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
 }
 
 object NFAConstructionProblem extends NFAConstructionProblem with LongKeyedMetaMapper[NFAConstructionProblem] {

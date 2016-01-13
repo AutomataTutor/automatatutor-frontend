@@ -10,7 +10,7 @@ import net.liftweb.mapper.MappedText
 import scala.xml.XML
 import scala.xml.NodeSeq
 
-class PumpingLemmaProblem extends LongKeyedMapper[PumpingLemmaProblem] with IdPK {
+class PumpingLemmaProblem extends LongKeyedMapper[PumpingLemmaProblem] with IdPK with SpecificProblem[PumpingLemmaProblem] {
 	def getSingleton = PumpingLemmaProblem
 
 	object problemId extends MappedLongForeignKey(this, Problem)
@@ -20,6 +20,18 @@ class PumpingLemmaProblem extends LongKeyedMapper[PumpingLemmaProblem] with IdPK
 	object pumpingString extends MappedText(this)
 	
 	def getAlphabet : Seq[String] = this.alphabet.is.split(" ")
+
+	override def copy(): PumpingLemmaProblem = {
+	  val retVal = new PumpingLemmaProblem
+	  retVal.problemId(this.problemId.get)
+	  retVal.language(this.language.get)
+	  retVal.constraint(this.constraint.get)
+	  retVal.alphabet(this.alphabet.get)
+	  retVal.pumpingString(this.pumpingString.get)
+	  return retVal
+	}
+	
+	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
 }
 
 object PumpingLemmaProblem extends PumpingLemmaProblem with LongKeyedMetaMapper[PumpingLemmaProblem] {

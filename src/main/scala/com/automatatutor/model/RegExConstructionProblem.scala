@@ -10,12 +10,22 @@ import net.liftweb.mapper.MappedText
 import scala.xml.XML
 import scala.xml.NodeSeq
 
-class RegExConstructionProblem extends LongKeyedMapper[RegExConstructionProblem] with IdPK {
+class RegExConstructionProblem extends LongKeyedMapper[RegExConstructionProblem] with IdPK with SpecificProblem[RegExConstructionProblem] {
 	def getSingleton = RegExConstructionProblem
 
 	object problemId extends MappedLongForeignKey(this, Problem)
 	object regEx extends MappedText(this)
 	object alphabet extends MappedText(this)
+
+	override def copy(): RegExConstructionProblem = {
+	  val retVal = new RegExConstructionProblem
+	  retVal.problemId(this.problemId.get)
+	  retVal.regEx(this.regEx.get)
+	  retVal.alphabet(this.alphabet.get)
+	  return retVal
+	}
+	
+	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
 	
 }
 

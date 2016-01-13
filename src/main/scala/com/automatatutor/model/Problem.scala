@@ -71,3 +71,8 @@ object Problem extends Problem with LongKeyedMetaMapper[Problem] {
   def findAllByCreator(creator : User) : List[Problem] = findAll(By(Problem.createdBy, creator))
   def findPublicProblems : List[Problem] = findAll(By(Problem.visibility, 0))
 }
+
+abstract trait SpecificProblem[T] {
+  def setGeneralProblem(newProblem: Problem)
+  def copy(): T
+}
