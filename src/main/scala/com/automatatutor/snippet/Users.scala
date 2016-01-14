@@ -2,7 +2,6 @@ package com.automatatutor.snippet
 
 import scala.xml.NodeSeq
 import scala.xml.Text
-
 import com.automatatutor.lib.TableHelper
 import com.automatatutor.model.Attendance
 import com.automatatutor.model.Course
@@ -24,17 +23,24 @@ import com.automatatutor.model.SolutionAttempt
 import com.automatatutor.model.Supervision
 import com.automatatutor.model.User
 import com.automatatutor.renderer.UserRenderer
-
 import net.liftweb.http.RequestVar
 import net.liftweb.http.S
 import net.liftweb.http.SHtml
 import net.liftweb.mapper.By
 import net.liftweb.util.Helpers
 import net.liftweb.util.Helpers.strToSuperArrowAssoc
+import net.liftweb.http.PaginatorSnippet
+import net.liftweb.mapper.StartAt
+import net.liftweb.mapper.MaxRows
+import net.liftweb.util.Props
 
 object userToEdit extends RequestVar[User](null)
 
-class Users {
+class Users extends PaginatorSnippet[User] {
+  override def count = User.findAll().size
+  override def itemsPerPage = Props.getInt("layout.usersperpage") openOr 50
+  override def page = User.findAll(StartAt(curPage*itemsPerPage), MaxRows(itemsPerPage)) 
+  
   def showuser (xhtml : NodeSeq) : NodeSeq = {
     val user = userToEdit.is
     
@@ -82,7 +88,7 @@ class Users {
   }
   
   def showall(ignored : NodeSeq) : NodeSeq = {
-    val users = User.findAll();
+    val users = page
       
     def userToDeleteLink(user : User) : NodeSeq = {
       def deleteUser(user : User) = {
@@ -105,16 +111,20 @@ class Users {
         ("", (user : User) => userToEditLink(user)),
         ("", (user : User) => (new UserRenderer(user)).renderDeleteLink))
         
+    return userTable
+  }
+  
+  def resetlink(ignored : NodeSeq) : NodeSeq = {
     def resetDatabase() = {
-	List(Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
-	    DFAConstructionProblem, DFAConstructionProblemCategory, NFAConstructionProblem, NFAConstructionProblemCategory,
-	    NFAToDFAProblem, NFAToDFASolutionAttempt,
-	    ProblemSet, SolutionAttempt, Supervision, DFAConstructionSolutionAttempt, NFAConstructionSolutionAttempt).map(_.bulkDelete_!!())
+      List(Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
+          DFAConstructionProblem, DFAConstructionProblemCategory, NFAConstructionProblem, NFAConstructionProblemCategory,
+          NFAToDFAProblem, NFAToDFASolutionAttempt,
+          ProblemSet, SolutionAttempt, Supervision, DFAConstructionSolutionAttempt, NFAConstructionSolutionAttempt).map(_.bulkDelete_!!())
     }
     	
     val resetLink = SHtml.link("/users/index", () => resetDatabase, Text("Reset Database"))
     	
-    return userTable ++ resetLink
+    return resetLink
   }
 
 }

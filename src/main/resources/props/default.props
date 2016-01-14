@@ -8,3 +8,5 @@ mail.smtp.host=email-smtp.us-west-2.amazonaws.com
 mail.smtp.port=25
 mail.smtp.starttls.enable=true
 mail.smtp.auth=true
+
+layout.usersperpage = 50

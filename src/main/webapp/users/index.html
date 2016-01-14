@@ -1,10 +1,26 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head><meta content="text/html; charset=UTF-8" http-equiv="content-type" /><title>Home</title></head>
-<body class="lift:content_id=main">
-<div id="main" class="lift:surround?with=default;at=content">
+	<head>
+		<meta content="text/html; charset=UTF-8" http-equiv="content-type" />
+		<title>Home</title>
+	</head>
+	<body class="lift:content_id=main">
+		<div id="main" class="lift:surround?with=default;at=content">
+		    <p><nav:records></nav:records></p>
 
-<lift:Users.showall />
-	    </div>
+		    <lift:Users.showall> </lift:Users.showall>
+
+		    <lift:Users.paginate>
+		     	<p>
+			    	<nav:first></nav:first> |
+			    	<nav:prev></nav:prev> |
+			    	<nav:allpages></nav:allpages> |
+			    	<nav:next></nav:next> |
+			    	<nav:last></nav:last>
+		    	</p>
+		    </lift:Users.paginate>
+
+		    <lift:Users.resetLink />
+		</div>
   </body>
 </html>
