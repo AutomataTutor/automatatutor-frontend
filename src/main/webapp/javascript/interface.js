@@ -26,25 +26,29 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		'detbuchiaut': {
 			node: {
 				label: function(node_data) { return node_data.id }
-			}
+			},
+			showInitialArrow: true
 		},
 
 		'nondetbuchiaut': {
 			node: {
 				label: function(node_data) { return node_data.id }
-			}
+			},
+			showInitialArrow: true
 		},
 
 		'buchigame': {
 			node: {
 				label: function(node_data) { return "" }
-			}
+			},
+			showInitialArrow: false
 		},
 
 		'paritygame': {
 			node: {
 				label: function(node_data) { return node_data.priority }
-			}
+			},
+			showInitialArrow: false
 		}
 	};
 
@@ -204,14 +208,11 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		.attr('d', 'M' + init_x1 + ',' + init_y + ' L' + init_x2 + "," + init_y )
 		.style('marker-end', 'url(#end-arrow)');
 
-	if (style == 'detbuchiaut' || style == 'nondetbuchiaut') {
+	if (config.showInitialArrow) {
 		init_line.attr('class', 'link initLine')
 	}
-	else if (style === 'buchigame' || style == 'paritygame') {
-		init_line.attr('class', 'link initLine hidden')
-	}
 	else {
-		throw new Error("Unknown style " + style)
+		init_line.attr('class', 'link initLine hidden')
 	}
 
     // larger active areas for mouse events for varies parts of interface
