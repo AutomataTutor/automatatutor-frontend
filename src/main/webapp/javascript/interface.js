@@ -17,13 +17,16 @@ $.SvgCanvas = function(container, config, style) {
 	var globalConfig = {
 		node: {
 			radius: 15
+		},
+		hoverMenu: {
+			step: Math.PI/6
 		}
 	}
 
 	/**
 	 * node.label: Function that gets the data of a node and returns the label of that node
 	 * transition.labeled: Decides whether labels should be displayed on transitions.
-	 	If true, transition.deterministic must be set
+	 	If true, transition.deterministic must be defined
 	 * transition.deterministic: If true, there must be exactly one transition per label and no epsilon-transitions are allowed
 	 * showInitialArrow: If true, the initial arrow is indicated with an arrow
 	 */
@@ -73,7 +76,23 @@ $.SvgCanvas = function(container, config, style) {
 
 	$.extend(true, config, globalConfig, styleConfig[style])
 
-	function useHoverMenu() { return this.transition.labeled === false || this.transition.deterministic === false}
+	function useHoverMenu() { return config.transition.labeled === false || config.transition.deterministic === false }
+
+	/**
+	 * Calculates the angle of an element at the given position when count many elements are distributed around a circle with step degrees inbetween them.
+	 * Step must be given in radians. Return value is given in radians.
+	 * Objects are centered around pi/4, i.e., the north of the circle.
+	 */
+	function calculateAngle(position, count, step) {
+		return 3*Math.PI/2 - (count * config.hoverMenu.step / 2) + (position + .5) * config.hoverMenu.step;
+	}
+
+	function polarToPlanar(radius, angle) {
+		return {
+			x: radius * Math.cos(angle),
+			y: radius * Math.sin(angle)
+		}
+	}
 
     var Utils = this.Utils = function() {
 
@@ -760,77 +779,85 @@ $.SvgCanvas = function(container, config, style) {
 	// handles the hoverMenu, if drawing an NFA
 	if(useHoverMenu()) {
 	    hoverMenu = hoverMenu.data(nodes, function(d) { return d.id; });
-	    hoverMenu.selectAll('circle').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
+	    hoverMenu.selectAll('circle')
+	    	.classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
 	    // add new nodes
-	    var menus = hoverMenu.enter().append('svg:g');
+	    var menus = hoverMenu.enter()
+	    	.append('svg:g');
+	  
 	    menus.append('svg:circle')
-		.attr('class', 'hoverMenu visible')
-		.classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); })
-		.attr('r', config.node.radius + 20)
-		.on('mouseover', function(d) {
-		    showMenu = true;
-		})
-		.on('mouseout', function(d) {
-		    d.menu_visible = false;
-		    showMenu = false;
-		    restart();
-		})
-		.on('mousedown', function(d) {
-		    d.menu_visible = false;
-		    restart();
-		});
+			.attr('class', 'hoverMenu visible')
+			.classed('visible', function(d) { 
+				return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu);
+			})
+			.attr('r', config.node.radius + 20)
+			.on('mouseover', function(d) {
+			    showMenu = true;
+			})
+			.on('mouseout', function(d) {
+			    d.menu_visible = false;
+			    showMenu = false;
+			    restart();
+			})
+			.on('mousedown', function(d) {
+			    d.menu_visible = false;
+			    restart();
+			});
 	    hoverMenu.selectAll('text').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
 	    for(var i = 0; i < alphabet.length; i++){
-		menus.append('svg:text')
-		    .attr('class', 'hoverMenu visible')
-		    .classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); })
-		    .text(alphabet[i])
-		    .attr('x', function() {
-			var angle = 3*Math.PI/2 - (alphabet.length * Math.PI / 12) + (i + .5) * Math.PI/6;
-			if(epsilonTrans)
-			    angle = 3*Math.PI/2 - (alphabet.length * Math.PI / 12) + (i + 1) * Math.PI/6;
-			if(epsilonTrans && i === alphabet.length - 1)
-			    angle = Math.PI/2;
-			return (config.node.radius + 10) * Math.cos(angle);
-		    })
-		    .attr('y', function() {
-			var angle = 3*Math.PI/2 - (alphabet.length * Math.PI / 12) + (i + .5) * Math.PI/6;
-			if(epsilonTrans)
-			    angle = 3*Math.PI/2 - (alphabet.length * Math.PI / 12) + (i + 1) * Math.PI/6;
-			if(epsilonTrans && i === alphabet.length - 1)
-			    angle = Math.PI/2;
-			return (config.node.radius + 10) * Math.sin(angle) + 5;
-		    })
-		    .on('mouseover', function(d) {
-			d.menu_visible = true;
-			showMenu = true;
-			restart();
-		    })
-		    .on('mousedown', function(d) {
-			d.menu_visible = false;
-			showMenu = false;
-			newLink = true;
-			mousedown_node = d;
+			menus.append('svg:text')
+			    .attr('class', 'hoverMenu visible')
+			    .classed('visible', function(d) {
+			    	return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu);
+			    })
+			    .text(alphabet[i])
+			    .attr('x', function() {
+			    	var symbolsToDistribute = (epsilonTrans ? alphabet.length - 1 : alphabet.length)
+					var angle = calculateAngle(i, symbolsToDistribute, config.hoverMenu.step)
+					if(epsilonTrans && i === alphabet.length - 1) {
+					    angle = Math.PI/2;
+					}
+					return polarToPlanar(config.node.radius + 10, angle).x;
+			    })
+			    .attr('y', function() {
+					var symbolsToDistribute = (epsilonTrans ? alphabet.length - 1 : alphabet.length)
+					var angle = calculateAngle(i, symbolsToDistribute, config.hoverMenu.step)
+					if(epsilonTrans && i === alphabet.length - 1) {
+					    angle = Math.PI/2;
+					}
+					// Add 5 to the y-coordinate since it specifies the coordinate of the upper left corner
+					return polarToPlanar(config.node.radius + 10, angle).y + 5;
+			    })
+			    .on('mouseover', function(d) {
+					d.menu_visible = true;
+					showMenu = true;
+					restart();
+			    })
+			    .on('mousedown', function(d) {
+					d.menu_visible = false;
+					showMenu = false;
+					newLink = true;
+					mousedown_node = d;
 
-			for(var j = 0; j < alphabet.length; j++){
-			    drag_trans[j] = false;
-			}
+					for(var j = 0; j < alphabet.length; j++){
+					    drag_trans[j] = false;
+					}
 
-			drag_trans[alphabet.indexOf(this.textContent)] = true;
+					drag_trans[alphabet.indexOf(this.textContent)] = true;
 
-			drag_line
-			    .style('marker-end', 'url(#end-arrow)')
-			    .classed('hidden', false)
-			    .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
-			drag_label
-			    .text(function(d) { return makeLabel(drag_trans); })
-			    .classed('hidden', false);				
+					drag_line
+					    .style('marker-end', 'url(#end-arrow)')
+					    .classed('hidden', false)
+					    .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+					drag_label
+					    .text(function(d) { return makeLabel(drag_trans); })
+					    .classed('hidden', false);				
 
-			restart();
-		    })
-		    .on('mouseout', function(d) {
-			showMenu = false;
-		    });
+					restart();
+			    })
+			    .on('mouseout', function(d) {
+					showMenu = false;
+			    });
 	    }
 	    hoverMenu.exit().remove();
 	}
