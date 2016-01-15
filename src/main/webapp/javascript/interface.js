@@ -22,10 +22,23 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		}
 	}
 
+	/**
+	 * node.label: Function that gets the data of a node and returns the label of that node
+	 * transition.labeled: Decides whether labels should be displayed on transitions.
+	 	If true, transition.onePerLabel and transition.allowUnlabeled must be set
+	 * transition.onePerLabel: If true, there must be exactly one transition per label
+	 * transition.allowUnlabeled: If true, epsilon-transitions are allowed
+	 * showInitialArrow: If true, the initial arrow is indicated with an arrow
+	 */
 	var styleConfig = {
 		'detbuchiaut': {
 			node: {
 				label: function(node_data) { return node_data.id }
+			},
+			transition: {
+				labeled: true,
+				onePerLabel: true,
+				allowUnlabeled: false
 			},
 			showInitialArrow: true
 		},
@@ -34,20 +47,31 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 			node: {
 				label: function(node_data) { return node_data.id }
 			},
+			transition: {
+				labeled: true,
+				onePerLabel: true,
+				allowUnlabeled: false
+			},
 			showInitialArrow: true
 		},
 
 		'buchigame': {
 			node: {
 				label: function(node_data) { return "" }
-			}
+			},
+			transition: {
+				labeled: false
+			},
 			showInitialArrow: false
 		},
 
 		'paritygame': {
 			node: {
 				label: function(node_data) { return node_data.priority }
-			}
+			},
+			transition: {
+				labeled: false
+			},
 			showInitialArrow: false
 		}
 	};
