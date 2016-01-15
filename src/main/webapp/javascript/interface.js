@@ -184,6 +184,10 @@ $.SvgCanvas = function(container, config, style) {
 				    drag_trans[j] = false;
 				}
 
+				// Just pretend that we are dragging a transition labeled with the first symbol of the alphabet
+				// in order to allow for uniform treatment of transition in the remainder of the code
+				drag_trans[0] = true;
+
 				drag_line
 				    .style('marker-end', 'url(#end-arrow)')
 				    .classed('hidden', false)
@@ -1256,7 +1260,8 @@ $.SvgCanvas = function(container, config, style) {
      *
      */
     function makeLabel(trans) {
-    	return alphabet.filter( function(element, index, array) { return trans[index] === true } ).join(" ")
+    	if(config.transition.labeled === false) return ""
+    	else return alphabet.filter( function(element, index, array) { return trans[index] === true } ).join(" ")
     }
 
     /**
