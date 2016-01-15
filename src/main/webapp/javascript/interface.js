@@ -95,6 +95,56 @@ $.SvgCanvas = function(container, config, style) {
 	}
 
 	function populateHoverMenusWithAlphabet(menus) {
+		var symbolsToDistribute = (epsilonTrans ? alphabet.length - 1 : alphabet.length)
+
+		function calculateXCoordinate(symbolIndex) {
+			var angle = calculateAngle(symbolIndex, symbolsToDistribute, config.hoverMenu.step)
+			if(epsilonTrans && symbolIndex === alphabet.length - 1) {
+			    angle = Math.PI/2;
+			}
+			return polarToPlanar(config.node.radius + 10, angle).x;
+		}
+
+		function calculateYCoordinate(symbolIndex) {
+			var angle = calculateAngle(symbolIndex, symbolsToDistribute, config.hoverMenu.step)
+			if(epsilonTrans && symbolIndex === alphabet.length - 1) {
+			    angle = Math.PI/2;
+			}
+			// Add 5 to the y-coordinate since it specifies the coordinate of the upper left corner
+			return polarToPlanar(config.node.radius + 10, angle).y + 5;
+	    }
+
+	    function onLabelMouseover(node) {
+	    	node.menu_visible = true;
+			showMenu = true;
+			restart();
+	    }
+
+	    function onLabelMousedown(node) {
+	    	node.menu_visible = false;
+			showMenu = false;
+			newLink = true;
+			mousedown_node = node;
+
+			for(var j = 0; j < alphabet.length; j++){
+			    drag_trans[j] = false;
+			}
+
+			drag_trans[alphabet.indexOf(this.textContent)] = true;
+
+			drag_line
+			    .style('marker-end', 'url(#end-arrow)')
+			    .classed('hidden', false)
+			    .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+			drag_label
+			    .text(function(d) { return makeLabel(drag_trans); })
+			    .classed('hidden', false);				
+
+			restart();
+	    }
+
+	    function onLabelMouseout(nodeData) { showMenu = false }
+
 		for(var i = 0; i < alphabet.length; i++){
 			menus.append('svg:text')
 			    .attr('class', 'hoverMenu visible')
@@ -102,50 +152,10 @@ $.SvgCanvas = function(container, config, style) {
 			    	return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu);
 			    })
 			    .text(alphabet[i])
-			    .attr('x', function() {
-			    	var symbolsToDistribute = (epsilonTrans ? alphabet.length - 1 : alphabet.length)
-					var angle = calculateAngle(i, symbolsToDistribute, config.hoverMenu.step)
-					if(epsilonTrans && i === alphabet.length - 1) {
-					    angle = Math.PI/2;
-					}
-					return polarToPlanar(config.node.radius + 10, angle).x;
-			    })
-			    .attr('y', function() {
-					var symbolsToDistribute = (epsilonTrans ? alphabet.length - 1 : alphabet.length)
-					var angle = calculateAngle(i, symbolsToDistribute, config.hoverMenu.step)
-					if(epsilonTrans && i === alphabet.length - 1) {
-					    angle = Math.PI/2;
-					}
-					// Add 5 to the y-coordinate since it specifies the coordinate of the upper left corner
-					return polarToPlanar(config.node.radius + 10, angle).y + 5;
-			    })
-			    .on('mouseover', function(d) {
-					d.menu_visible = true;
-					showMenu = true;
-					restart();
-			    })
-			    .on('mousedown', function(d) {
-					d.menu_visible = false;
-					showMenu = false;
-					newLink = true;
-					mousedown_node = d;
-
-					for(var j = 0; j < alphabet.length; j++){
-					    drag_trans[j] = false;
-					}
-
-					drag_trans[alphabet.indexOf(this.textContent)] = true;
-
-					drag_line
-					    .style('marker-end', 'url(#end-arrow)')
-					    .classed('hidden', false)
-					    .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
-					drag_label
-					    .text(function(d) { return makeLabel(drag_trans); })
-					    .classed('hidden', false);				
-
-					restart();
-			    })
+			    .attr('x', calculateXCoordinate(i))
+			    .attr('y', calculateYCoordinate(i))
+			    .on('mouseover', onLabelMouseover)
+			    .on('mousedown', onLabelMousedown)
 			    .on('mouseout', function(d) {
 					showMenu = false;
 			    });
