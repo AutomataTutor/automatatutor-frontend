@@ -25,9 +25,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	/**
 	 * node.label: Function that gets the data of a node and returns the label of that node
 	 * transition.labeled: Decides whether labels should be displayed on transitions.
-	 	If true, transition.onePerLabel and transition.allowUnlabeled must be set
-	 * transition.onePerLabel: If true, there must be exactly one transition per label
-	 * transition.allowUnlabeled: If true, epsilon-transitions are allowed
+	 	If true, transition.deterministic must be set
+	 * transition.deterministic: If true, there must be exactly one transition per label and no epsilon-transitions are allowed
 	 * showInitialArrow: If true, the initial arrow is indicated with an arrow
 	 */
 	var styleConfig = {
@@ -37,8 +36,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 			},
 			transition: {
 				labeled: true,
-				onePerLabel: true,
-				allowUnlabeled: false
+				deterministic: true
 			},
 			showInitialArrow: true
 		},
@@ -49,8 +47,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 			},
 			transition: {
 				labeled: true,
-				onePerLabel: true,
-				allowUnlabeled: false
+				deterministic: false
 			},
 			showInitialArrow: true
 		},
@@ -162,12 +159,22 @@ $.SvgCanvas = function(container, config, deterministic, style) {
     var node_drag;                        // variable that ultimately contains dragging behavior for nodes in interface
     var draggingLink = false;             // true when dragging a transition
     var draggingEntire = false;           // true when dragging all transitions between two states
-    var newLink = false;                  // true when a new link is being dragged in the interface 
-    var showMenu = false;                 // true when the NFA transition menu is being displayed
+    var newLink = false;                  // true when a new link is being dragged in the interface
+    
     var overTrash = false;                // true when the mouse is hovering over the trash icon
     var overClear = false;                // true when the mouse is hovering over the "clear all" button
-    var epsilonTrans = !deterministic;    // true when epsilon transitions are being used
-    var hover_label = false;              // true when hovering over label
+
+    if(config.transition.labeled === false || config.transition.deterministic === false) {
+    	var showMenu = false;                 // true when the NFA transition menu is being displayed
+	}
+
+	if(config.transition.labeled === true && config.transition.deterministic === false) {
+		var epsilonTrans = !deterministic;    // true when epsilon transitions are being used
+	}
+
+	if(config.transition.labeled === true) {
+		var hover_label = false;              // true when hovering over label
+	}
 
     //define trashbin
     var trashLabel = svg.append('svg:image')
