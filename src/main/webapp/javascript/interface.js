@@ -1256,26 +1256,7 @@ $.SvgCanvas = function(container, config, style) {
      *
      */
     function makeLabel(trans) {
-	var numLabel = 0;
-	var label = "";
-
-	for(var i = 0; i < alphabet.length; i++) {
-	    if(trans[i])
-		numLabel++;
-	}
-
-	for(var i = 0; i < alphabet.length; i++) {
-	    if(trans[i]) {
-		if(numLabel > 1){
-		    label += alphabet[i] + " ";
-		    numLabel--;
-		}
-		else
-		    label += alphabet[i];
-	    }
-	}
-
-	return label;
+    	return alphabet.filter( function(element, index, array) { return trans[index] === true } ).join(" ")
     }
 
     /**
