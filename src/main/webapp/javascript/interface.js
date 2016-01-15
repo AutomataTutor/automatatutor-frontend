@@ -1439,12 +1439,7 @@ $.SvgCanvas = function(container, config, style) {
 		    for(var i = 0; i < alphabet.length; i++){
 				var t = [];
 				for(var j = 0; j < alphabet.length; j++){
-				    if(i === j) {
-						t[j] = true;
-					}
-				    else {
-						t[j] = false;
-					}
+					t.push(i === j)
 				}
 				links.push({source: node, target: node, reflexive: true, trans: t});
 		    }
