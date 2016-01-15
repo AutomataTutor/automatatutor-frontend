@@ -40,14 +40,14 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		'buchigame': {
 			node: {
 				label: function(node_data) { return "" }
-			},
+			}
 			showInitialArrow: false
 		},
 
 		'paritygame': {
 			node: {
 				label: function(node_data) { return node_data.priority }
-			},
+			}
 			showInitialArrow: false
 		}
 	};
