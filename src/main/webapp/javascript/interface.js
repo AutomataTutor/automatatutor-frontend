@@ -132,7 +132,7 @@ $.SvgCanvas = function(container, config, style) {
 
 			drag_trans[alphabet.indexOf(this.textContent)] = true;
 
-			drag_line
+			drag_lineu
 			    .style('marker-end', 'url(#end-arrow)')
 			    .classed('hidden', false)
 			    .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
@@ -156,10 +156,36 @@ $.SvgCanvas = function(container, config, style) {
 			    .attr('y', calculateYCoordinate(i))
 			    .on('mouseover', onLabelMouseover)
 			    .on('mousedown', onLabelMousedown)
-			    .on('mouseout', function(d) {
-					showMenu = false;
-			    });
+			    .on('mouseout', onLabelMouseout);
 	    }
+	}
+
+	function populateHoverMenusWithUnlabeled(menus) {
+		menus.append('svg:path')
+		    .attr('class', 'link hoverMenu')
+		    .classed('visible', function(d) {
+		    	return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu);
+		    })
+		    .attr('d','M0,0L10,0')
+		    .attr('transform','translate(' + (config.node.radius + 2) + ')')
+		    .style('marker-end', 'url(#end-arrow)')
+		    .on('mouseover', function(d) {
+		    	node.menu_visible = true;
+				showMenu = true;
+
+				restart();
+		    })
+		    .on('mousedown', function(d) {
+		    	node.menu_visible = false;
+				showMenu = false;
+				newLink = true;
+				mousedown_node = node;
+
+				restart();
+		    })
+		    .on('mouseout', function(d) {
+				showMenu = false;
+		    });
 	}
 
     var Utils = this.Utils = function() {
@@ -871,10 +897,18 @@ $.SvgCanvas = function(container, config, style) {
 			    d.menu_visible = false;
 			    restart();
 			});
+
+		// Hide the transition labels if the hover menu is not active
 	    hoverMenu.selectAll('text').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
+	    // Hide the prototype transition if the hover menu is not active
+	    hoverMenu.selectAll('path').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
 	    
-	    populateHoverMenusWithAlphabet(menus)
-	    
+	    if(config.transition.labeled) {
+	    	populateHoverMenusWithAlphabet(menus)
+		} else {
+			populateHoverMenusWithUnlabeled(menus)
+		}
+
 	    hoverMenu.exit().remove();
 	}
 
