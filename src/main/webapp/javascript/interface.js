@@ -1274,14 +1274,14 @@ $.SvgCanvas = function(container, config, style) {
 	    var temp = false;
 
 	    for(var i = 0; i < l.length; i++){
-		var transIssue = false;
-		for(var j = 0; j < alphabet.length; j++){
-		    if(l[i].trans[j] && link.trans[j])
-			transIssue = true;
-		}
+			var transIssue = false;
+			for(var j = 0; j < alphabet.length; j++){
+			    if(l[i].trans[j] && link.trans[j])
+				transIssue = true;
+			}
 
-		if(l[i].source === link.source && l[i].target === link.target && l.indexOf(link) < i && transIssue)
-		    temp = true;
+			if(l[i].source === link.source && l[i].target === link.target && l.indexOf(link) < i && transIssue)
+			    temp = true;
 	    }
 
 	    if(epsilonTrans && link.trans[alphabet.length - 1] && link.source === link.target)
@@ -1413,43 +1413,46 @@ $.SvgCanvas = function(container, config, style) {
      * Does not yet draw the node, this only happens after calling restart()
      */
     function addNode(x, y) {
-	// insert new node at point
-	var idNum = (function () {
-    		/* Since all id's are in the range [0,nodes.length), the last iteration of the for-loop
-		 	 * will return. Earlier iterations may return early */
-    		for(var i = 0; i <= nodes.length; i++) {
-				if(!nodes.some(function (node, index, array) { return node.id === i })) {
-					return i
+		// insert new node at point
+		var idNum = (function () {
+	    		/* Since all id's are in the range [0,nodes.length), the last iteration of the for-loop
+			 	 * will return. Earlier iterations may return early */
+	    		for(var i = 0; i <= nodes.length; i++) {
+					if(!nodes.some(function (node, index, array) { return node.id === i })) {
+						return i
+					}
 				}
-			}
-    	})();
+	    	})();
 
-	var reflNum = 0;
-	if(config.transition.deterministic)
-	    reflNum = alphabet.length;
-	
-	// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
-	var node = {id: idNum, initial: false, accepting: false, reflexiveNum: reflNum, flip: true, menu_visible: false};
-	node.x = x;
-	node.y = y;
-	nodes.push(node);
-
-	if(config.transition.deterministic){
-	    for(var i = 0; i < alphabet.length; i++){
-		var t = [];
-		for(var j = 0; j < alphabet.length; j++){
-		    if(i === j)
-			t[j] = true;
-		    else
-			t[j] = false;
+		var reflNum = 0;
+		if(config.transition.deterministic) {
+		    reflNum = alphabet.length;
 		}
-		links.push({source: node, target: node, reflexive: true, trans: t});
-	    }
+		
+		// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
+		var node = {id: idNum, initial: false, accepting: false, reflexiveNum: reflNum, flip: true, menu_visible: false};
+		node.x = x;
+		node.y = y;
+		nodes.push(node);
 
-	    linkNums(links);
-	}
-	
-	return idNum;
+		if(config.transition.deterministic) {
+		    for(var i = 0; i < alphabet.length; i++){
+				var t = [];
+				for(var j = 0; j < alphabet.length; j++){
+				    if(i === j) {
+						t[j] = true;
+					}
+				    else {
+						t[j] = false;
+					}
+				}
+				links.push({source: node, target: node, reflexive: true, trans: t});
+		    }
+
+		    linkNums(links);
+		}
+		
+		return idNum;
     }
 
     /**
