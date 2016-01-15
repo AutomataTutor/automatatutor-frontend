@@ -7,7 +7,7 @@ var Editor = {
 function initCanvas() {
   if(Editor.canvas)
     return;
-    Editor.canvas = new $.SvgCanvas("#svgcanvasdfa", Editor.curConfig, true); 
+    Editor.canvas = new $.SvgCanvas("#svgcanvasdfa", Editor.curConfig, 'detaut'); 
 }
 
 $(document).ready(function() {

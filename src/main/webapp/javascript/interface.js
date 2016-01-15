@@ -2,17 +2,15 @@
  * @file Interface for drawing automata
  *
  * @author Matthew Weaver [mweaver223@gmail.com], Alexander Weinert [weinert@react.uni-saarland.de]
- * @param deterministic Legacy parameter, will be removed soon. For now, the styles detbuchiaut and nondetbuchiaut are
- *	overridden by this parameter.
  * @param style Optional. The type of automaton-like thing to be drawn.
- *	May be one of 'detbuchiaut', 'nondetbuchiaut', 'buchigame', 'paritygame'.
- * 	Defaults to 'detbuchiaut' if none is given
+ *	May be one of 'detaut', 'nondetaut', 'buchigame', 'paritygame'.
+ * 	Defaults to 'detaut' if none is given
  */
-$.SvgCanvas = function(container, config, deterministic, style) {
+$.SvgCanvas = function(container, config, style) {
 
-	if (style === undefined) style = 'detbuchiaut'
+	if (style === undefined) style = 'detaut'
 
-	if (['detbuchiaut', 'nondetbuchiaut', 'buchigame', 'paritygame'].indexOf(style) == -1) {
+	if (['detaut', 'nondetaut', 'buchigame', 'paritygame'].indexOf(style) == -1) {
 		throw new Error("Unknown style " + style)
 	}
 
@@ -30,7 +28,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	 * showInitialArrow: If true, the initial arrow is indicated with an arrow
 	 */
 	var styleConfig = {
-		'detbuchiaut': {
+		'detaut': {
 			node: {
 				label: function(node_data) { return node_data.id }
 			},
@@ -41,7 +39,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 			showInitialArrow: true
 		},
 
-		'nondetbuchiaut': {
+		'nondetaut': {
 			node: {
 				label: function(node_data) { return node_data.id }
 			},
@@ -168,8 +166,8 @@ $.SvgCanvas = function(container, config, deterministic, style) {
     	var showMenu = false;                 // true when the NFA transition menu is being displayed
 	}
 
-	if(config.transition.labeled === true && config.transition.deterministic === false) {
-		var epsilonTrans = !deterministic;    // true when epsilon transitions are being used
+	if(config.transition.labeled === true) {
+		var epsilonTrans = !config.transition.deterministic;    // true when epsilon transitions are being used
 	}
 
 	if(config.transition.labeled === true) {
@@ -266,7 +264,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 		.attr('width', 70)
 		.attr('height', 70);
 
-	    if(draggingLink && !deterministic)
+	    if(draggingLink && !config.transition.deterministic)
 		trash_link = mousedown_link;
 
 	    return;
@@ -284,7 +282,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	    return;
 	})
 	.on('mouseup', function() {
-	    if(deterministic)
+	    if(config.transition.deterministic)
 		return;
 	    if(draggingLink && draggingEntire){
 		var toSplice = links.filter( function(l) {
@@ -479,7 +477,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	});
 
 	//updates hover menu position, if drawing an NFA
-	if(!deterministic){
+	if(!config.transition.deterministic){
 	    hoverMenu.attr('transform', function(d) {
 		return 'translate(' + d.x + ',' + d.y + ')';
 	    });
@@ -692,7 +690,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 				mousedown_link.source.reflexiveNum = mousedown_link.source.reflexiveNum - mousedown_link.trans.length;
 			    links.splice(links.indexOf(mousedown_link), 1);
 			}
-			else if (newLink === true && !deterministic) {
+			else if (newLink === true && !config.transition.deterministic) {
 			    
 			    var multiplicityIssue = false;
 
@@ -758,7 +756,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	circle.exit().remove();
 
 	// handles the hoverMenu, if drawing an NFA
-	if(!deterministic) {
+	if(!config.transition.deterministic) {
 	    hoverMenu = hoverMenu.data(nodes, function(d) { return d.id; });
 	    hoverMenu.selectAll('circle').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
 	    // add new nodes
@@ -994,7 +992,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	mouse_x = point[0];
 	mouse_y = point[1];
 
-	if(!showMenu && !deterministic) {
+	if(!showMenu && !config.transition.deterministic) {
 	    var restBool = false;
 	    for(var i = 0; i < nodes.length; i++){
 		if(nodes[i].menu_visible)
@@ -1149,7 +1147,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	});
 	// If transition to deleted node, loops back to source
 	// if deterministic, and deletes if nondeterministic
-	if(deterministic)
+	if(config.transition.deterministic)
 	{
 	    toSpliceTarget.map(function(l) {
 		l.target = l.source;
@@ -1357,7 +1355,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
     	})();
 
 	var reflNum = 0;
-	if(deterministic)
+	if(config.transition.deterministic)
 	    reflNum = alphabet.length;
 	
 	// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
@@ -1366,7 +1364,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 	node.y = y;
 	nodes.push(node);
 
-	if(deterministic){
+	if(config.transition.deterministic){
 	    for(var i = 0; i < alphabet.length; i++){
 		var t = [];
 		for(var j = 0; j < alphabet.length; j++){
@@ -1483,15 +1481,15 @@ $.SvgCanvas = function(container, config, deterministic, style) {
 					menu_items.enableContextMenuItems('#remove,#init')
 				}
 		    } else if (hover_link) {
-				if(hover_label && !deterministic && hover_link.reflexive) {
+				if(hover_label && !config.transition.deterministic && hover_link.reflexive) {
 				    menu_items.enableContextMenuItems('#remove_edge_label,#flip_edge');
-				} else if(hover_label && !deterministic) {
+				} else if(hover_label && !config.transition.deterministic) {
 				    menu_items.enableContextMenuItems('#remove_edge_label');
-				}  else if(hover_link.reflexive && !deterministic) {
+				}  else if(hover_link.reflexive && !config.transition.deterministic) {
 				    menu_items.enableContextMenuItems('#remove_edge,#flip_edge');
-				} else if (hover_link.reflexive && deterministic) {
+				} else if (hover_link.reflexive && config.transition.deterministic) {
 				    menu_items.enableContextMenuItems('#flip_edge');
-				} else if (!deterministic) {
+				} else if (!config.transition.deterministic) {
 				    menu_items.enableContextMenuItems('#remove_edge');
 				}
 		    } else {
@@ -1728,7 +1726,7 @@ $.SvgCanvas = function(container, config, deterministic, style) {
      this.setAlphabet = function (alph) {
      	alphabet = alph;
 
-     	if(epsilonTrans && !deterministic){
+     	if(epsilonTrans && !config.transition.deterministic){
      		alphabet.push('ε');
      	}
 

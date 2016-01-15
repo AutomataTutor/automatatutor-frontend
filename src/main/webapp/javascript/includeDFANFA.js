@@ -6,10 +6,10 @@ var Editor = {
 
 function initCanvas() {
   if(!Editor.canvasNfa) {
-      Editor.canvasNfa = new $.SvgCanvas("#svgcanvasnfa", Editor.curConfig, false); 
+      Editor.canvasNfa = new $.SvgCanvas("#svgcanvasnfa", Editor.curConfig, 'nondetaut'); 
   }
   if(!Editor.canvasDfa) {
-      Editor.canvasDfa = new $.SvgCanvas("#svgcanvasdfa", Editor.curConfig, true); 
+      Editor.canvasDfa = new $.SvgCanvas("#svgcanvasdfa", Editor.curConfig, 'detaut'); 
   }
 }
 
