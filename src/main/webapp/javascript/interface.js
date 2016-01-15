@@ -180,6 +180,18 @@ $.SvgCanvas = function(container, config, style) {
 				newLink = true;
 				mousedown_node = d;
 
+				for(var j = 0; j < alphabet.length; j++){
+				    drag_trans[j] = false;
+				}
+
+				drag_line
+				    .style('marker-end', 'url(#end-arrow)')
+				    .classed('hidden', false)
+				    .attr('d', 'M' + mousedown_node.x + ',' + mousedown_node.y + 'L' + mousedown_node.x + ',' + mousedown_node.y);
+				drag_label
+				    .text(function(d) { return makeLabel(drag_trans); })
+				    .classed('hidden', true);				
+
 				restart();
 		    })
 		    .on('mouseout', function(d) {
