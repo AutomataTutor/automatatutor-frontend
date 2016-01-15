@@ -73,6 +73,8 @@ $.SvgCanvas = function(container, config, style) {
 
 	$.extend(true, config, globalConfig, styleConfig[style])
 
+	function useHoverMenu() { return this.transition.labeled === false || this.transition.deterministic === false}
+
     var Utils = this.Utils = function() {
 
 		var _keyStr = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
@@ -477,7 +479,7 @@ $.SvgCanvas = function(container, config, style) {
 	});
 
 	//updates hover menu position, if drawing an NFA
-	if(!config.transition.deterministic){
+	if(useHoverMenu()){
 	    hoverMenu.attr('transform', function(d) {
 		return 'translate(' + d.x + ',' + d.y + ')';
 	    });
@@ -756,7 +758,7 @@ $.SvgCanvas = function(container, config, style) {
 	circle.exit().remove();
 
 	// handles the hoverMenu, if drawing an NFA
-	if(!config.transition.deterministic) {
+	if(useHoverMenu()) {
 	    hoverMenu = hoverMenu.data(nodes, function(d) { return d.id; });
 	    hoverMenu.selectAll('circle').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
 	    // add new nodes
