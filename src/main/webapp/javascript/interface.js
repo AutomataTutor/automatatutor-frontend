@@ -78,6 +78,9 @@ $.SvgCanvas = function(container, config, style) {
 
 	function useHoverMenu() { return config.transition.labeled === false || config.transition.deterministic === false }
 
+	/// Returns true iff the hover menu around node d should be displayed
+	function isHoverMenuVisible(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu)}
+
 	/**
 	 * Calculates the angle of an element at the given position when count many elements are distributed around a circle with step degrees inbetween them.
 	 * Step must be given in radians. Return value is given in radians.
@@ -148,9 +151,7 @@ $.SvgCanvas = function(container, config, style) {
 		for(var i = 0; i < alphabet.length; i++){
 			menus.append('svg:text')
 			    .attr('class', 'hoverMenu visible')
-			    .classed('visible', function(d) {
-			    	return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu);
-			    })
+			    .classed('visible', isHoverMenuVisible)
 			    .text(alphabet[i])
 			    .attr('x', calculateXCoordinate(i))
 			    .attr('y', calculateYCoordinate(i))
@@ -163,9 +164,7 @@ $.SvgCanvas = function(container, config, style) {
 	function populateHoverMenusWithUnlabeled(menus) {
 		menus.append('svg:path')
 		    .attr('class', 'link hoverMenu')
-		    .classed('visible', function(d) {
-		    	return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu);
-		    })
+		    .classed('visible', isHoverMenuVisible)
 		    .attr('d','M0,0L10,0')
 		    .attr('transform','translate(' + (config.node.radius + 2) + ')')
 		    .style('marker-end', 'url(#end-arrow)')
@@ -874,16 +873,15 @@ $.SvgCanvas = function(container, config, style) {
 	if(useHoverMenu()) {
 	    hoverMenu = hoverMenu.data(nodes, function(d) { return d.id; });
 	    hoverMenu.selectAll('circle')
-	    	.classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
+	    	.classed('visible', isHoverMenuVisible;
+	    
 	    // add new nodes
 	    var menus = hoverMenu.enter()
 	    	.append('svg:g');
 	  
 	    menus.append('svg:circle')
 			.attr('class', 'hoverMenu visible')
-			.classed('visible', function(d) { 
-				return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu);
-			})
+			.classed('visible', isHoverMenuVisible)
 			.attr('r', config.node.radius + 20)
 			.on('mouseover', function(d) {
 			    showMenu = true;
@@ -899,9 +897,9 @@ $.SvgCanvas = function(container, config, style) {
 			});
 
 		// Hide the transition labels if the hover menu is not active
-	    hoverMenu.selectAll('text').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
+	    hoverMenu.selectAll('text').classed('visible', isHoverMenuVisible);
 	    // Hide the prototype transition if the hover menu is not active
-	    hoverMenu.selectAll('path').classed('visible', function(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu); });
+	    hoverMenu.selectAll('path').classed('visible', isHoverMenuVisible);
 	    
 	    if(config.transition.labeled) {
 	    	populateHoverMenusWithAlphabet(menus)
