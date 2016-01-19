@@ -20,6 +20,10 @@ $.SvgCanvas = function(container, config, style) {
 		},
 		hoverMenu: {
 			step: Math.PI/6
+		},
+		transition: {
+			loopWidth: Math.PI / 2,	// The distance between the two points at which a loop connects to its vertex (in radians)
+			loopHeight: 80 // The height of a looping transition
 		}
 	}
 
@@ -943,16 +947,17 @@ $.SvgCanvas = function(container, config, style) {
 	    d.relfexive = true;
 
 	    var angle = Math.PI / 2;
-	    if(d.source.flip)
-		angle = 3 * Math.PI / 2;
+	    if(d.source.flip) {
+			angle = 3 * Math.PI / 2;
+		}
 	    var x = Math.round(d.source.x + config.node.radius * Math.cos(angle));
 	    var y = Math.round(d.source.y + config.node.radius * Math.sin(angle));
-	    var x1 = Math.round(80 * Math.cos(angle + Math.PI / 4));
-	    var y1 = Math.round(80 * Math.sin(angle + Math.PI / 4));
-	    var x2 = Math.round(80 * Math.cos(angle - Math.PI / 4));
-	    var y2 = Math.round(80 * Math.sin(angle - Math.PI / 4));
-	    var x3 = Math.round(6 * Math.cos(angle - Math.PI / 4));
-	    var y3 = Math.round(6 * Math.sin(angle - Math.PI / 4));
+	    var x1 = Math.round(config.transition.loopHeight * Math.cos(angle + config.transition.loopWidth / 2));
+	    var y1 = Math.round(config.transition.loopHeight * Math.sin(angle + config.transition.loopWidth / 2));
+	    var x2 = Math.round(config.transition.loopHeight * Math.cos(angle - config.transition.loopWidth / 2));
+	    var y2 = Math.round(config.transition.loopHeight * Math.sin(angle - config.transition.loopWidth / 2));
+	    var x3 = Math.round(6 * Math.cos(angle - config.transition.loopWidth / 2));
+	    var y3 = Math.round(6 * Math.sin(angle - config.transition.loopWidth / 2));
 	    return 'M' + x + ',' + y + ' c' + x1 + ',' + y1 + ' ' + x2 + ',' + y2 + ' ' + x3 + ',' + y3 + '';
 	}
 
