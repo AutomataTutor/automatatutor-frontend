@@ -986,7 +986,7 @@ $.SvgCanvas = function(container, config, style) {
     		command.push([controlX, controlY].join(','))
     		command.push([endX, endY].join(','))
 
-    		commands.push(command.join(' '))
+    		commands.push(['q', , ].join(' '))
     	},
 
     	/**
@@ -1039,76 +1039,76 @@ $.SvgCanvas = function(container, config, style) {
      *
      */
     function drawPath(d) {
-	if(d.source === d.target) {
-	    d.relfexive = true;
+		if(d.source === d.target) {
+		    d.relfexive = true;
 
-	    var angle = Math.PI / 2;
-	    if(d.source.flip) {
-			angle = 3 * Math.PI / 2;
+		    var angle = Math.PI / 2;
+		    if(d.source.flip) {
+				angle = 3 * Math.PI / 2;
+			}
+
+			var loopHeight = config.transition.loopHeight
+			var outAngle = angle + config.transition.loopWidth / 2
+			var inAngle = angle - config.transition.loopWidth / 2
+
+			var builder = new dBuilder()
+
+			var startPoint = polarToPlanar(config.node.radius, angle)
+			startPoint.x += d.source.x
+			startPoint.y += d.source.y
+
+			builder.moveTo(startPoint)
+
+			var controlPoints = {
+				1: polarToPlanar(loopHeight, outAngle),
+				2: polarToPlanar(loopHeight, inAngle)
+			}
+			var endPoint = polarToPlanar(6, inAngle)
+
+		    builder.cubicCurveTo(controlPoints, endPoint)
+
+		    return builder.build()
 		}
 
-		var loopHeight = config.transition.loopHeight
-		var outAngle = angle + config.transition.loopWidth / 2
-		var inAngle = angle - config.transition.loopWidth / 2
+		var x1 = d.source.x,
+		    y1 = d.source.y,
+		    x2 = d.target.x,
+		    y2 = d.target.y;
 
-		var builder = new dBuilder()
+		var dx = x2 - x1;
+		var dy = y2 - y1;
+		var slope = dy / dx;
+		var angle = getAngle(dx, dy);
+		var nangle = angle + Math.PI / 2;
 
-		var startPoint = polarToPlanar(config.node.radius, angle)
-		startPoint.x += d.source.x
-		startPoint.y += d.source.y
+		var third1x = (2 * x1 + x2) / 3;
+		var third1y = (2 * y1 + y2) / 3;
+		var third2x = (x1 + 2 * x2) / 3;
+		var third2y = (y1 + 2 * y2) / 3;
 
-		builder.moveTo(startPoint)
+		var offSet = d.totnum;
+		var edgeDeviation = 30;
+		var edgeindex = d.linknum;
+		if(edgeindex > 0)
+		    edgeindex = 1;
+		if(d.flat)
+		    edgeindex = 0;
+		var deviation = edgeDeviation*edgeindex;
 
-		var controlPoints = {
-			1: polarToPlanar(loopHeight, outAngle),
-			2: polarToPlanar(loopHeight, inAngle)
-		}
-		var endPoint = polarToPlanar(6, inAngle)
+		var ay = third1y + Math.sin(nangle) * deviation;
+		var ax = third1x + Math.cos(nangle) * deviation;
+		var by = third2y + Math.sin(nangle) * deviation;
+		var bx = third2x + Math.cos(nangle) * deviation;
 
-	    builder.cubicCurveTo(controlPoints, endPoint)
+		var len1 = Math.sqrt((ax - x1) * (ax - x1) + (ay - y1) * (ay - y1));
+		var boundary1x = x1 + config.node.radius * (ax - x1) / len1;
+		var boundary1y = y1 + config.node.radius * (ay - y1) / len1;
 
-	    return builder.build()
-	}
+		var len2 = Math.sqrt((bx - x2) * (bx - x2) + (by - y2) * (by - y2));
+		var boundary2x = x2 + (config.node.radius + 4) * (bx - x2) / len2;
+		var boundary2y = y2 + (config.node.radius + 4) * (by - y2) / len2;
 
-	var x1 = d.source.x,
-	    y1 = d.source.y,
-	    x2 = d.target.x,
-	    y2 = d.target.y;
-
-	var dx = x2 - x1;
-	var dy = y2 - y1;
-	var slope = dy / dx;
-	var angle = getAngle(dx, dy);
-	var nangle = angle + Math.PI / 2;
-
-	var third1x = (2 * x1 + x2) / 3;
-	var third1y = (2 * y1 + y2) / 3;
-	var third2x = (x1 + 2 * x2) / 3;
-	var third2y = (y1 + 2 * y2) / 3;
-
-	var offSet = d.totnum;
-	var edgeDeviation = 30;
-	var edgeindex = d.linknum;
-	if(edgeindex > 0)
-	    edgeindex = 1;
-	if(d.flat)
-	    edgeindex = 0;
-	var deviation = edgeDeviation*edgeindex;
-
-	var ay = third1y + Math.sin(nangle) * deviation;
-	var ax = third1x + Math.cos(nangle) * deviation;
-	var by = third2y + Math.sin(nangle) * deviation;
-	var bx = third2x + Math.cos(nangle) * deviation;
-
-	var len1 = Math.sqrt((ax - x1) * (ax - x1) + (ay - y1) * (ay - y1));
-	var boundary1x = x1 + config.node.radius * (ax - x1) / len1;
-	var boundary1y = y1 + config.node.radius * (ay - y1) / len1;
-
-	var len2 = Math.sqrt((bx - x2) * (bx - x2) + (by - y2) * (by - y2));
-	var boundary2x = x2 + (config.node.radius + 4) * (bx - x2) / len2;
-	var boundary2y = y2 + (config.node.radius + 4) * (by - y2) / len2;
-
-	return 'M' + boundary1x + ',' + boundary1y + ' C' + ax + ',' + ay + ' ' + bx + ',' + by + ' ' + boundary2x + ',' + boundary2y;
+		return 'M' + boundary1x + ',' + boundary1y + ' C' + ax + ',' + ay + ' ' + bx + ',' + by + ' ' + boundary2x + ',' + boundary2y;
     }
 
     /**
