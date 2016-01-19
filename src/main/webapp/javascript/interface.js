@@ -939,6 +939,102 @@ $.SvgCanvas = function(container, config, style) {
     }
 
     /**
+     * Constructs strings for the d-argument of svg:path
+     */
+    function dBuilder() {
+
+    	// Private variable that is used to chain the commands
+    	var commands = []
+
+    	/**
+    	 * Takes one or two arguments. If there is only one argument, it is expected
+    	 * to be an object with the keys "x" and "y" defined. If there are two arguments,
+    	 * they are expected to be the x- and y-coordinates
+    	 */
+    	this.moveTo = function(x, y) {
+    		if ( arguments.length === 1 ) { y = arguments[0].y; x = arguments[0].x }
+    		commands.push("m" + x + "," + y)
+    	},
+
+    	/**
+    	 * Takes one or two arguments. If there is only one argument, it is expected
+    	 * to be an object with the keys "x" and "y" defined. If there are two arguments,
+    	 * they are expected to be the x- and y-coordinates
+    	 */
+    	this.lineTo = function(x, y) {
+    		if ( arguments.length === 1 ) { y = arguments[0].y; x = arguments[0].x }
+    		commands.push("l" + x + "," + y)
+    	},
+
+    	/**
+    	 * Takes two or four arguments, which define the control- and endpoint of
+    	 * the Bezier-curve. If there are two arguments, they are all expected to be objects
+    	 * defining the keys "x" and "y". If there are four arguments, they are expected to be
+    	 * the x- and y-coordinates of the control- and endpoint, in this order, i.e.,
+    	 * startX, startY, controlX, controlY, endX, endY
+    	 */
+    	this.quadraticCurveTo = function(controlX, controlY, endX, endY) {
+    		if ( arguments.length === 2 ) {
+    			// In this case, the first two arguments store objects containing the coordinates
+    			endY = arguments[1].y
+    			endX = arguments[1].x
+    			controlY = arguments[0].y
+    			controlX = arguments[0].x
+    		}
+
+    		var command = ['q']
+    		command.push([controlX, controlY].join(','))
+    		command.push([endX, endY].join(','))
+
+    		commands.push(command.join(' '))
+    	},
+
+    	/**
+    	 * Takes two, three or six arguments, which define the first and second controlpoint as well as
+    	 * the endpoint of the Bezier-curve. If there are two arguments, the first one shall be an object
+    	 * defining the keys "1" and "2", both of which in turn are objects defining the keys "x" and "y".
+    	 * If there are three arguments, they are all expected to be objects defining the keys "x" and "y".
+    	 * If there are six arguments, they are expected to be the x- and y-coordinates of the first and
+    	 * second controlpoint and the endpoint, in this order, i.e., control1X, control1Y, control2X,
+    	 * control2Y, endX, endY
+    	 */
+    	this.cubicCurveTo = function(control1X, control1Y, control2X, control2Y, endX, endY) {
+    		if ( arguments.length === 2 ) {
+    			// In this case, the first two arguments store objects containing the coordinates
+    			endY = arguments[1].y
+    			endX = arguments[1].x
+    			control2Y = arguments[0][2].y
+    			control2X = arguments[0][2].x
+    			control1Y = arguments[0][1].y
+    			control1X = arguments[0][1].x
+    		} else if ( arguments.length === 3 ) {
+    			// In this case, the first three arguments store objects containing the coordinates
+    			endY = arguments[2].y
+    			endX = arguments[2].x
+    			control2Y = arguments[1].y
+    			control2X = arguments[1].x
+    			control1Y = arguments[0].y
+    			control1X = arguments[0].x
+    		}
+
+    		var command = ['c']
+    		command.push([control1X, control1Y].join(','))
+    		command.push([control2X, control2Y].join(','))
+    		command.push([endX, endY].join(','))
+
+    		commands.push(command.join(' '))
+    	},
+
+    	this.closePath = function() {
+    		commands.push('z')
+    	}
+
+    	this.build = function() {
+    		return commands.join(' ')
+    	}
+    }
+
+    /**
      * Calculates the formula for drawing paths
      *
      */
@@ -950,15 +1046,28 @@ $.SvgCanvas = function(container, config, style) {
 	    if(d.source.flip) {
 			angle = 3 * Math.PI / 2;
 		}
-	    var x = Math.round(d.source.x + config.node.radius * Math.cos(angle));
-	    var y = Math.round(d.source.y + config.node.radius * Math.sin(angle));
-	    var x1 = Math.round(config.transition.loopHeight * Math.cos(angle + config.transition.loopWidth / 2));
-	    var y1 = Math.round(config.transition.loopHeight * Math.sin(angle + config.transition.loopWidth / 2));
-	    var x2 = Math.round(config.transition.loopHeight * Math.cos(angle - config.transition.loopWidth / 2));
-	    var y2 = Math.round(config.transition.loopHeight * Math.sin(angle - config.transition.loopWidth / 2));
-	    var x3 = Math.round(6 * Math.cos(angle - config.transition.loopWidth / 2));
-	    var y3 = Math.round(6 * Math.sin(angle - config.transition.loopWidth / 2));
-	    return 'M' + x + ',' + y + ' c' + x1 + ',' + y1 + ' ' + x2 + ',' + y2 + ' ' + x3 + ',' + y3 + '';
+
+		var loopHeight = config.transition.loopHeight
+		var outAngle = angle + config.transition.loopWidth / 2
+		var inAngle = angle - config.transition.loopWidth / 2
+
+		var builder = new dBuilder()
+
+		var startPoint = polarToPlanar(config.node.radius, angle)
+		startPoint.x += d.source.x
+		startPoint.y += d.source.y
+
+		builder.moveTo(startPoint)
+
+		var controlPoints = {
+			1: polarToPlanar(loopHeight, outAngle),
+			2: polarToPlanar(loopHeight, inAngle)
+		}
+		var endPoint = polarToPlanar(6, inAngle)
+
+	    builder.cubicCurveTo(controlPoints, endPoint)
+
+	    return builder.build()
 	}
 
 	var x1 = d.source.x,
