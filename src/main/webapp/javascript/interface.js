@@ -16,7 +16,8 @@ $.SvgCanvas = function(container, config, style) {
 
 	var globalConfig = {
 		node: {
-			radius: 15
+			radius: 15,		// Used when rendering the node as a circle
+			sideLength: 30	// Used when rendering the node as a square
 		},
 		hoverMenu: {
 			step: Math.PI/6
@@ -1096,13 +1097,36 @@ $.SvgCanvas = function(container, config, style) {
 		var by = third2y + Math.sin(nangle) * deviation;
 		var bx = third2x + Math.cos(nangle) * deviation;
 
-		var len1 = Math.sqrt((ax - x1) * (ax - x1) + (ay - y1) * (ay - y1));
-		var boundary1x = x1 + config.node.radius * (ax - x1) / len1;
-		var boundary1y = y1 + config.node.radius * (ay - y1) / len1;
+		/**
+		 * If low <= val <= high, returns val.
+		 * Otherwise returns the interval boundary that val is closer to 
+		 */
+		function moveToBoundaries(val, low, high) {
+			if (val < low) { return low }
+			else if (high < val) { return high }
+			else { return val }
+		}
 
-		var len2 = Math.sqrt((bx - x2) * (bx - x2) + (by - y2) * (by - y2));
-		var boundary2x = x2 + (config.node.radius + 4) * (bx - x2) / len2;
-		var boundary2y = y2 + (config.node.radius + 4) * (by - y2) / len2;
+		var len1 = Math.sqrt(Math.pow(ax - x1, 2) + Math.pow(ay - y1, 2));
+		// For circles, we can simply calculate the border points using polar coordinates
+		// For squares, we circumscribe a cirle, calculate its border points, and then trim the coordinates to the edges of the square
+		var radius1 = (transition.source.owner === 0) ? config.node.radius : (Math.sqrt(2*Math.pow(config.node.sideLength / 2, 2)))
+		
+		var boundary1x = x1 + radius1 * (ax - x1) / len1;
+		var boundary1y = y1 + radius1 * (ay - y1) / len1;
+		if (transition.source.owner === 1) {
+			boundary1x = moveToBoundaries(boundary1x, x1 - config.node.sideLength / 2, x1 + config.node.sideLength / 2)
+			boundary1y = moveToBoundaries(boundary1y, y1 - config.node.sideLength / 2, y1 + config.node.sideLength / 2)
+		}
+
+		var len2 = Math.sqrt(Math.pow(bx - x2, 2) + Math.pow(by - y2, 2));
+		var radius2 = (transition.target.owner === 0) ? config.node.radius : (Math.sqrt(2*Math.pow(config.node.sideLength / 2, 2)))
+		var boundary2x = x2 + (radius2 + 4) * (bx - x2) / len2;
+		var boundary2y = y2 + (radius2 + 4) * (by - y2) / len2;
+		if (transition.target.owner === 1) {
+			boundary2x = moveToBoundaries(boundary2x, x2 - config.node.sideLength / 2 - 4, x2 + config.node.sideLength / 2 + 4)
+			boundary2y = moveToBoundaries(boundary2y, y2 - config.node.sideLength / 2 - 4, y2 + config.node.sideLength / 2 + 4)
+		}
 
 		return 'M' + boundary1x + ',' + boundary1y + ' C' + ax + ',' + ay + ' ' + bx + ',' + by + ' ' + boundary2x + ',' + boundary2y;
     }
@@ -1554,7 +1578,7 @@ $.SvgCanvas = function(container, config, style) {
 		}
 		
 		// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
-		var node = {id: idNum, initial: false, accepting: false, reflexiveNum: reflNum, flip: true, menu_visible: false};
+		var node = {id: idNum, initial: false, accepting: false, reflexiveNum: reflNum, flip: true, menu_visible: false, owner: 0};
 		node.x = x;
 		node.y = y;
 		nodes.push(node);
