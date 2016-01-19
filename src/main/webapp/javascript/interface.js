@@ -986,7 +986,7 @@ $.SvgCanvas = function(container, config, style) {
     		command.push([controlX, controlY].join(','))
     		command.push([endX, endY].join(','))
 
-    		commands.push(['q', , ].join(' '))
+    		commands.push(command.join(' '))
     	},
 
     	/**
@@ -1034,46 +1034,42 @@ $.SvgCanvas = function(container, config, style) {
     	}
     }
 
-    /**
-     * Calculates the formula for drawing paths
-     *
-     */
-    function drawPath(d) {
-		if(d.source === d.target) {
-		    d.relfexive = true;
+    function drawSelfLoop(transition) {
+    	transition.relfexive = true;
 
-		    var angle = Math.PI / 2;
-		    if(d.source.flip) {
-				angle = 3 * Math.PI / 2;
-			}
-
-			var loopHeight = config.transition.loopHeight
-			var outAngle = angle + config.transition.loopWidth / 2
-			var inAngle = angle - config.transition.loopWidth / 2
-
-			var builder = new dBuilder()
-
-			var startPoint = polarToPlanar(config.node.radius, angle)
-			startPoint.x += d.source.x
-			startPoint.y += d.source.y
-
-			builder.moveTo(startPoint)
-
-			var controlPoints = {
-				1: polarToPlanar(loopHeight, outAngle),
-				2: polarToPlanar(loopHeight, inAngle)
-			}
-			var endPoint = polarToPlanar(6, inAngle)
-
-		    builder.cubicCurveTo(controlPoints, endPoint)
-
-		    return builder.build()
+		var angle = Math.PI / 2;
+		if(transition.source.flip) {
+			angle = 3 * Math.PI / 2;
 		}
 
-		var x1 = d.source.x,
-		    y1 = d.source.y,
-		    x2 = d.target.x,
-		    y2 = d.target.y;
+		var loopHeight = config.transition.loopHeight
+		var outAngle = angle + config.transition.loopWidth / 2
+		var inAngle = angle - config.transition.loopWidth / 2
+
+		var builder = new dBuilder()
+
+		var startPoint = polarToPlanar(config.node.radius, angle)
+		startPoint.x += transition.source.x
+		startPoint.y += transition.source.y
+
+		builder.moveTo(startPoint)
+
+		var controlPoints = {
+			1: polarToPlanar(loopHeight, outAngle),
+			2: polarToPlanar(loopHeight, inAngle)
+		}
+		var endPoint = polarToPlanar(6, inAngle)
+
+	    builder.cubicCurveTo(controlPoints, endPoint)
+
+	    return builder.build()
+    }
+
+    function drawLink(transition) {
+		var x1 = transition.source.x,
+		    y1 = transition.source.y,
+		    x2 = transition.target.x,
+		    y2 = transition.target.y;
 
 		var dx = x2 - x1;
 		var dy = y2 - y1;
@@ -1086,12 +1082,12 @@ $.SvgCanvas = function(container, config, style) {
 		var third2x = (x1 + 2 * x2) / 3;
 		var third2y = (y1 + 2 * y2) / 3;
 
-		var offSet = d.totnum;
+		var offSet = transition.totnum;
 		var edgeDeviation = 30;
-		var edgeindex = d.linknum;
+		var edgeindex = transition.linknum;
 		if(edgeindex > 0)
 		    edgeindex = 1;
-		if(d.flat)
+		if(transition.flat)
 		    edgeindex = 0;
 		var deviation = edgeDeviation*edgeindex;
 
@@ -1109,6 +1105,15 @@ $.SvgCanvas = function(container, config, style) {
 		var boundary2y = y2 + (config.node.radius + 4) * (by - y2) / len2;
 
 		return 'M' + boundary1x + ',' + boundary1y + ' C' + ax + ',' + ay + ' ' + bx + ',' + by + ' ' + boundary2x + ',' + boundary2y;
+    }
+
+    /**
+     * Calculates the formula for drawing paths
+     *
+     */
+    function drawPath(d) {
+		if(d.source === d.target) { return drawSelfLoop(d) }
+		else { return drawLink(d) }	
     }
 
     /**
