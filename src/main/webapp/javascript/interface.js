@@ -744,17 +744,23 @@ $.SvgCanvas = function(container, config, style) {
 
 	// update existing nodes (reflexive & selected visual states)
 	if(config.acceptanceMarker === 'css') {
-		circle.selectAll('circle')
+		circle.selectAll('circle#main')
 		    .classed('accepting', function(d) { return d.accepting; });
-		circle.selectAll('rect')
+		circle.selectAll('rect#main')
 			.classed('accepting', function(d) { return d.accepting; });
+	} else if (config.acceptanceMarker === 'border' ) {
+		circle.selectAll('circle#marker')
+			.classed('hidden', function(d) { return d.owner === 1 || !d.accepting; })
+		circle.selectAll('rect#marker')
+			.classed('hidden', function(d) { return d.owner === 0 || !d.accepting; })
 	}
+
 	circle.selectAll('text')
 		.text(config.node.label)
 
-	circle.selectAll('circle')
+	circle.selectAll('circle#main')
 		.classed('hidden', function(d) { return d.owner === 1 });
-	circle.selectAll('rect')
+	circle.selectAll('rect#main')
 		.classed('hidden', function(d) { return d.owner === 0 });
 
 
@@ -768,6 +774,7 @@ $.SvgCanvas = function(container, config, style) {
 		d.menu_visible = true;
 		showMenu = true;
 		d3.select(this).attr('transform', 'scale(1.1)');
+		d3.select(this.parentNode).selectAll('#marker').attr('transform', 'scale(1.1)')
 		restart();
 		return;
 	}
@@ -777,6 +784,7 @@ $.SvgCanvas = function(container, config, style) {
 		hover_node = null;
 		showMenu = false;
 		d3.select(this).attr('transform', '');
+		d3.select(this.parentNode).selectAll('#marker').attr('transform', '')
 		return;
 	}
 
@@ -899,39 +907,55 @@ $.SvgCanvas = function(container, config, style) {
 		restart();
 	}
 
-	var newCircles = g.append('svg:circle')
+	g.append('svg:circle')
 	    .attr('class', 'node')
+	    .attr('id', 'main')
 	    .attr('r', config.node.radius)
 	    .style('stroke', '#5B90B2')
 	    .classed('hidden', function(d) { return d.owner === 1 })
+	    .classed('accepting', function(d) { return config.acceptanceMarker === 'css' && d.accepting; })
 	    .on('mouseover', onNodeMouseover)
 	    .on('mouseout', onNodeMouseout)
 	    .on('dblclick', onNodeDblclick)
 	    .on('mousedown', onNodeMousedown)
 	    .on('mouseup', onNodeMouseup);
 
-	if(config.acceptanceMarker === 'css') {
-		newCircles.classed('accepting', function(d) { return d.accepting; })
-	}
+	g.append('svg:circle')
+		.attr('r', config.node.radius * 0.8)
+		.attr('id', 'marker')
+	    .style('stroke', '#5B90B2')
+	    .style('fill-opacity', '0.0')
+	    .style('stroke-width', '1px')
+	    .style('pointer-events', 'none')
+	    .classed('hidden', function(d) { return !(config.acceptanceMarker === 'border') || d.owner === 1 || d.accepting === false })
 
-    var newRects = g.append('svg:rect')
+    g.append('svg:rect')
 	    .attr('class', 'node')
+	    .attr('id', 'main')
 	    .attr('x', -config.node.sideLength / 2)
 	    .attr('y', -config.node.sideLength / 2)
 	    .attr('width', config.node.sideLength)
 	    .attr('height', config.node.sideLength)
 	    .style('stroke', '#5B90B2')
-	    .classed('accepting', function(d) { return d.accepting; })
 	    .classed('hidden', function(d) { return d.owner === 0 })
+	    .classed('accepting', function(d) { return config.acceptanceMarker === 'css' && d.accepting; })
 	    .on('mouseover', onNodeMouseover)
 	    .on('mouseout', onNodeMouseout)
 	    .on('dblclick', onNodeDblclick)
 	    .on('mousedown', onNodeMousedown)
 	    .on('mouseup', onNodeMouseup);
 
-	if(config.acceptanceMarker === 'css') {
-		newRects.classed('accepting', function(d) { return d.accepting; })
-	}
+	g.append('svg:rect')
+		.attr('x', - config.node.sideLength / 2 + config.node.sideLength * (1 - 0.8) / 2)
+		.attr('y', - config.node.sideLength / 2 + config.node.sideLength * (1 - 0.8) / 2)
+		.attr('width', config.node.sideLength * 0.8)
+	    .attr('height', config.node.sideLength * 0.8)
+	    .attr('id', 'marker')
+	    .style('stroke', '#5B90B2')
+	    .style('fill-opacity', '0.0')
+	    .style('stroke-width', '1px')
+	    .style('pointer-events', 'none')
+	    .classed('hidden', function(d) { return !(config.acceptanceMarker === 'border') || d.owner === 0 || d.accepting === false })
 
 	// show node IDs
 	g.append('svg:text')
