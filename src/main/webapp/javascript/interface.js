@@ -1803,7 +1803,7 @@ $.SvgCanvas = function(container, config, style) {
 					menu_items.enableContextMenuItems('#flip')
 				}
 
-				if(!(hover_node.initial)) {
+				if(!(hover_node.initial) && config.showInitialArrow) {
 					menu_items.enableContextMenuItems('#remove,#init')
 				}
 
