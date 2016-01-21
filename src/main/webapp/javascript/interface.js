@@ -44,7 +44,7 @@ $.SvgCanvas = function(container, config, style) {
 				labeled: true,
 				deterministic: true
 			},
-			showInitialArrow: true,
+			hasInitialNode: true,
 			twoPlayers: false,
 			acceptanceMarker: 'css'
 		},
@@ -57,7 +57,7 @@ $.SvgCanvas = function(container, config, style) {
 				labeled: true,
 				deterministic: false
 			},
-			showInitialArrow: true,
+			hasInitialNode: true,
 			twoPlayers: false,
 			acceptanceMarker: 'css'
 		},
@@ -69,7 +69,7 @@ $.SvgCanvas = function(container, config, style) {
 			transition: {
 				labeled: false
 			},
-			showInitialArrow: false,
+			hasInitialNode: false,
 			twoPlayers: true,
 			acceptanceMarker: 'border'
 		},
@@ -81,7 +81,7 @@ $.SvgCanvas = function(container, config, style) {
 			transition: {
 				labeled: false
 			},
-			showInitialArrow: false,
+			hasInitialNode: false,
 			twoPlayers: true,
 			acceptanceMarker: 'none'
 		}
@@ -380,7 +380,7 @@ $.SvgCanvas = function(container, config, style) {
 		.attr('d', 'M' + init_x1 + ',' + init_y + ' L' + init_x2 + "," + init_y )
 		.style('marker-end', 'url(#end-arrow)');
 
-	if (config.showInitialArrow) {
+	if (config.hasInitialNode) {
 		init_line.attr('class', 'link initLine')
 	}
 	else {
@@ -499,10 +499,12 @@ $.SvgCanvas = function(container, config, style) {
     function tick() {
 
 	//updates loc of init state arrow
-	init_x1 = initial_node.x - 48 - config.node.radius;
-	init_x2 = initial_node.x - 5 - config.node.radius;
-	init_y = initial_node.y;
-	init_line.attr('d', 'M' + init_x1 + ',' + init_y + ' L' + init_x2 + "," + init_y );
+	if(config.hasInitialNode) {
+		init_x1 = initial_node.x - 48 - config.node.radius;
+		init_x2 = initial_node.x - 5 - config.node.radius;
+		init_y = initial_node.y;
+		init_line.attr('d', 'M' + init_x1 + ',' + init_y + ' L' + init_x2 + "," + init_y );
+	}
 
 	// draws invisible wide paths for increased room when selecting links
 	hoverPath.attr('d', drawPath);
@@ -1697,7 +1699,9 @@ $.SvgCanvas = function(container, config, style) {
      *
      */
     function init(){
-	initial_node = null;
+    	if(config.hasInitialNode) {
+			initial_node = null;
+		}
 	nodes = [];
 	links = [];
 	nodes.length = 0;
@@ -1710,7 +1714,9 @@ $.SvgCanvas = function(container, config, style) {
 	addNode(200, 240);
 	nodes[0].initial = true;
 	
-	initial_node = nodes[0];
+	if(config.hasInitialNode) {
+		initial_node = nodes[0];
+	}
 
 	restart();
     }
@@ -1803,8 +1809,10 @@ $.SvgCanvas = function(container, config, style) {
 					menu_items.enableContextMenuItems('#flip')
 				}
 
-				if(!(hover_node.initial) && config.showInitialArrow) {
+				if(config.hasInitialNode && !(hover_node.initial)) {
 					menu_items.enableContextMenuItems('#remove,#init')
+				} else if (!config.hasInitialNode) {
+					menu_items.enableContextMenuItems('#remove')
 				}
 
 				if(config.twoPlayers === true) {
@@ -1864,9 +1872,11 @@ $.SvgCanvas = function(container, config, style) {
 	
 	this.clear();
 	addNode(200, 240);
-	nodes[0].initial = true;
 	
-	initial_node = nodes[0];
+	if(config.hasInitialNode) {
+		nodes[0].initial = true;
+	 	initial_node = nodes[0];
+	 }
 	
 	restart();
     }
