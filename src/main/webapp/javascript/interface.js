@@ -44,7 +44,8 @@ $.SvgCanvas = function(container, config, style) {
 				labeled: true,
 				deterministic: true
 			},
-			showInitialArrow: true
+			showInitialArrow: true,
+			twoPlayers: false
 		},
 
 		'nondetaut': {
@@ -55,7 +56,8 @@ $.SvgCanvas = function(container, config, style) {
 				labeled: true,
 				deterministic: false
 			},
-			showInitialArrow: true
+			showInitialArrow: true,
+			twoPlayers: false
 		},
 
 		'buchigame': {
@@ -65,7 +67,8 @@ $.SvgCanvas = function(container, config, style) {
 			transition: {
 				labeled: false
 			},
-			showInitialArrow: false
+			showInitialArrow: false,
+			twoPlayers: true
 		},
 
 		'paritygame': {
@@ -75,7 +78,8 @@ $.SvgCanvas = function(container, config, style) {
 			transition: {
 				labeled: false
 			},
-			showInitialArrow: false
+			showInitialArrow: false,
+			twoPlayers: true
 		}
 	};
 
@@ -737,6 +741,16 @@ $.SvgCanvas = function(container, config, style) {
 	// update existing nodes (reflexive & selected visual states)
 	circle.selectAll('circle')
 	    .classed('accepting', function(d) { return d.accepting; });
+	circle.selectAll('rect')
+		.classed('accepting', function(d) { return d.accepting; });
+	circle.selectAll('text')
+		.text(config.node.label)
+
+	circle.selectAll('circle')
+		.classed('hidden', function(d) { return d.owner === 1 });
+	circle.selectAll('rect')
+		.classed('hidden', function(d) { return d.owner === 0 });
+
 
 	// add new nodes
 	var g = circle.enter().append('svg:g');
@@ -884,6 +898,22 @@ $.SvgCanvas = function(container, config, style) {
 	    .attr('r', config.node.radius)
 	    .style('stroke', '#5B90B2')
 	    .classed('accepting', function(d) { return d.accepting; })
+	    .classed('hidden', function(d) { return d.owner === 1 })
+	    .on('mouseover', onNodeMouseover)
+	    .on('mouseout', onNodeMouseout)
+	    .on('dblclick', onNodeDblclick)
+	    .on('mousedown', onNodeMousedown)
+	    .on('mouseup', onNodeMouseup);
+
+    g.append('svg:rect')
+	    .attr('class', 'node')
+	    .attr('x', -config.node.sideLength / 2)
+	    .attr('y', -config.node.sideLength / 2)
+	    .attr('width', config.node.sideLength)
+	    .attr('height', config.node.sideLength)
+	    .style('stroke', '#5B90B2')
+	    .classed('accepting', function(d) { return d.accepting; })
+	    .classed('hidden', function(d) { return d.owner === 0 })
 	    .on('mouseover', onNodeMouseover)
 	    .on('mouseout', onNodeMouseout)
 	    .on('dblclick', onNodeDblclick)
@@ -1685,6 +1715,14 @@ $.SvgCanvas = function(container, config, style) {
 				links.splice(links.indexOf(menu_link), 1);
 				restart();
 				break;
+			case 'makep0':
+				menu_node.owner = 0;
+				restart();
+				break;
+			case 'makep1':
+				menu_node.owner = 1;
+				restart();
+				break;
 		    default:
 				break;
 		    }
@@ -1705,6 +1743,14 @@ $.SvgCanvas = function(container, config, style) {
 
 				if(!(hover_node.initial)) {
 					menu_items.enableContextMenuItems('#remove,#init')
+				}
+
+				if(config.twoPlayers === true) {
+					if(hover_node.owner === 0) {
+						menu_items.enableContextMenuItems('#makep1')
+					} else {
+						menu_items.enableContextMenuItems('#makep0')
+					}
 				}
 		    } else if (hover_link) {
 				if(hover_label && !config.transition.deterministic && hover_link.reflexive) {
