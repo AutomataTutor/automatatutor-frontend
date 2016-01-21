@@ -45,7 +45,8 @@ $.SvgCanvas = function(container, config, style) {
 				deterministic: true
 			},
 			showInitialArrow: true,
-			twoPlayers: false
+			twoPlayers: false,
+			acceptanceMarker: 'css'
 		},
 
 		'nondetaut': {
@@ -57,7 +58,8 @@ $.SvgCanvas = function(container, config, style) {
 				deterministic: false
 			},
 			showInitialArrow: true,
-			twoPlayers: false
+			twoPlayers: false,
+			acceptanceMarker: 'css'
 		},
 
 		'buchigame': {
@@ -68,7 +70,8 @@ $.SvgCanvas = function(container, config, style) {
 				labeled: false
 			},
 			showInitialArrow: false,
-			twoPlayers: true
+			twoPlayers: true,
+			acceptanceMarker: 'border'
 		},
 
 		'paritygame': {
@@ -79,7 +82,8 @@ $.SvgCanvas = function(container, config, style) {
 				labeled: false
 			},
 			showInitialArrow: false,
-			twoPlayers: true
+			twoPlayers: true,
+			acceptanceMarker: 'none'
 		}
 	};
 
@@ -739,10 +743,12 @@ $.SvgCanvas = function(container, config, style) {
 	circle = circle.data(nodes, function(d) { return d.id; });
 
 	// update existing nodes (reflexive & selected visual states)
-	circle.selectAll('circle')
-	    .classed('accepting', function(d) { return d.accepting; });
-	circle.selectAll('rect')
-		.classed('accepting', function(d) { return d.accepting; });
+	if(config.acceptanceMarker === 'css') {
+		circle.selectAll('circle')
+		    .classed('accepting', function(d) { return d.accepting; });
+		circle.selectAll('rect')
+			.classed('accepting', function(d) { return d.accepting; });
+	}
 	circle.selectAll('text')
 		.text(config.node.label)
 
@@ -893,11 +899,10 @@ $.SvgCanvas = function(container, config, style) {
 		restart();
 	}
 
-	g.append('svg:circle')
+	var newCircles = g.append('svg:circle')
 	    .attr('class', 'node')
 	    .attr('r', config.node.radius)
 	    .style('stroke', '#5B90B2')
-	    .classed('accepting', function(d) { return d.accepting; })
 	    .classed('hidden', function(d) { return d.owner === 1 })
 	    .on('mouseover', onNodeMouseover)
 	    .on('mouseout', onNodeMouseout)
@@ -905,7 +910,11 @@ $.SvgCanvas = function(container, config, style) {
 	    .on('mousedown', onNodeMousedown)
 	    .on('mouseup', onNodeMouseup);
 
-    g.append('svg:rect')
+	if(config.acceptanceMarker === 'css') {
+		newCircles.classed('accepting', function(d) { return d.accepting; })
+	}
+
+    var newRects = g.append('svg:rect')
 	    .attr('class', 'node')
 	    .attr('x', -config.node.sideLength / 2)
 	    .attr('y', -config.node.sideLength / 2)
@@ -919,6 +928,10 @@ $.SvgCanvas = function(container, config, style) {
 	    .on('dblclick', onNodeDblclick)
 	    .on('mousedown', onNodeMousedown)
 	    .on('mouseup', onNodeMouseup);
+
+	if(config.acceptanceMarker === 'css') {
+		newRects.classed('accepting', function(d) { return d.accepting; })
+	}
 
 	// show node IDs
 	g.append('svg:text')
