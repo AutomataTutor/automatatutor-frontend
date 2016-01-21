@@ -759,9 +759,13 @@ $.SvgCanvas = function(container, config, style) {
 		.text(config.node.label)
 
 	circle.selectAll('circle#main')
-		.classed('hidden', function(d) { return d.owner === 1 });
+		.classed('hidden', function(d) { return d.owner === 1 })
+		.classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
+    	.classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 	circle.selectAll('rect#main')
-		.classed('hidden', function(d) { return d.owner === 0 });
+		.classed('hidden', function(d) { return d.owner === 0 })
+		.classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
+    	.classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 
 
 	// add new nodes
@@ -914,6 +918,8 @@ $.SvgCanvas = function(container, config, style) {
 	    .style('stroke', '#5B90B2')
 	    .classed('hidden', function(d) { return d.owner === 1 })
 	    .classed('accepting', function(d) { return config.acceptanceMarker === 'css' && d.accepting; })
+	    .classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
+	    .classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 	    .on('mouseover', onNodeMouseover)
 	    .on('mouseout', onNodeMouseout)
 	    .on('dblclick', onNodeDblclick)
@@ -939,6 +945,8 @@ $.SvgCanvas = function(container, config, style) {
 	    .style('stroke', '#5B90B2')
 	    .classed('hidden', function(d) { return d.owner === 0 })
 	    .classed('accepting', function(d) { return config.acceptanceMarker === 'css' && d.accepting; })
+	    .classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
+	    .classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 	    .on('mouseover', onNodeMouseover)
 	    .on('mouseout', onNodeMouseout)
 	    .on('dblclick', onNodeDblclick)
@@ -1655,7 +1663,16 @@ $.SvgCanvas = function(container, config, style) {
 		}
 		
 		// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
-		var node = {id: idNum, initial: false, accepting: false, reflexiveNum: reflNum, flip: true, menu_visible: false, owner: 0};
+		var node = {
+			id: idNum,
+			initial: false,
+			accepting: false,
+			reflexiveNum: reflNum,
+			flip: true,
+			menu_visible: false,
+			owner: 0,
+			winningPlayer: 0
+		};
 		node.x = x;
 		node.y = y;
 		nodes.push(node);
@@ -1760,6 +1777,14 @@ $.SvgCanvas = function(container, config, style) {
 				menu_node.owner = 1;
 				restart();
 				break;
+			case 'p0wins':
+				menu_node.winningPlayer = 0;
+				restart();
+				break;
+			case 'p1wins':
+				menu_node.winningPlayer = 1;
+				restart();
+				break;
 		    default:
 				break;
 		    }
@@ -1787,6 +1812,12 @@ $.SvgCanvas = function(container, config, style) {
 						menu_items.enableContextMenuItems('#makep1')
 					} else {
 						menu_items.enableContextMenuItems('#makep0')
+					}
+
+					if(hover_node.winningPlayer === 0) {
+						menu_items.enableContextMenuItems('#p1wins')
+					} else {
+						menu_items.enableContextMenuItems('#p0wins')
 					}
 				}
 		    } else if (hover_link) {

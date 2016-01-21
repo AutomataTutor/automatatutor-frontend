@@ -95,6 +95,50 @@ circle.node.hidden {
   fill: none;
 }
 
+circle.hidden {
+  stroke-width: 0px;
+  fill: none;
+}
+
+circle.winningp0 {
+  fill: #82CDFF;
+}
+
+rect.winningp0 {
+  fill: #82CDFF;
+}
+
+circle.winningp1 {
+  fill: #FF828F;
+}
+
+rect.winningp1 {
+  fill: #FF828F;
+}
+
+
+rect.node {
+  stroke-width: 1.5px;
+  cursor: pointer;
+  fill: #82CDFF;
+}
+
+rect.node.accepting {
+  stroke: #000 !important;
+  stroke-width: 3px;
+  fill: #8AE68A;
+}
+
+rect.node.hidden {
+  stroke-width: 0px;
+  fill: none;
+}
+
+rect.hidden {
+  stroke-width: 0px;
+  fill: none;
+}
+
 circle.hoverMenu {
   opacity: 0;
   pointer-events: none;
@@ -122,6 +166,25 @@ text.hoverMenu.visible {
 
 text.hoverMenu.visible:hover {
   font-size: 18px;
+}
+
+path.hoverMenu {
+  visibility: hidden;
+  pointer-events: none;
+  fill: none;
+  stroke: #000;
+  stroke-width: 2.5px;
+  cursor: default;
+}
+
+path.hoverMenu.visible {
+  visibility: visible;
+  pointer-events: all;
+  cursor: pointer;
+}
+
+path.hoverMenu.visible:hover {
+  stroke-width: 3.5px;
 }
 
 text {
