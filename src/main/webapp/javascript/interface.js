@@ -741,144 +741,154 @@ $.SvgCanvas = function(container, config, style) {
 	// add new nodes
 	var g = circle.enter().append('svg:g');
 
+	function onNodeMouseover(d) {
+		// enlarge target node
+		hover_node = d;
+		menu_node = hover_node;
+		d.menu_visible = true;
+		showMenu = true;
+		d3.select(this).attr('transform', 'scale(1.1)');
+		restart();
+		return;
+	}
+
+	function onNodeMouseout(d) {
+		// unenlarge target node
+		hover_node = null;
+		showMenu = false;
+		d3.select(this).attr('transform', '');
+		return;
+	}
+
+	function onNodeDblclick(d) {
+		d.accepting = !d.accepting;
+		restart();
+		return;
+	}
+
+	function onNodeMousedown(d) {
+		if(d3.event.button === 1 || d3.event.button === 2) return;
+		hidden_link = null;
+		selected_node = d;
+
+		circle.call(node_drag);
+		svg.classed('ctrl', true);
+		draggingNode = true;
+
+		resetMouseVars();
+		restart();
+		return;
+	}
+
+	function onNodeMouseup(d) {
+		circle
+		    .on('mousedown.drag', null)
+		    .on('touchstart.drag', null);
+		svg.classed('ctrl', false);
+		draggingNode = false;
+
+		if(!mousedown_node) return;
+
+		// needed by FF
+		drag_line
+		    .classed('hidden', true)
+		    .style('marker-end', '');
+		drag_label
+		    .classed('hidden', true);
+
+		// check for drag-to-self
+		mouseup_node = d;
+
+		// unenlarge target node
+		d3.select(this).attr('transform', '');
+
+		if(draggingEntire) {
+		    // add link to graph (update if exists)
+		    for(var i = 0; i < alphabet.length; i++) {
+				if(drag_trans[i]){
+				    var t = []
+				    for(var j = 0; j < alphabet.length; j++){
+						t[j] = false;
+				    }
+				    t[i] = true;
+				    var refl = false;
+				    if(mousedown_node === mouseup_node) {
+					refl = true;
+					mousedown_node.reflexiveNum++;
+				    }
+				    links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: t});
+				}
+		    }
+
+		    if(mousedown_link.reflexive)
+			mousedown_link.source.reflexiveNum = mousedown_link.source.reflexiveNum - mousedown_link.trans.length;
+		    links.splice(links.indexOf(mousedown_link), 1);
+		}
+		else if (newLink === true && !config.transition.deterministic) {
+		    
+		    var multiplicityIssue = false;
+
+		    for(var i = 0; i < links.length; i++) {
+				var transIssue = false;
+				for(var j = 0; j < alphabet.length; j++) {
+				    if(links[i].trans[j] && drag_trans[j])
+					transIssue = true;
+				}
+				if(links[i].source === mousedown_node && links[i].target === mouseup_node && transIssue) {
+				    multiplicityIssue = true;
+				}
+		    }	
+
+		    var epsilonIssue = epsilonTrans && (mousedown_node === mouseup_node) && drag_trans[alphabet.length -1];
+
+		    if(!multiplicityIssue && !epsilonIssue){
+				var refl = false;
+				if(mousedown_node === mouseup_node) {
+				    refl = true;
+				    mousedown_node.reflexiveNum++;
+				}
+				links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: drag_trans});
+		    }
+		}
+		else {
+		    if(mousedown_link.reflexive) {
+				mousedown_link.source.reflexiveNum--;
+				mousedown_link.reflexive = false;
+		    }
+
+		    mousedown_link.target = d;
+
+		    if(mousedown_link.target === mousedown_link.source) {
+				mousedown_link.source.reflexiveNum++;
+				mousedown_link.reflexive = true;
+		    }
+		}
+		var t = [];
+		for(var i = 0; i < alphabet.length; i++) {
+		    t[i] = false;
+		}
+		drag_trans = t;
+
+		linkNums(links);
+
+		draggingLink = false;
+		draggingEntire = false;
+		newLink = false;
+		hidden_link = null;
+		resetMouseVars();
+		restart();
+	}
+
 	g.append('svg:circle')
 	    .attr('class', 'node')
 	    .attr('r', config.node.radius)
 	    .style('stroke', '#5B90B2')
 	    .classed('accepting', function(d) { return d.accepting; })
-	    .on('mouseover', function(d) {
-			// enlarge target node
-			hover_node = d;
-			menu_node = hover_node;
-			d.menu_visible = true;
-			showMenu = true;
-			d3.select(this).attr('transform', 'scale(1.1)');
-			restart();
-			return;
-	    })
-	    .on('mouseout', function(d) {
-			// unenlarge target node
-			hover_node = null;
-			showMenu = false;
-			d3.select(this).attr('transform', '');
-			return;
-	    })
-	    .on('dblclick', function(d) {
-			d.accepting = !d.accepting;
-			restart();
-			return;
-	    })
-	    .on('mousedown', function(d) {
-			if(d3.event.button === 1 || d3.event.button === 2) return;
-			hidden_link = null;
-			selected_node = d;
-
-			circle.call(node_drag);
-			svg.classed('ctrl', true);
-			draggingNode = true;
-
-			resetMouseVars();
-			restart();
-			return;
-	    })
-	    .on('mouseup', function(d) {
-			circle
-			    .on('mousedown.drag', null)
-			    .on('touchstart.drag', null);
-			svg.classed('ctrl', false);
-			draggingNode = false;
-
-			if(!mousedown_node) return;
-
-			// needed by FF
-			drag_line
-			    .classed('hidden', true)
-			    .style('marker-end', '');
-			drag_label
-			    .classed('hidden', true);
-
-			// check for drag-to-self
-			mouseup_node = d;
-
-			// unenlarge target node
-			d3.select(this).attr('transform', '');
-
-			if(draggingEntire) {
-			    // add link to graph (update if exists)
-			    for(var i = 0; i < alphabet.length; i++) {
-					if(drag_trans[i]){
-					    var t = []
-					    for(var j = 0; j < alphabet.length; j++){
-							t[j] = false;
-					    }
-					    t[i] = true;
-					    var refl = false;
-					    if(mousedown_node === mouseup_node) {
-						refl = true;
-						mousedown_node.reflexiveNum++;
-					    }
-					    links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: t});
-					}
-			    }
-
-			    if(mousedown_link.reflexive)
-				mousedown_link.source.reflexiveNum = mousedown_link.source.reflexiveNum - mousedown_link.trans.length;
-			    links.splice(links.indexOf(mousedown_link), 1);
-			}
-			else if (newLink === true && !config.transition.deterministic) {
-			    
-			    var multiplicityIssue = false;
-
-			    for(var i = 0; i < links.length; i++) {
-					var transIssue = false;
-					for(var j = 0; j < alphabet.length; j++) {
-					    if(links[i].trans[j] && drag_trans[j])
-						transIssue = true;
-					}
-					if(links[i].source === mousedown_node && links[i].target === mouseup_node && transIssue) {
-					    multiplicityIssue = true;
-					}
-			    }	
-
-			    var epsilonIssue = epsilonTrans && (mousedown_node === mouseup_node) && drag_trans[alphabet.length -1];
-
-			    if(!multiplicityIssue && !epsilonIssue){
-					var refl = false;
-					if(mousedown_node === mouseup_node) {
-					    refl = true;
-					    mousedown_node.reflexiveNum++;
-					}
-					links.push({source: mousedown_node, target: mouseup_node, reflexive: refl, trans: drag_trans});
-			    }
-			}
-			else {
-			    if(mousedown_link.reflexive) {
-					mousedown_link.source.reflexiveNum--;
-					mousedown_link.reflexive = false;
-			    }
-
-			    mousedown_link.target = d;
-
-			    if(mousedown_link.target === mousedown_link.source) {
-					mousedown_link.source.reflexiveNum++;
-					mousedown_link.reflexive = true;
-			    }
-			}
-			var t = [];
-			for(var i = 0; i < alphabet.length; i++) {
-			    t[i] = false;
-			}
-			drag_trans = t;
-
-			linkNums(links);
-
-			draggingLink = false;
-			draggingEntire = false;
-			newLink = false;
-			hidden_link = null;
-			resetMouseVars();
-			restart();
-	    });
+	    .on('mouseover', onNodeMouseover)
+	    .on('mouseout', onNodeMouseout)
+	    .on('dblclick', onNodeDblclick)
+	    .on('mousedown', onNodeMousedown)
+	    .on('mouseup', onNodeMouseup);
 
 	// show node IDs
 	g.append('svg:text')
