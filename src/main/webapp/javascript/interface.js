@@ -178,8 +178,8 @@ $.SvgCanvas = function(container, config, style) {
 		menus.append('svg:path')
 		    .attr('class', 'link hoverMenu')
 		    .classed('visible', isHoverMenuVisible)
-		    .attr('d','M0,0L15,0')
-		    .attr('transform','translate(' + (config.node.radius + 2) + ')')
+		//    .attr('d','M0,0L15,0')
+		//    .attr('transform','translate(' + (config.node.radius + 2) + ')')
 		    .style('marker-end', 'url(#end-arrow)')
 		    .on('mouseover', function(d) {
 		    	d.menu_visible = true;
@@ -1049,9 +1049,29 @@ $.SvgCanvas = function(container, config, style) {
     	 * to be an object with the keys "x" and "y" defined. If there are two arguments,
     	 * they are expected to be the x- and y-coordinates
     	 */
+    	this.MoveTo = function(x, y) {
+    		if ( arguments.length === 1 ) { y = arguments[0].y; x = arguments[0].x }
+    		commands.push("M" + x + "," + y)
+    	},
+
+    	/**
+    	 * Takes one or two arguments. If there is only one argument, it is expected
+    	 * to be an object with the keys "x" and "y" defined. If there are two arguments,
+    	 * they are expected to be the x- and y-coordinates
+    	 */
     	this.lineTo = function(x, y) {
     		if ( arguments.length === 1 ) { y = arguments[0].y; x = arguments[0].x }
     		commands.push("l" + x + "," + y)
+    	},
+
+    	/**
+    	 * Takes one or two arguments. If there is only one argument, it is expected
+    	 * to be an object with the keys "x" and "y" defined. If there are two arguments,
+    	 * they are expected to be the x- and y-coordinates
+    	 */
+    	this.LineTo = function(x, y) {
+    		if ( arguments.length === 1 ) { y = arguments[0].y; x = arguments[0].x }
+    		commands.push("L" + x + "," + y)
     	},
 
     	/**
@@ -1325,6 +1345,23 @@ $.SvgCanvas = function(container, config, style) {
 	    if(restBool){
 		restart();
 	    }
+	}
+
+	// Update stub transitions	
+	if(useHoverMenu()) {
+		hoverMenu.selectAll('path').attr('d', function(node) {
+			var relativePos = {
+				x: mouse_x - node.x,
+				y: mouse_y - node.y
+			}
+			var angle = getAngle(relativePos.x, relativePos.y)
+			var builder = new dBuilder()
+			//builder.MoveTo(node.x, node.y)
+			builder.MoveTo(0,0)
+			builder.moveTo(polarToPlanar(config.node.radius, angle))
+			builder.lineTo(polarToPlanar(15, angle))
+			return builder.build()
+		})
 	}
 
 	if(!mousedown_node) return;
