@@ -104,18 +104,9 @@ circle.winningp0 {
   fill: #82CDFF;
 }
 
-rect.winningp0 {
-  fill: #82CDFF;
-}
-
 circle.winningp1 {
   fill: #FF828F;
 }
-
-rect.winningp1 {
-  fill: #FF828F;
-}
-
 
 rect.node {
   stroke-width: 1.5px;
@@ -132,6 +123,14 @@ rect.node.accepting {
 rect.node.hidden {
   stroke-width: 0px;
   fill: none;
+}
+
+rect.winningp0 {
+  fill: #82CDFF;
+}
+
+rect.winningp1 {
+  fill: #FF828F;
 }
 
 rect.hidden {
