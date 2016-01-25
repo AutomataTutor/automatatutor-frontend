@@ -38,7 +38,7 @@ $.SvgCanvas = function(container, config, style) {
 	var styleConfig = {
 		'detaut': {
 			node: {
-				label: function(node_data) { return node_data.id }
+				label: 'id'
 			},
 			transition: {
 				labeled: true,
@@ -51,7 +51,7 @@ $.SvgCanvas = function(container, config, style) {
 
 		'nondetaut': {
 			node: {
-				label: function(node_data) { return node_data.id }
+				label: 'id'
 			},
 			transition: {
 				labeled: true,
@@ -64,7 +64,7 @@ $.SvgCanvas = function(container, config, style) {
 
 		'buchigame': {
 			node: {
-				label: function(node_data) { return "" }
+				label: 'none'
 			},
 			transition: {
 				labeled: false
@@ -76,7 +76,7 @@ $.SvgCanvas = function(container, config, style) {
 
 		'paritygame': {
 			node: {
-				label: function(node_data) { return node_data.priority }
+				label: 'priority'
 			},
 			transition: {
 				labeled: false
@@ -757,8 +757,14 @@ $.SvgCanvas = function(container, config, style) {
 			.classed('hidden', function(d) { return d.owner === 0 || !d.accepting; })
 	}
 
-	circle.selectAll('text')
-		.text(config.node.label)
+	switch(config.node.label) {
+		case 'id':
+			circle.selectAll('text').text(function (d) { return d.id })
+			break
+		case 'priority':
+			circle.selectAll('text').text(function (d) { return d.priority })
+			break
+	}
 
 	circle.selectAll('circle#main')
 		.classed('hidden', function(d) { return d.owner === 1 })
@@ -968,11 +974,19 @@ $.SvgCanvas = function(container, config, style) {
 	    .classed('hidden', function(d) { return !(config.acceptanceMarker === 'border') || d.owner === 0 || d.accepting === false })
 
 	// show node IDs
-	g.append('svg:text')
+	var newLabels = g.append('svg:text')
 		.attr('x', 0)
 		.attr('y', 5)
 		.attr('class', 'id')
-		.text(config.node.label);
+
+	switch(config.node.label) {
+		case 'id':
+			newLabels.text(function (d) { return d.id });
+			break
+		case 'priority':
+			newLabels.text(function (d) { return d.priority });
+			break
+	}
 
 	// remove old nodes
 	circle.exit().remove();
@@ -1710,7 +1724,8 @@ $.SvgCanvas = function(container, config, style) {
 			flip: true,
 			menu_visible: false,
 			owner: 0,
-			winningPlayer: 0
+			winningPlayer: 0,
+			priority: 0
 		};
 		node.x = x;
 		node.y = y;
@@ -1828,6 +1843,10 @@ $.SvgCanvas = function(container, config, style) {
 				menu_node.winningPlayer = 1;
 				restart();
 				break;
+			case 'changePriority':
+				var newPriority = parseInt(prompt("Please enter the new priority", menu_node.priority))
+				if(newPriority !== NaN && newPriority >= 0) { menu_node.priority = newPriority; restart(); }
+				break;
 		    default:
 				break;
 		    }
@@ -1864,6 +1883,10 @@ $.SvgCanvas = function(container, config, style) {
 					} else {
 						menu_items.enableContextMenuItems('#p0wins')
 					}
+				}
+
+				if(config.node.label === 'priority') {
+					menu_items.enableContextMenuItems('#changePriority')
 				}
 		    } else if (hover_link) {
 				if(hover_label && !config.transition.deterministic && hover_link.reflexive) {
