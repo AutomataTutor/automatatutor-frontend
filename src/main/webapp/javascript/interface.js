@@ -10,10 +10,6 @@ $.SvgCanvas = function(container, config, style) {
 
 	if (style === undefined) style = 'detaut'
 
-	if (['detaut', 'nondetaut', 'buchigame', 'paritygame'].indexOf(style) == -1) {
-		throw new Error("Unknown style " + style)
-	}
-
 	var globalConfig = {
 		node: {
 			radius: 15,		// Used when rendering the node as a circle
@@ -80,6 +76,19 @@ $.SvgCanvas = function(container, config, style) {
 			},
 			transition: {
 				labeled: false
+			},
+			hasInitialNode: false,
+			twoPlayers: true,
+			acceptanceMarker: 'none'
+		},
+
+		'paritycostgame': {
+			node: {
+				label: 'priority'
+			},
+			transition: {
+				labeled: true,
+				deterministic: false
 			},
 			hasInitialNode: false,
 			twoPlayers: true,
@@ -2137,7 +2146,7 @@ $.SvgCanvas = function(container, config, style) {
      	alphabet = alph;
 
      	if(epsilonTrans && !config.transition.deterministic){
-     		alphabet.push('ε');
+     		alphabet.push('\u03B5');
      	}
 
      	this.initialize();
