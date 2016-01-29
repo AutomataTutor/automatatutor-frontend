@@ -50,26 +50,26 @@ var supportsXpath_ = (function() {
 
 // segList functions (for FF1.5 and 2.0)
 var supportsPathReplaceItem_ = (function() {
-	var path = document.createElementNS(svgns, 'path');
+	/*var path = document.createElementNS(svgns, 'path');
 	path.setAttribute('d','M0,0 10,10');
 	var seglist = path.pathSegList;
 	var seg = path.createSVGPathSegLinetoAbs(5,5);
 	try {
 		seglist.replaceItem(seg, 0);
 		return true;
-	} catch(err) {}
+	} catch(err) {}*/
 	return false;
 })();
 
 var supportsPathInsertItemBefore_ = (function() {
-	var path = document.createElementNS(svgns,'path');
+	/*var path = document.createElementNS(svgns,'path');
 	path.setAttribute('d','M0,0 10,10');
 	var seglist = path.pathSegList;
 	var seg = path.createSVGPathSegLinetoAbs(5,5);
 	try {
 		seglist.insertItemBefore(seg, 0);
 		return true;
-	} catch(err) {}
+	} catch(err) {}*/
 	return false;
 })();
 
