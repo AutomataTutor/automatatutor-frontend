@@ -17,13 +17,15 @@ case object XlsxFile extends FileType("application/vnd.openxmlformats-officedocu
 object DownloadHelper {
   private def offerDownloadToUser( contents : String, filename : String, filetype : FileType ) = {
     val filenameWithSuffix = filename + filetype.getFileSuffix
+
+	val ct = contents.getBytes()
 	val headers = 
 	  "Content-type" -> filetype.getMimeType ::
-	  "Content-length" -> contents.length().toString ::
+	  "Content-length" -> ct.length.toString ::
 	  "Content-disposition" -> ("attachment; filename=" + filenameWithSuffix) :: Nil
 	val responseCode = 200
 	
-	val downloadResponse = new StreamingResponse(new ByteArrayInputStream(contents.getBytes()), () => {}, contents.length, headers, Nil, responseCode)
+	val downloadResponse = new StreamingResponse(new ByteArrayInputStream(contents.getBytes()), () => {}, ct.length, headers, Nil, responseCode)
 	throw new ResponseShortcutException(downloadResponse)
   }
 
