@@ -1,32 +1,53 @@
 package com.automatatutor.lib
 
-import net.liftweb.http.StreamingResponse
 import java.io.ByteArrayInputStream
-import net.liftweb.http.ResponseShortcutException
-import scala.xml.NodeSeq
-import net.liftweb.http.SHtml
 
-abstract class FileType(mimeType : String, fileSuffix : String) {
-  def getMimeType = mimeType
-  def getFileSuffix = fileSuffix
-}
-case object CsvFile extends FileType("text/csv", ".csv")
-case object XmlFile extends FileType("text/xml", ".xml")
-case object XlsxFile extends FileType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx")
+import scala.xml.NodeSeq
+
+import net.liftweb.http.ResponseShortcutException
+import net.liftweb.http.SHtml
+import net.liftweb.http.StreamingResponse
 
 object DownloadHelper {
-  private def offerDownloadToUser( contents : String, filename : String, filetype : FileType ) = {
-    val filenameWithSuffix = filename + filetype.getFileSuffix
 
-	val ct = contents.getBytes()
-	val headers = 
-	  "Content-type" -> filetype.getMimeType ::
-	  "Content-length" -> ct.length.toString ::
-	  "Content-disposition" -> ("attachment; filename=" + filenameWithSuffix) :: Nil
-	val responseCode = 200
-	
-	val downloadResponse = new StreamingResponse(new ByteArrayInputStream(contents.getBytes()), () => {}, ct.length, headers, Nil, responseCode)
-	throw new ResponseShortcutException(downloadResponse)
+  private abstract class FileType(mimeType : String, fileSuffix : String) {
+    def getMimeType = mimeType
+    def getFileSuffix = fileSuffix
+  }
+  private case object CsvFile extends FileType("text/csv", ".csv")
+  private case object XmlFile extends FileType("text/xml", ".xml")
+  private case object XlsxFile extends FileType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", ".xlsx")
+
+  private def offerDownloadToUser(contents: String, filename: String, filetype: FileType) = {
+    def buildDownloadResponse = {
+      val contentAsBytes = contents.getBytes()
+      val downloadSize = contentAsBytes.length
+
+      def buildStream = {
+        new ByteArrayInputStream(contentAsBytes)
+      }
+      
+      def buildHeaders = {
+        val filenameWithSuffix = filename + filetype.getFileSuffix
+        List(
+          "Content-type" -> filetype.getMimeType,
+          "Content-length" -> downloadSize.toString,
+          "Content-disposition" -> ("attachment; filename=" + filenameWithSuffix)
+        )
+      }
+
+      val stream = buildStream
+      val onEndCallback = () => {}
+      val headers = buildHeaders
+      val cookies = Nil
+      val responseCode = 200
+      
+      new StreamingResponse(
+          stream, onEndCallback, downloadSize, headers, cookies, responseCode
+      )
+    }
+
+    throw new ResponseShortcutException(buildDownloadResponse)
   }
 
   def renderCsvDownloadLink ( contents : String, filename : String, linkBody : NodeSeq ) : NodeSeq = {
