@@ -57,6 +57,21 @@ backend. This is needed for building the post-request to the backend correctly.
 
 After you have set this property correctly, you can continue to build the frontend
 
+### Mailer
+
+Automatatutor at some points sends out mail to users, for example to verify
+email addresses or to send information about solutions that were handed in.
+In order to do so, it needs to connect to a mailserver.
+This mailserver must be configured using the properties `mail.transport.protocol`,
+`mail.smtp.host`, `mail.smtp.port`, mail.smtp.starttls.enable`, `mail.smtp.auth`,
+`mail.user`, and `mail.password`.
+
+### Database connection
+
+Automatatutor crucially requires a relational database to run.
+The connection to this database must be configured using the properties
+`db.driver`,`db.url`, `db.user`, and `db.password`.
+
 ## Compile
 
 We assume that you are in the folder AutomataApp_v2. Start sbt as follows
