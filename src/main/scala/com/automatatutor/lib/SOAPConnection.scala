@@ -24,33 +24,76 @@ class SOAPConnection(val url : URL) {
     }
     
 	def callMethod(namespace : String, methodName : String,  arguments : Map[String,Node]) : NodeSeq = {
-	  val connection : HttpURLConnection = url.openConnection().asInstanceOf[HttpURLConnection]
+	  def buildConnection : HttpURLConnection = {
+      val connection = url.openConnection().asInstanceOf[HttpURLConnection]
+      
+      val methodNameWithNamespace = namespace + "/" + methodName
+      
+      connection.setDoOutput(true)
+      connection.addRequestProperty("Content-Type", "text/xml; charset=utf-8")
+      connection.addRequestProperty("SOAPAction", '"' + methodNameWithNamespace + '"')
+      
+      return connection
+	  }
 	  
-	  connection.setDoOutput(true)
-	  connection.addRequestProperty("Content-Type", "text/xml; charset=utf-8")
-	  connection.addRequestProperty("SOAPAction", '"' + namespace + "/" + methodName + '"')
+	  def buildRequestBody = {
+      def convertArgumentsToXml = {
+        def buildXmlNode(label:String, children: NodeSeq) = {
+          val prefix = null
+          val attributes = Null
+          val scope = TopScope
+          val minimizeEmpty = true
+
+          Elem(prefix, label, attributes, scope, true, children : _*)
+        }
+
+        def buildXmlForSoapArgument(argName: String, argVal: NodeSeq) = buildXmlNode(argName, argVal)
+
+        arguments.map({ case (argName, argVal) => buildXmlForSoapArgument(argName, argVal) } ).toSeq
+      }
+
+      def wrapInSoapBody(payload: Seq[Node]) = {
+        val prefix = null
+        val xmlnsAttribute = new UnprefixedAttribute("xmlns", namespace + '/', Null)
+        val scope = TopScope
+        val minimizeEmpty = true
+
+        Elem(prefix, methodName, xmlnsAttribute, scope, minimizeEmpty, payload : _*)
+      }
+      wrapInSoapBody(convertArgumentsToXml)
+	  }
+
+	  val connection = buildConnection
+
+	  def buildRequest = {
+      val soapBody = buildRequestBody
+      val requestXml = wrapSOAPEnvelope(soapBody)
+      requestXml.toString
+	  }
+	  val requestRaw = buildRequest
 	  
-	  // Note the entry._2 : _*, which basically takes a Seq[A] apart so we pass the entries to Elem as varargs
-	  val argumentsXml = arguments.map(entry => Elem(null, entry._1, Null, TopScope, true, entry._2 : _*)).toSeq
-	  val soapBody = Elem(null, methodName, new UnprefixedAttribute("xmlns", namespace + '/', Null), TopScope, true, argumentsXml : _*)
-	  
-	  val requestXml = wrapSOAPEnvelope(soapBody)
-	  val requestRaw = requestXml.toString
-	  
-	  val outputStream = connection.getOutputStream()
-	  outputStream.write(requestRaw.getBytes())
+	  connection.getOutputStream().write(requestRaw.getBytes())
+
+    def responseIsOk = connection.getResponseCode() != HttpURLConnection.HTTP_OK
+    def getReturnAsString = scala.io.Source.fromInputStream(connection.getInputStream()).mkString
+    def getErrorAsString = scala.io.Source.fromInputStream(connection.getErrorStream()).mkString
 	  
 	  try {
-          if(connection.getResponseCode() != HttpURLConnection.HTTP_OK) {
-            return NodeSeq.Empty
-          } else {
-            val returnRaw = scala.io.Source.fromInputStream(connection.getInputStream()).mkString
-            // Strip four levels of wrapping from the result (soap:Envelope, soap:Body, Response, Result)
-            val returnXml = XML.loadString(returnRaw) \ "_" \ "_" \ "_" \ "_"
-            return returnXml
-          }
+      if(responseIsOk) {
+        return NodeSeq.Empty
+      } else {
+        def stripWrappingFromResponse(response : NodeSeq) = {
+          // There are four levels of wrapping around the result: "soap:Envelope", "soap:Body", "Response", "Result")
+          response \ "_" \ "_" \ "_" \ "_"
+        }
+        
+
+        val returnRaw = getReturnAsString
+        val returnWithXmlWrapping = XML.loadString(returnRaw)
+        stripWrappingFromResponse(returnWithXmlWrapping)
+      }
 	  } catch {
-	    case exception : Exception => Text(scala.io.Source.fromInputStream(connection.getErrorStream()).mkString)
+	    case exception : Exception => Text(getErrorAsString)
 	  }
 	}
 }

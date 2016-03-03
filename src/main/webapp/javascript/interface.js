@@ -70,6 +70,19 @@ $.SvgCanvas = function(container, config, style) {
 			acceptanceMarker: 'border'
 		},
 
+		'buchicostgame': {
+			node: {
+				label: 'none'
+			},
+			transition: {
+				labeled: true,
+				deterministic: false
+			},
+			hasInitialNode: false,
+			twoPlayers: true,
+			acceptanceMarker: 'border'
+		},
+
 		'paritygame': {
 			node: {
 				label: 'priority'

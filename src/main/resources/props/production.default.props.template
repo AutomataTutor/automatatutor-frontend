@@ -1,0 +1,19 @@
+grader.url=http://automatagrader.com/Service1.asmx
+grader.methodnamespace=http://automatagrader.com
+admin.email=admin@automatatutor.com
+admin.password=Coshae2O
+admin.firstname=Donald
+admin.lastname=Knuth
+db.driver=org.postgresql.Driver
+db.url=jdbc:postgresql:dileepk_tutordb
+db.user=
+db.password=
+
+//Don’t copy these ones, they currently don’t work
+mail.transport.protocol=smtp
+mail.smtp.host=bobcat.arvixe.com
+mail.smtp.port=587
+mail.smtp.starttls.enable=true
+mail.smtp.auth=true
+mail.user=info@automatatutor.com
+mail.password=iwkdt336q1pz
