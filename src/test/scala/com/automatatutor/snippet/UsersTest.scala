@@ -9,9 +9,9 @@ import scala.xml.Node
 
 class ShowAllTest extends SpecificationWithExamplesInsideBootedLiftSession("") { def is = s2"""
 	When an admin is logged in, the Users.showall-method must 			${ Step( { init; User.logUserIn(adminUser) }) }
-			return two elements	${ getShowallResult must haveSize(2) }
-			the first of which is a table	${ getShowallResult()(0).label must be("table") }
-			the second of which is a link	${ getShowallResult()(1).label must be("a") }
+			return a single element	${ getShowallResult() must haveSize(1) }
+			which is a table	${ getShowallResult()(0).label must be("table") }
+			with five rows (four users and one header) ${ (getShowallResult()(0) \\ "tr") must haveSize(5) }
   """
   
   lazy val adminUser = { 
