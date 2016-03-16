@@ -16,6 +16,7 @@ import net.liftweb.mapper.MappedLong
 import net.liftweb.mapper.MappedString
 import net.liftweb.mapper.MappedText
 import net.liftweb.mapper.MappedLongForeignKey
+import bootstrap.liftweb.StartupHook
 
 class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	def getSingleton = ProblemType
@@ -46,7 +47,7 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	}
 }
 
-object ProblemType extends ProblemType with LongKeyedMetaMapper[ProblemType] {
+object ProblemType extends ProblemType with LongKeyedMetaMapper[ProblemType] with StartupHook {
 
   def onStartup = knownProblemTypes.map(entry => assertExists(entry._1))
   

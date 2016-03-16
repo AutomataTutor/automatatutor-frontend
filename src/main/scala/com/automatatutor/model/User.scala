@@ -11,6 +11,7 @@ import net.liftweb.util.FieldError
 import scala.xml.Text
 import net.liftweb.util.{Props, Mailer}
 import javax.mail.{Authenticator,PasswordAuthentication}
+import bootstrap.liftweb.StartupHook
 
 class User extends MegaProtoUser[User] {	
 
@@ -70,7 +71,7 @@ class User extends MegaProtoUser[User] {
 	}
 }
 
-object User extends User with MetaMegaProtoUser[User] {
+object User extends User with MetaMegaProtoUser[User] with StartupHook {
 	// Don't send out emails to users after registration. Remember to set this to false before we go into production
 	override def skipEmailValidation = false
 	

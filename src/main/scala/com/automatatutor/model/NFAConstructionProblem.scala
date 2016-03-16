@@ -9,6 +9,7 @@ import net.liftweb.mapper.LongKeyedMetaMapper
 import net.liftweb.mapper.MappedString
 import net.liftweb.mapper.MappedText
 import net.liftweb.mapper.MappedLongForeignKey
+import bootstrap.liftweb.StartupHook
 
 class NFAConstructionProblemCategory extends LongKeyedMapper[NFAConstructionProblemCategory] with IdPK {
 	val knownConstructionTypes = List("Starts with", "Ends with", "Find substring", "Counting", "Counting Modulo", "Other")
@@ -17,7 +18,7 @@ class NFAConstructionProblemCategory extends LongKeyedMapper[NFAConstructionProb
 	object categoryName extends MappedString(this, 40)
 }
 
-object NFAConstructionProblemCategory extends NFAConstructionProblemCategory with LongKeyedMetaMapper[NFAConstructionProblemCategory] {
+object NFAConstructionProblemCategory extends NFAConstructionProblemCategory with LongKeyedMetaMapper[NFAConstructionProblemCategory] with StartupHook {
   def onStartup = {
     knownConstructionTypes.map(assertExists(_))
   }
