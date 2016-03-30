@@ -19,7 +19,7 @@ class CourseRenderer(course : Course) {
   }
   
   def renderContactLink : NodeSeq = {
-    SHtml.link("mailto:" + course.contact.is, () => (), Text(course.contact.is))
+    SHtml.link("mailto:" + course.getContact, () => (), Text(course.getContact))
   }
   
   def renderManageLink : NodeSeq = {

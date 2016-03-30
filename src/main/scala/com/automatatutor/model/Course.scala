@@ -1,19 +1,35 @@
 package com.automatatutor.model
 
-import net.liftweb.mapper._
 import net.liftweb.common.Box
 import net.liftweb.common.Empty
-import net.liftweb.common.Full
-import net.liftweb.util.SecurityHelpers
 import net.liftweb.common.Failure
+import net.liftweb.common.Full
+import net.liftweb.mapper._
+import net.liftweb.util.SecurityHelpers
 
 class Course extends LongKeyedMapper[Course] with IdPK {
 	def getSingleton = Course
 
-	object name extends MappedString(this, 300)
-	object contact extends MappedEmail(this, 100)
-	object firstPosedProblemSet extends MappedLongForeignKey(this, PosedProblemSet)
-	object password extends MappedString(this, 20)
+	protected object name extends MappedString(this, 300)
+	protected object contact extends MappedEmail(this, 100)
+	protected object firstPosedProblemSet extends MappedLongForeignKey(this, PosedProblemSet)
+	protected object password extends MappedString(this, 20)
+	
+	def getName : String = this.name.is
+	def setName(name : String) : Course = this.name(name)
+	
+	def getContact : String = this.contact.is
+	def setContact(contact : String) : Course = this.contact(contact)
+	
+	def getFirstPosedProblemSet : Box[PosedProblemSet] = this.firstPosedProblemSet.obj
+	def setFirstPosedProblemSet ( problemSet : PosedProblemSet ) : Course = this.firstPosedProblemSet(problemSet)
+	def setFirstPosedProblemSet ( problemSet : Box[PosedProblemSet] ) : Course = this.firstPosedProblemSet(problemSet)
+	
+	def getPassword : String = {
+	  if (this.password.is == null || this.password.is.equals("")) { this.password(SecurityHelpers.randomString(8)).save }
+	  return this.password.is
+	}
+	def setPassword ( password : String ) : Course = this.password(password)
 
 	def hasEnrolledStudents : Boolean = {
 	  val enrollments = this.getEnrolledStudents
@@ -40,10 +56,6 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  } else {
 	    return fullId.padTo(8, "X").mkString
 	  }
-	}
-	def getPassword : String = {
-	  if (this.password.is == null || this.password.is.equals("")) { this.password(SecurityHelpers.randomString(8)).save }
-	  return this.password.is
 	}
 
 	def removeInstructor(instructor : User) = {

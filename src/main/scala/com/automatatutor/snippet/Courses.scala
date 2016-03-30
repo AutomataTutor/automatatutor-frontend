@@ -79,14 +79,14 @@ class Courses {
   
   def displayAttendedCourses(courses : Seq[Course]) : NodeSeq = {
     return TableHelper.renderTableWithHeader(courses,
-        ("Course Name", (course : Course) => Text(course.name.is)),
+        ("Course Name", (course : Course) => Text(course.getName)),
         ("Contact", (course : Course) => new CourseRenderer(course).renderContactLink),
         ("", (course : Course) => new CourseRenderer(course).renderShowLink))
   }
   
   def displaySupervisedCourses(courses : Seq[Course]) : NodeSeq = {
     return TableHelper.renderTableWithHeader(courses, 
-        ("Course Name", (course : Course) => Text(course.name.is)),
+        ("Course Name", (course : Course) => Text(course.getName)),
         ("Contact", (course : Course) => new CourseRenderer(course).renderContactLink),
         ("", (course : Course) => new CourseRenderer(course).renderManageLink),
         ("", (course : Course) => new CourseRenderer(course).renderDeleteLink))
@@ -95,7 +95,7 @@ class Courses {
   def rendershow ( xhtml : NodeSeq ) : NodeSeq = {
     val course : Course = CourseReqVar.is
 
-    val courseName : String = course.name.is
+    val courseName : String = course.getName
     
     val problemSets = course.getPosedProblemSets
 
@@ -168,11 +168,11 @@ class Courses {
   def rendermanage(xhtml : NodeSeq) : NodeSeq = {
     val course = CourseReqVar.is
 
-    val courseName = course.name.is
-    val courseNameField = SHtml.text(courseName, course.name(_))
+    val courseName = course.getName
+    val courseNameField = SHtml.text(courseName, course.setName(_))
     
-    val contactMail = course.contact.is
-    val contactMailField = SHtml.text(contactMail, course.contact(_))
+    val contactMail = course.getContact
+    val contactMailField = SHtml.text(contactMail, course.setContact(_))
     
     val submitButton = SHtml.submit("Submit", () => { course.save; S.redirectTo("/courses/index") })
     
@@ -261,7 +261,7 @@ class Courses {
       } else {
         val email = User.currentUser.map(_.email.is) openOr ""
 
-        val course: Course = Course.create.name(name).contact(email).password(SecurityHelpers.randomString(8))
+        val course: Course = Course.create.setName(name).setContact(email).setPassword(SecurityHelpers.randomString(8))
         course.save
 
         Supervision.supervise(User.currentUser openOrThrowException "Lift prevents non-logged-in users from being here", course)
@@ -475,7 +475,7 @@ class Courses {
         case _ => { S.error("Course with id " + courseId + " not found"); S.redirectTo("/courses/index") }
       }
       
-      if(courseToEnroll.password.equals(coursePassword)) {
+      if(courseToEnroll.getPassword.equals(coursePassword)) {
         courseToEnroll.enroll(user)
       } else {
         S.error("Password " + coursePassword + " is incorrect for course " + courseId)
