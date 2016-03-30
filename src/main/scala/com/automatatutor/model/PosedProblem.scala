@@ -3,14 +3,28 @@ package com.automatatutor.model
 import net.liftweb.mapper._
 import net.liftweb.common.Full
 import net.liftweb.common.Empty
+import net.liftweb.common.Box
 
 class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	def getSingleton = PosedProblem
 
-	object allowedAttempts extends MappedLong(this)
-	object maxGrade extends MappedLong(this)
-	object problemId extends MappedLongForeignKey(this, Problem)
-	object nextPosedProblemId extends MappedLongForeignKey(this, PosedProblem)
+	protected object allowedAttempts extends MappedLong(this)
+	protected object maxGrade extends MappedLong(this)
+	protected object problemId extends MappedLongForeignKey(this, Problem)
+	protected object nextPosedProblemId extends MappedLongForeignKey(this, PosedProblem)
+	
+	def getAllowedAttempts : Long = this.allowedAttempts.is
+	def setAllowedAttempts ( attempts : Long ) : PosedProblem = this.allowedAttempts(attempts)
+	
+	def getMaxGrade : Long = this.maxGrade.is
+	def setMaxGrade ( maxGrade : Long ) = this.maxGrade(maxGrade)
+	
+	def getProblem : Problem = this.problemId.obj openOrThrowException "Every PosedProblem must have a Problem"
+	def setProblem ( problem : Problem ) = this.problemId(problem)
+	
+	def getNextPosedProblem : Box[PosedProblem] = this.nextPosedProblemId.obj
+	def setNextPosedProblem ( posedProblem : PosedProblem ) : PosedProblem = this.nextPosedProblemId(posedProblem)
+	def setNextPosedProblem ( posedProblem : Box[PosedProblem] ) : PosedProblem = this.nextPosedProblemId(posedProblem)
 	
 	def deleteRecursively : Unit = {
 	  this.nextPosedProblemId.obj match {
@@ -76,7 +90,6 @@ class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	  }
 	}
 	
-	def getMaxGrade : Long = this.maxGrade.is
 	
 	/**
 	 * A posed problem is defined as open if either the user has used all attempts
@@ -92,8 +105,6 @@ class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	}
 	
 	def isPracticeProblem = allowedAttempts == 0
-	
-	def getProblem : Problem = this.problemId.obj openOrThrowException "Every Posed Problem must be associated with a Problem"
 }
 
 object PosedProblem extends PosedProblem with LongKeyedMetaMapper[PosedProblem] {

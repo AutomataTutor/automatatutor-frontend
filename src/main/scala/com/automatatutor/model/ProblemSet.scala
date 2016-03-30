@@ -54,7 +54,7 @@ class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 	def removeProblem( toRemove : PosedProblem ) = {
 	  this.posedProblem.obj match {
 	    case Full(problem) => if(problem.equals(toRemove)) { 
-	    	this.posedProblem(problem.nextPosedProblemId.obj); problem.delete_!
+	    	this.posedProblem(problem.getNextPosedProblem); problem.delete_!
 	      } else { 
 	    	problem.removeProblemRecursively(toRemove)
 	      }
@@ -63,7 +63,7 @@ class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 	}
 	
 	def appendProblem( problem : Problem, numberOfAttempts : Int, maxGrade : Int ) = {
-	  val newPosedProblem = PosedProblem.create.problemId(problem).allowedAttempts(numberOfAttempts).maxGrade(maxGrade)
+	  val newPosedProblem = PosedProblem.create.setProblem(problem).setAllowedAttempts(numberOfAttempts).setMaxGrade(maxGrade)
 	  newPosedProblem.save
 	  this.posedProblem.obj match {
 	    case Full(problem) => problem.appendProblemRecursively(newPosedProblem)

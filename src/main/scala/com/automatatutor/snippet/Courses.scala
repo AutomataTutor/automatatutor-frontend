@@ -453,7 +453,7 @@ class Courses {
       posedProblem.getGrade(user, posedProblemSet)
     }
 
-    problemSnippet.renderSolve(problem, posedProblem.maxGrade.is, lastAttempt, recordSolutionAttempt, returnToCourse, remainingAttempts, bestGrade)
+    problemSnippet.renderSolve(problem, posedProblem.getMaxGrade, lastAttempt, recordSolutionAttempt, returnToCourse, remainingAttempts, bestGrade)
   }
   
   def rendersolvepractice ( ignored : NodeSeq ) : NodeSeq = {

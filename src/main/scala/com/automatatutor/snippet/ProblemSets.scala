@@ -56,7 +56,7 @@ class Problemsets {
 	  val posedProblemsTable = TableHelper.renderTableWithHeader(posedProblems,
 	      ("Short Description", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.shortDescription.is)),
 	      ("Problem Type", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getTypeName)),
-	      ("Allowed Attempts", (posedProblem : PosedProblem) => Text(posedProblem.allowedAttempts.toString() + " Attempts allowed")),
+	      ("Allowed Attempts", (posedProblem : PosedProblem) => Text(posedProblem.getAllowedAttempts.toString() + " Attempts allowed")),
 	      ("", (posedProblem : PosedProblem) => SHtml.link("/problemsets/edit", () => { ProblemSetToEdit(problemSetToEdit); problemSetToEdit.removeProblem(posedProblem)}, Text("Remove problem from set"))))
 	  
 	  val addProblemLink = SHtml.link("/problemsets/addproblem", () => ProblemSetToEdit(problemSetToEdit), Text("Append new problem"))
