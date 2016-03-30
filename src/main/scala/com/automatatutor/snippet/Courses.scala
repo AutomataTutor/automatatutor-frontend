@@ -225,7 +225,7 @@ class Courses {
     }
     
     def dismissUnregisteredStudent(course : Course, email : String) = {
-      Attendance.find(By(Attendance.courseId, course), By(Attendance.email, email)) match {
+      Attendance.findByEmailAndCourse(email, course) match {
         case Full(attendance) => attendance.delete_!
         case _ => // Do nothing
       }

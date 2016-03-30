@@ -32,8 +32,8 @@ class User extends MegaProtoUser[User] {
 	def supervisesCourses : Boolean = !Supervision.find(By(Supervision.instructor, this)).isEmpty
 	def getSupervisedCourses : Seq[Course] = Supervision.findAll(By(Supervision.instructor, this)).map(_.course.obj.openOrThrowException("Every supervision must contain both course and user"))
 	
-	def attendsCourses : Boolean = !Attendance.find(By(Attendance.userId, this)).isEmpty
-	def getAttendedCourses : List[Course] = Attendance.findAll(By(Attendance.userId, this)).map(_.courseId.obj.openOrThrowException("User should not attend inexistent courses"))
+	def attendsCourses : Boolean = !Attendance.findAllByUser(this).isEmpty
+	def getAttendedCourses : List[Course] = Attendance.findAllByUser(this).map(_.getCourse.openOrThrowException("User should not attend inexistent courses"))
 	
 	def canBeDeleted : Boolean = !(attendsCourses || supervisesCourses || hasAdminRole)
 	def getDeletePreventers : Seq[String] = {

@@ -42,8 +42,8 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  return (finalEnrollments, preliminaryEnrollments)
 	}
 	
-	def enroll(student : User) = if(!this.isEnrolled(student)) { Attendance.create.userId(student).courseId(this).save }
-	def dismiss(student : User) = if(this.isEnrolled(student)) { Attendance.bulkDelete_!!(By(Attendance.courseId, this), By(Attendance.userId, student)) }
+	def enroll(student : User) = if(!this.isEnrolled(student)) { Attendance.create.setUser(student).setCourse(this).save }
+	def dismiss(student : User) = if(this.isEnrolled(student)) { Attendance.deleteByUserAndCourse(student, this) }
 	
 	def addInstructor(instructor : User) = Supervision.supervise(instructor, this)
 	def getInstructors() : Seq[User] = Supervision.findAll(By(Supervision.course, this)).map(_.instructor openOrThrowException "Each supervision must contain a supervisor")
@@ -67,7 +67,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  }
 	}
 	
-	def isEnrolled(student : User) = !Attendance.findAll(By(Attendance.courseId, this), By(Attendance.userId, student)).isEmpty
+	def isEnrolled(student : User) = !Attendance.findByUserAndCourse(student, this).isEmpty
 	
 	def getPosedProblemSets : List[PosedProblemSet] = this.firstPosedProblemSet.map(_.getPosedProblemSetList) openOr List()
 
