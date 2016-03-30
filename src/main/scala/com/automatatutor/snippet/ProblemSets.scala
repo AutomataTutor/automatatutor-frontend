@@ -25,7 +25,7 @@ class Problemsets {
 	  val problemSets : Seq[ProblemSet] = ProblemSet.getByCreator(User.currentUser openOrThrowException "Lift only lets logged in users onto this site")
 	  
 	  val completeTable = TableHelper.renderTableWithHeader(problemSets,
-	      ("Short Description", (problemSet : ProblemSet) => Text(problemSet.name.is)),
+	      ("Short Description", (problemSet : ProblemSet) => Text(problemSet.getName)),
 	      ("", (problemSet : ProblemSet) => new ProblemSetRenderer(problemSet).renderTogglePracticeSetLink),
 	      ("", (problemSet : ProblemSet) => (new ProblemSetRenderer(problemSet).renderEditLink)),
 	      ("", (problemSet : ProblemSet) => (new ProblemSetRenderer(problemSet)).renderDeleteLink))
@@ -39,7 +39,7 @@ class Problemsets {
 	  val nameField = SHtml.text("", name = _, "maxlength" -> "50")
 	  
 	  def create() = {
-	    ProblemSet.create.name(name).createdBy(User.currentUser).save
+	    ProblemSet.create.setName(name).setCreatedBy(User.currentUser_!).save
 	  }
 
 	  val createButton = SHtml.submit("Create", () => { create(); S.redirectTo("/problemsets/index") })

@@ -130,7 +130,7 @@ class Courses {
     
     def renderActiveProblemSetsTable ( problemSets : Seq[PosedProblemSet] ) : NodeSeq = {
         val problemSetsTable = TableHelper.renderTableWithHeader(problemSets,
-            ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.name.is)),
+            ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.getName)),
             ("Problems Open", (problemSet : PosedProblemSet) => Text(problemSet.getNumberOpenProblems(user) + " Problems open")),
             ("Expiration", (problemSet : PosedProblemSet) => problemSetToExpirationTime(problemSet)),
             ("Current Grade", (problemSet : PosedProblemSet) => Text("Grade: " + problemSet.getGrade(user) + "/" + problemSet.getMaxGrade)))
@@ -155,7 +155,7 @@ class Courses {
     val expiredProblemSets = problemSets.filter(_.isExpired)
     
     val expiredProblemSetsTable = TableHelper.renderTableWithHeader(expiredProblemSets,
-        ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.name.is)),
+        ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.getName)),
         ("Expired On", (problemSet : PosedProblemSet) => Text(problemSet.getEndDate.toString) ),
         ("Final Grade", (problemSet : PosedProblemSet) => Text(problemSet.getGrade(user) + "/" + problemSet.getMaxGrade)))
     
@@ -190,7 +190,7 @@ class Courses {
       Text("No problem sets posed") ++ <br />
     } else {
       TableHelper.renderTableWithHeader(posedProblemSets,
-          ("Name", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getProblemSet.name.is)),
+          ("Name", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getProblemSet.getName)),
           ("Start Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getStartDate.toString)),
           ("End Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getEndDate.toString)),
           ("Download Grades", (posedProblemSet : PosedProblemSet) => 
@@ -286,7 +286,7 @@ class Courses {
     val problemSets : Seq[ProblemSet] = ProblemSet.getByCreator(User.currentUser openOrThrowException "Lift prevents non-logged-in users from being here")
 
     return TableHelper.renderTableWithHeader(problemSets,
-        ("Name", (problemSet : ProblemSet) => Text(problemSet.name.is)),
+        ("Name", (problemSet : ProblemSet) => Text(problemSet.getName)),
         ("Number of Problems", (problemSet : ProblemSet) => Text("Contains " + problemSet.getNumberOfProblems + " problems")),
         ("Name", (problemSet : ProblemSet) => SHtml.link("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) }, Text("Pose problem set"))))
   }

@@ -15,7 +15,7 @@ class Practicesets {
     val practiceSets = ProblemSet.getPracticeSets
     val practiceSetsNodeSeq = {
         val practiceSetsTable = TableHelper.renderTableWithHeader(practiceSets,
-            ("Name", (problemSet : ProblemSet) => Text(problemSet.name.is)),
+            ("Name", (problemSet : ProblemSet) => Text(problemSet.getName)),
             ("Problems", (problemSet : ProblemSet) => Text(problemSet.getPosedProblems.size.toString)))
             
 
