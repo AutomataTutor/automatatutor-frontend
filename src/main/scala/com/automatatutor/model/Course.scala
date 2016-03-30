@@ -73,7 +73,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 
 	def appendPosedProblemSet(posedProblemSet : PosedProblemSet) = {
 	  this.getLastPosedProblemSet match {
-	    case Full(lastPosedProblemSet) => lastPosedProblemSet.nextPosedProblemSet(posedProblemSet).save
+	    case Full(lastPosedProblemSet) => lastPosedProblemSet.setNextPosedProblemSet(posedProblemSet).save
 	    case _ => this.firstPosedProblemSet(posedProblemSet).save
 	  }
 	}
@@ -84,7 +84,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  }
 	  val firstProblemSet = this.firstPosedProblemSet.openOrThrowException("We just checked that this is not the case")
 	  if(firstProblemSet == posedProblemSet) {
-	    this.firstPosedProblemSet(firstProblemSet.nextPosedProblemSet.obj)
+	    this.firstPosedProblemSet(firstProblemSet.getNextPosedProblemSet)
 	  } else {
 	    firstProblemSet.remove(posedProblemSet)
 	  }

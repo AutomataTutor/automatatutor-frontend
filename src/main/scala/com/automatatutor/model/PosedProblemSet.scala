@@ -11,19 +11,33 @@ import scala.xml.NodeSeq
 import scala.xml.Node
 import scala.xml.Text
 import net.liftweb.common.Empty
+import java.util.Date
+import net.liftweb.common.Box
 
 class PosedProblemSet extends LongKeyedMapper[PosedProblemSet] with IdPK {
 	override def getSingleton = PosedProblemSet
 
-	object problemSetId extends MappedLongForeignKey(this, ProblemSet)
-	object startDate extends MappedDateTime(this)
-	object endDate extends MappedDateTime(this)
-	object nextPosedProblemSet extends MappedLongForeignKey(this, PosedProblemSet)
-	object useRandomOrder extends MappedBoolean(this)
+	protected object problemSetId extends MappedLongForeignKey(this, ProblemSet)
+	protected object startDate extends MappedDateTime(this)
+	protected object endDate extends MappedDateTime(this)
+	protected object nextPosedProblemSet extends MappedLongForeignKey(this, PosedProblemSet)
+	protected object useRandomOrder extends MappedBoolean(this)
 	
-	def getProblemSet : ProblemSet = {
-	  this.problemSetId.obj openOrThrowException "Every posed problem set must have an associated problem set"
-	}
+	def getProblemSet : ProblemSet = this.problemSetId.obj openOrThrowException "Every PosedProblemSet must have ProblemSet"
+	def setProblemSet ( problemSet : ProblemSet ) = this.problemSetId(problemSet)
+	
+	def getStartDate : Date = this.startDate.is
+	def setStartDate ( startDate : Date ) = this.startDate(startDate)
+	
+	def getEndDate : Date = this.endDate.is
+	def setEndDate ( endDate : Date ) = this.endDate(endDate)
+	
+	def getNextPosedProblemSet : Box[PosedProblemSet] = this.nextPosedProblemSet.obj
+	def setNextPosedProblemSet ( nextPosedProblemSet : PosedProblemSet ) = this.nextPosedProblemSet(nextPosedProblemSet)
+	def setNextPosedProblemSet ( nextPosedProblemSet : Box[PosedProblemSet] ) = this.nextPosedProblemSet(nextPosedProblemSet)
+	
+	def getUseRandomOrder = this.useRandomOrder.is
+	def setUseRandomOrder ( useRandomOrder : Boolean ) = this.useRandomOrder(useRandomOrder)
 	
 	/** A problem set is considered active if the current time is after the start date and the problem set is not expired */
 	def isActive : Boolean = {

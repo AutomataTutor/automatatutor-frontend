@@ -156,7 +156,7 @@ class Courses {
     
     val expiredProblemSetsTable = TableHelper.renderTableWithHeader(expiredProblemSets,
         ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.name.is)),
-        ("Expired On", (problemSet : PosedProblemSet) => Text(problemSet.endDate.toString) ),
+        ("Expired On", (problemSet : PosedProblemSet) => Text(problemSet.getEndDate.toString) ),
         ("Final Grade", (problemSet : PosedProblemSet) => Text(problemSet.getGrade(user) + "/" + problemSet.getMaxGrade)))
     
     Helpers.bind("showcourse", xhtml,
@@ -191,8 +191,8 @@ class Courses {
     } else {
       TableHelper.renderTableWithHeader(posedProblemSets,
           ("Name", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getProblemSet.name.is)),
-          ("Start Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.startDate.toString)),
-          ("End Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.endDate.toString)),
+          ("Start Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getStartDate.toString)),
+          ("End Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getEndDate.toString)),
           ("Download Grades", (posedProblemSet : PosedProblemSet) => 
             (DownloadHelper.renderCsvDownloadLink(posedProblemSet.renderGradesCsv, "grades", Text("csv")) ++ Text(" ") ++
              DownloadHelper.renderXmlDownloadLink(posedProblemSet.renderGradesXml, "grades", Text("xml")))
@@ -331,7 +331,7 @@ class Courses {
 			S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )			
 		  } else {
 			val posedProblemSet = 
-			   PosedProblemSet.create.startDate(startDate).endDate(endDate).problemSetId(problemSet).useRandomOrder(inRandomOrder)
+			   PosedProblemSet.create.setStartDate(startDate).setEndDate(endDate).setProblemSet(problemSet).setUseRandomOrder(inRandomOrder)
 			posedProblemSet.save
 			course.appendPosedProblemSet(posedProblemSet)
 			S.redirectTo("/courses/manage", () => CourseReqVar(course))
