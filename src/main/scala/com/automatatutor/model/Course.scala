@@ -46,7 +46,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	def dismiss(student : User) = if(this.isEnrolled(student)) { Attendance.deleteByUserAndCourse(student, this) }
 	
 	def addInstructor(instructor : User) = Supervision.supervise(instructor, this)
-	def getInstructors() : Seq[User] = Supervision.findAll(By(Supervision.course, this)).map(_.instructor openOrThrowException "Each supervision must contain a supervisor")
+	def getInstructors() : Seq[User] = Supervision.findByCourse(this).map(_.getInstructor)
 	
 	//def getCourseId : String = (this.id.is.toString + this.name.is.replaceAll(" ", "")).padTo(8, "X").toString.substring(0, 9)
 	def getCourseId : String = {
@@ -60,7 +60,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 
 	def removeInstructor(instructor : User) = {
 	  if(this.getInstructors.size > 1) {  // Only delete the instructor if it was not the last one
-		  Supervision.find(By(Supervision.course, this), By(Supervision.instructor, instructor)) match {
+		  Supervision.findByCourseAndInstructor(this, instructor) match {
           	case Full(supervision : Supervision) => supervision.delete_!
             case _ => {} // Do nothing if the user was not an instructor to begin with
           }
@@ -121,12 +121,22 @@ object Course extends Course with LongKeyedMetaMapper[Course] {
 class Supervision extends LongKeyedMapper[Supervision] with IdPK {
 	def getSingleton = Supervision
 			
-	object course extends MappedLongForeignKey(this, Course)
-	object instructor extends MappedLongForeignKey(this, User)
+	protected object course extends MappedLongForeignKey(this, Course)
+	protected object instructor extends MappedLongForeignKey(this, User)
+	
+	def getCourse : Course = this.course openOrThrowException "Every Supervision must have a Course"
+	def setCourse( course : Course ) : Supervision = this.course(course)
+	
+	def getInstructor : User = this.instructor openOrThrowException "Every Supervision must have an Instructor"
+	def setInstructor ( instructor : User ) = this.instructor(instructor)
 }
 
 object Supervision extends Supervision with LongKeyedMetaMapper[Supervision] {
 	def supervise(instructor : User, course : Course) : Unit = Supervision.create.course(course).instructor(instructor).save
 	def findByCourse( course : Course ) : Seq[Supervision] = Supervision.findAll(By(Supervision.course, course))
+	def findByInstructor( instructor : User ) : Seq[Supervision] = Supervision.findAll(By(Supervision.instructor, instructor))
+	def findByCourseAndInstructor ( course : Course, instructor : User ) : Box[Supervision] = this.find(By(Supervision.instructor, instructor), By(Supervision.course, course))
+
 	def deleteByCourse( course : Course ) : Unit = Supervision.findByCourse(course).map(_.delete_!)
+	def deleteAllByInstructor ( instructor : User ) : Unit = this.bulkDelete_!!(By(Supervision.instructor, instructor))
 }

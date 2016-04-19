@@ -29,8 +29,8 @@ class User extends MegaProtoUser[User] {
 	def removeInstructorRole = Role.findAll(By(Role.userId, this)).filter(_.isInstructorRole).map(_.delete_!)
 	def removeAdminRole = Role.findAll(By(Role.userId, this)).filter(_.isAdminRole).map(_.delete_!)
 	
-	def supervisesCourses : Boolean = !Supervision.find(By(Supervision.instructor, this)).isEmpty
-	def getSupervisedCourses : Seq[Course] = Supervision.findAll(By(Supervision.instructor, this)).map(_.course.obj.openOrThrowException("Every supervision must contain both course and user"))
+	def supervisesCourses : Boolean = !Supervision.findByInstructor(this).isEmpty
+	def getSupervisedCourses : Seq[Course] = Supervision.findByInstructor(this).map(_.getCourse)
 	
 	def attendsCourses : Boolean = !Attendance.findAllByUser(this).isEmpty
 	def getAttendedCourses : List[Course] = Attendance.findAllByUser(this).map(_.getCourse.openOrThrowException("User should not attend inexistent courses"))

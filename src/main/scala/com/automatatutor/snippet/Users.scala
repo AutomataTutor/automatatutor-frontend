@@ -94,7 +94,7 @@ class Users extends PaginatorSnippet[User] {
       def deleteUser(user : User) = {
         user.delete_!
         Attendance.deleteAllByUser(user)
-        Supervision.bulkDelete_!!(By(Supervision.instructor, user))
+        Supervision.deleteAllByInstructor(user)
       }
       SHtml.link("/users/index", () => deleteUser(user), Text("Delete user"))
     }
