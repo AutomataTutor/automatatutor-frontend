@@ -104,8 +104,8 @@ class Boot {
 
 	) ::: User.sitemap ::: List(
 	  Menu.i("About") / "about" / "index" submenus(
-          Menu.i("Terms of service") / "about" / "terms-of-service" >> Hidden,
-          Menu.i("Privacy statement") / "about" / "privacy-statement" >> Hidden )
+          Menu.i("Terms of service") / "about" / "terms-of-service", // >> Hidden,
+          Menu.i("Privacy statement") / "about" / "privacy-statement") // >> Hidden )
 	)
 
     // set the sitemap.  Note if you don't want access control for
