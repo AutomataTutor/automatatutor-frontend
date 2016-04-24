@@ -9,6 +9,7 @@ import net.liftweb.mapper.By
 import net.liftweb.mapper.MappedText
 import scala.xml.XML
 import scala.xml.NodeSeq
+import bootstrap.liftweb.StartupHook
 
 class DFAConstructionProblemCategory extends LongKeyedMapper[DFAConstructionProblemCategory] with IdPK {
 	val knownConstructionTypes = List("Starts with", "Ends with", "Find substring", "Counting", "Counting Modulo", "Other")
@@ -17,7 +18,7 @@ class DFAConstructionProblemCategory extends LongKeyedMapper[DFAConstructionProb
 	object categoryName extends MappedString(this, 40)
 }
 
-object DFAConstructionProblemCategory extends DFAConstructionProblemCategory with LongKeyedMetaMapper[DFAConstructionProblemCategory] {
+object DFAConstructionProblemCategory extends DFAConstructionProblemCategory with LongKeyedMetaMapper[DFAConstructionProblemCategory] with StartupHook {
   def onStartup = {
     knownConstructionTypes.map(assertExists(_))
   }

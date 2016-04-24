@@ -3,15 +3,29 @@ package com.automatatutor.model
 import net.liftweb.mapper._
 import net.liftweb.common.Full
 import net.liftweb.common.Empty
+import net.liftweb.common.Box
 
 class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 	def getSingleton = ProblemSet
 
-	object posedProblem extends MappedLongForeignKey(this, PosedProblem)
-	object createdBy extends MappedLongForeignKey(this, User)
-	object name extends MappedString(this, 100)
-	object practiceSet extends MappedBoolean(this)
+	protected object posedProblem extends MappedLongForeignKey(this, PosedProblem)
+	protected object createdBy extends MappedLongForeignKey(this, User)
+	protected object name extends MappedString(this, 100)
+	protected object practiceSet extends MappedBoolean(this)
+	
+	def getPosedProblem : Box[PosedProblem] = this.posedProblem.obj
+	def setPosedProblem ( posedProblem : PosedProblem ) = this.posedProblem(posedProblem)
+	def setPosedProblem ( posedProblem : Box[PosedProblem] ) = this.posedProblem(posedProblem)
+	
+	def getCreatedBy = this.createdBy.obj openOrThrowException "Every ProblemSet must have a CreatedBy"
+	def setCreatedBy ( user : User ) = this.createdBy(user)
+	
+	def getName : String = this.name.is
+	def setName ( name : String ) = this.name(name)
 
+	def getPracticeSet : Boolean = this.practiceSet.is
+	def setPracticeSet ( practiceSet : Boolean ) = this.practiceSet(practiceSet)
+	
 	def deleteWithProblems = {
 	  // Make sure that we also delete the posed problems from the database
 	  this.posedProblem.obj match {
@@ -54,7 +68,7 @@ class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 	def removeProblem( toRemove : PosedProblem ) = {
 	  this.posedProblem.obj match {
 	    case Full(problem) => if(problem.equals(toRemove)) { 
-	    	this.posedProblem(problem.nextPosedProblemId.obj); problem.delete_!
+	    	this.posedProblem(problem.getNextPosedProblem); problem.delete_!
 	      } else { 
 	    	problem.removeProblemRecursively(toRemove)
 	      }
@@ -63,7 +77,7 @@ class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 	}
 	
 	def appendProblem( problem : Problem, numberOfAttempts : Int, maxGrade : Int ) = {
-	  val newPosedProblem = PosedProblem.create.problemId(problem).allowedAttempts(numberOfAttempts).maxGrade(maxGrade)
+	  val newPosedProblem = PosedProblem.create.setProblem(problem).setAllowedAttempts(numberOfAttempts).setMaxGrade(maxGrade)
 	  newPosedProblem.save
 	  this.posedProblem.obj match {
 	    case Full(problem) => problem.appendProblemRecursively(newPosedProblem)

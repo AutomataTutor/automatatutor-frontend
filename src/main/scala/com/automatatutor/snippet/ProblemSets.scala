@@ -25,7 +25,7 @@ class Problemsets {
 	  val problemSets : Seq[ProblemSet] = ProblemSet.getByCreator(User.currentUser openOrThrowException "Lift only lets logged in users onto this site")
 	  
 	  val completeTable = TableHelper.renderTableWithHeader(problemSets,
-	      ("Short Description", (problemSet : ProblemSet) => Text(problemSet.name.is)),
+	      ("Short Description", (problemSet : ProblemSet) => Text(problemSet.getName)),
 	      ("", (problemSet : ProblemSet) => new ProblemSetRenderer(problemSet).renderTogglePracticeSetLink),
 	      ("", (problemSet : ProblemSet) => (new ProblemSetRenderer(problemSet).renderEditLink)),
 	      ("", (problemSet : ProblemSet) => (new ProblemSetRenderer(problemSet)).renderDeleteLink))
@@ -39,7 +39,7 @@ class Problemsets {
 	  val nameField = SHtml.text("", name = _, "maxlength" -> "50")
 	  
 	  def create() = {
-	    ProblemSet.create.name(name).createdBy(User.currentUser).save
+	    ProblemSet.create.setName(name).setCreatedBy(User.currentUser_!).save
 	  }
 
 	  val createButton = SHtml.submit("Create", () => { create(); S.redirectTo("/problemsets/index") })
@@ -56,7 +56,7 @@ class Problemsets {
 	  val posedProblemsTable = TableHelper.renderTableWithHeader(posedProblems,
 	      ("Short Description", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.shortDescription.is)),
 	      ("Problem Type", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getTypeName)),
-	      ("Allowed Attempts", (posedProblem : PosedProblem) => Text(posedProblem.allowedAttempts.toString() + " Attempts allowed")),
+	      ("Allowed Attempts", (posedProblem : PosedProblem) => Text(posedProblem.getAllowedAttempts.toString() + " Attempts allowed")),
 	      ("", (posedProblem : PosedProblem) => SHtml.link("/problemsets/edit", () => { ProblemSetToEdit(problemSetToEdit); problemSetToEdit.removeProblem(posedProblem)}, Text("Remove problem from set"))))
 	  
 	  val addProblemLink = SHtml.link("/problemsets/addproblem", () => ProblemSetToEdit(problemSetToEdit), Text("Append new problem"))

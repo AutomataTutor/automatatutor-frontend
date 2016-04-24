@@ -1,19 +1,35 @@
 package com.automatatutor.model
 
-import net.liftweb.mapper._
 import net.liftweb.common.Box
 import net.liftweb.common.Empty
-import net.liftweb.common.Full
-import net.liftweb.util.SecurityHelpers
 import net.liftweb.common.Failure
+import net.liftweb.common.Full
+import net.liftweb.mapper._
+import net.liftweb.util.SecurityHelpers
 
 class Course extends LongKeyedMapper[Course] with IdPK {
 	def getSingleton = Course
 
-	object name extends MappedString(this, 300)
-	object contact extends MappedEmail(this, 100)
-	object firstPosedProblemSet extends MappedLongForeignKey(this, PosedProblemSet)
-	object password extends MappedString(this, 20)
+	protected object name extends MappedString(this, 300)
+	protected object contact extends MappedEmail(this, 100)
+	protected object firstPosedProblemSet extends MappedLongForeignKey(this, PosedProblemSet)
+	protected object password extends MappedString(this, 20)
+	
+	def getName : String = this.name.is
+	def setName(name : String) : Course = this.name(name)
+	
+	def getContact : String = this.contact.is
+	def setContact(contact : String) : Course = this.contact(contact)
+	
+	def getFirstPosedProblemSet : Box[PosedProblemSet] = this.firstPosedProblemSet.obj
+	def setFirstPosedProblemSet ( problemSet : PosedProblemSet ) : Course = this.firstPosedProblemSet(problemSet)
+	def setFirstPosedProblemSet ( problemSet : Box[PosedProblemSet] ) : Course = this.firstPosedProblemSet(problemSet)
+	
+	def getPassword : String = {
+	  if (this.password.is == null || this.password.is.equals("")) { this.password(SecurityHelpers.randomString(8)).save }
+	  return this.password.is
+	}
+	def setPassword ( password : String ) : Course = this.password(password)
 
 	def hasEnrolledStudents : Boolean = {
 	  val enrollments = this.getEnrolledStudents
@@ -26,8 +42,8 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  return (finalEnrollments, preliminaryEnrollments)
 	}
 	
-	def enroll(student : User) = if(!this.isEnrolled(student)) { Attendance.create.userId(student).courseId(this).save }
-	def dismiss(student : User) = if(this.isEnrolled(student)) { Attendance.bulkDelete_!!(By(Attendance.courseId, this), By(Attendance.userId, student)) }
+	def enroll(student : User) = if(!this.isEnrolled(student)) { Attendance.create.setUser(student).setCourse(this).save }
+	def dismiss(student : User) = if(this.isEnrolled(student)) { Attendance.deleteByUserAndCourse(student, this) }
 	
 	def addInstructor(instructor : User) = Supervision.supervise(instructor, this)
 	def getInstructors() : Seq[User] = Supervision.findAll(By(Supervision.course, this)).map(_.instructor openOrThrowException "Each supervision must contain a supervisor")
@@ -41,10 +57,6 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	    return fullId.padTo(8, "X").mkString
 	  }
 	}
-	def getPassword : String = {
-	  if (this.password.is == null || this.password.is.equals("")) { this.password(SecurityHelpers.randomString(8)).save }
-	  return this.password.is
-	}
 
 	def removeInstructor(instructor : User) = {
 	  if(this.getInstructors.size > 1) {  // Only delete the instructor if it was not the last one
@@ -55,13 +67,13 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  }
 	}
 	
-	def isEnrolled(student : User) = !Attendance.findAll(By(Attendance.courseId, this), By(Attendance.userId, student)).isEmpty
+	def isEnrolled(student : User) = !Attendance.findByUserAndCourse(student, this).isEmpty
 	
 	def getPosedProblemSets : List[PosedProblemSet] = this.firstPosedProblemSet.map(_.getPosedProblemSetList) openOr List()
 
 	def appendPosedProblemSet(posedProblemSet : PosedProblemSet) = {
 	  this.getLastPosedProblemSet match {
-	    case Full(lastPosedProblemSet) => lastPosedProblemSet.nextPosedProblemSet(posedProblemSet).save
+	    case Full(lastPosedProblemSet) => lastPosedProblemSet.setNextPosedProblemSet(posedProblemSet).save
 	    case _ => this.firstPosedProblemSet(posedProblemSet).save
 	  }
 	}
@@ -72,7 +84,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  }
 	  val firstProblemSet = this.firstPosedProblemSet.openOrThrowException("We just checked that this is not the case")
 	  if(firstProblemSet == posedProblemSet) {
-	    this.firstPosedProblemSet(firstProblemSet.nextPosedProblemSet.obj)
+	    this.firstPosedProblemSet(firstProblemSet.getNextPosedProblemSet)
 	  } else {
 	    firstProblemSet.remove(posedProblemSet)
 	  }

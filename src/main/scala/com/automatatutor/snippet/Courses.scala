@@ -79,14 +79,14 @@ class Courses {
   
   def displayAttendedCourses(courses : Seq[Course]) : NodeSeq = {
     return TableHelper.renderTableWithHeader(courses,
-        ("Course Name", (course : Course) => Text(course.name.is)),
+        ("Course Name", (course : Course) => Text(course.getName)),
         ("Contact", (course : Course) => new CourseRenderer(course).renderContactLink),
         ("", (course : Course) => new CourseRenderer(course).renderShowLink))
   }
   
   def displaySupervisedCourses(courses : Seq[Course]) : NodeSeq = {
     return TableHelper.renderTableWithHeader(courses, 
-        ("Course Name", (course : Course) => Text(course.name.is)),
+        ("Course Name", (course : Course) => Text(course.getName)),
         ("Contact", (course : Course) => new CourseRenderer(course).renderContactLink),
         ("", (course : Course) => new CourseRenderer(course).renderManageLink),
         ("", (course : Course) => new CourseRenderer(course).renderDeleteLink))
@@ -95,7 +95,7 @@ class Courses {
   def rendershow ( xhtml : NodeSeq ) : NodeSeq = {
     val course : Course = CourseReqVar.is
 
-    val courseName : String = course.name.is
+    val courseName : String = course.getName
     
     val problemSets = course.getPosedProblemSets
 
@@ -130,7 +130,7 @@ class Courses {
     
     def renderActiveProblemSetsTable ( problemSets : Seq[PosedProblemSet] ) : NodeSeq = {
         val problemSetsTable = TableHelper.renderTableWithHeader(problemSets,
-            ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.name.is)),
+            ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.getName)),
             ("Problems Open", (problemSet : PosedProblemSet) => Text(problemSet.getNumberOpenProblems(user) + " Problems open")),
             ("Expiration", (problemSet : PosedProblemSet) => problemSetToExpirationTime(problemSet)),
             ("Current Grade", (problemSet : PosedProblemSet) => Text("Grade: " + problemSet.getGrade(user) + "/" + problemSet.getMaxGrade)))
@@ -155,8 +155,8 @@ class Courses {
     val expiredProblemSets = problemSets.filter(_.isExpired)
     
     val expiredProblemSetsTable = TableHelper.renderTableWithHeader(expiredProblemSets,
-        ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.name.is)),
-        ("Expired On", (problemSet : PosedProblemSet) => Text(problemSet.endDate.toString) ),
+        ("Name", (problemSet : PosedProblemSet) => Text(problemSet.getProblemSet.getName)),
+        ("Expired On", (problemSet : PosedProblemSet) => Text(problemSet.getEndDate.toString) ),
         ("Final Grade", (problemSet : PosedProblemSet) => Text(problemSet.getGrade(user) + "/" + problemSet.getMaxGrade)))
     
     Helpers.bind("showcourse", xhtml,
@@ -168,11 +168,11 @@ class Courses {
   def rendermanage(xhtml : NodeSeq) : NodeSeq = {
     val course = CourseReqVar.is
 
-    val courseName = course.name.is
-    val courseNameField = SHtml.text(courseName, course.name(_))
+    val courseName = course.getName
+    val courseNameField = SHtml.text(courseName, course.setName(_))
     
-    val contactMail = course.contact.is
-    val contactMailField = SHtml.text(contactMail, course.contact(_))
+    val contactMail = course.getContact
+    val contactMailField = SHtml.text(contactMail, course.setContact(_))
     
     val submitButton = SHtml.submit("Submit", () => { course.save; S.redirectTo("/courses/index") })
     
@@ -190,9 +190,9 @@ class Courses {
       Text("No problem sets posed") ++ <br />
     } else {
       TableHelper.renderTableWithHeader(posedProblemSets,
-          ("Name", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getProblemSet.name.is)),
-          ("Start Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.startDate.toString)),
-          ("End Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.endDate.toString)),
+          ("Name", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getProblemSet.getName)),
+          ("Start Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getStartDate.toString)),
+          ("End Date", (posedProblemSet : PosedProblemSet) => Text(posedProblemSet.getEndDate.toString)),
           ("Download Grades", (posedProblemSet : PosedProblemSet) => 
             (DownloadHelper.renderCsvDownloadLink(posedProblemSet.renderGradesCsv, "grades", Text("csv")) ++ Text(" ") ++
              DownloadHelper.renderXmlDownloadLink(posedProblemSet.renderGradesXml, "grades", Text("xml")))
@@ -225,7 +225,7 @@ class Courses {
     }
     
     def dismissUnregisteredStudent(course : Course, email : String) = {
-      Attendance.find(By(Attendance.courseId, course), By(Attendance.email, email)) match {
+      Attendance.findByEmailAndCourse(email, course) match {
         case Full(attendance) => attendance.delete_!
         case _ => // Do nothing
       }
@@ -261,7 +261,7 @@ class Courses {
       } else {
         val email = User.currentUser.map(_.email.is) openOr ""
 
-        val course: Course = Course.create.name(name).contact(email).password(SecurityHelpers.randomString(8))
+        val course: Course = Course.create.setName(name).setContact(email).setPassword(SecurityHelpers.randomString(8))
         course.save
 
         Supervision.supervise(User.currentUser openOrThrowException "Lift prevents non-logged-in users from being here", course)
@@ -286,7 +286,7 @@ class Courses {
     val problemSets : Seq[ProblemSet] = ProblemSet.getByCreator(User.currentUser openOrThrowException "Lift prevents non-logged-in users from being here")
 
     return TableHelper.renderTableWithHeader(problemSets,
-        ("Name", (problemSet : ProblemSet) => Text(problemSet.name.is)),
+        ("Name", (problemSet : ProblemSet) => Text(problemSet.getName)),
         ("Number of Problems", (problemSet : ProblemSet) => Text("Contains " + problemSet.getNumberOfProblems + " problems")),
         ("Name", (problemSet : ProblemSet) => SHtml.link("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) }, Text("Pose problem set"))))
   }
@@ -331,7 +331,7 @@ class Courses {
 			S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )			
 		  } else {
 			val posedProblemSet = 
-			   PosedProblemSet.create.startDate(startDate).endDate(endDate).problemSetId(problemSet).useRandomOrder(inRandomOrder)
+			   PosedProblemSet.create.setStartDate(startDate).setEndDate(endDate).setProblemSet(problemSet).setUseRandomOrder(inRandomOrder)
 			posedProblemSet.save
 			course.appendPosedProblemSet(posedProblemSet)
 			S.redirectTo("/courses/manage", () => CourseReqVar(course))
@@ -453,7 +453,7 @@ class Courses {
       posedProblem.getGrade(user, posedProblemSet)
     }
 
-    problemSnippet.renderSolve(problem, posedProblem.maxGrade.is, lastAttempt, recordSolutionAttempt, returnToCourse, remainingAttempts, bestGrade)
+    problemSnippet.renderSolve(problem, posedProblem.getMaxGrade, lastAttempt, recordSolutionAttempt, returnToCourse, remainingAttempts, bestGrade)
   }
   
   def rendersolvepractice ( ignored : NodeSeq ) : NodeSeq = {
@@ -475,7 +475,7 @@ class Courses {
         case _ => { S.error("Course with id " + courseId + " not found"); S.redirectTo("/courses/index") }
       }
       
-      if(courseToEnroll.password.equals(coursePassword)) {
+      if(courseToEnroll.getPassword.equals(coursePassword)) {
         courseToEnroll.enroll(user)
       } else {
         S.error("Password " + coursePassword + " is incorrect for course " + courseId)

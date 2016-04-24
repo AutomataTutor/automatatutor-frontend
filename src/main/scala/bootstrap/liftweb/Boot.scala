@@ -56,13 +56,7 @@ class Boot {
       PumpingLemmaProblem, PumpingLemmaSolutionAttempt,
 	    ProblemSet, Role, SolutionAttempt, Supervision)
 	
-	// Make sure that we have the entries we need in the database
-	// If you want to check some invariants about the database at startup,
-	// this would be the place to put them
-    ProblemType.onStartup
-    DFAConstructionProblemCategory.onStartup
-    NFAConstructionProblemCategory.onStartup
-    User.onStartup
+  StartupHooks.hooks map (hook => hook())
 
 	val loggedInPredicate = If(() => User.loggedIn_?, () => RedirectResponse("/index"))
 	val notLoggedInPredicate = If(() => !User.loggedIn_?, () => RedirectResponse("/index"))
@@ -133,4 +127,17 @@ class Boot {
     JQueryModule.init()
 
   }
+}
+
+trait StartupHook {
+  /* Since code in the trait is executed during the instantiation of the object carrying that trait, every object that has this trait
+   * registers itself in the companion object and can easily be executed during 
+   */
+  StartupHooks.hooks += this.onStartup
+
+  def onStartup(): Unit
+}
+
+private object StartupHooks {
+  val hooks = collection.mutable.ListBuffer[() => Unit]()
 }
