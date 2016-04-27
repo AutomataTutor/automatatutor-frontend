@@ -63,7 +63,7 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
     
     val allCategories = NFAConstructionProblemCategory.findAll()
 
-    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.categoryName.is))
+    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.getCategoryName))
     def setCategoryToChosen (pickedId : String) = category = NFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
     
     // Remember to remove all newlines from the generated XML by using filter. Also remove 'ε' from the alphabet, as its implied
