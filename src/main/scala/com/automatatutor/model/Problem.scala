@@ -34,7 +34,10 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
         EnglishToRegExTypeName -> RegExConstructionSnippet,
         PLTypeName -> PumpingLemmaProblemSnippet)
 	
-	object problemTypeName extends MappedString(this, 200)
+	protected object problemTypeName extends MappedString(this, 200)
+	
+	def getProblemTypeName = this.problemTypeName.is
+	def setProblemTypeName(problemTypeName : String) = this.problemTypeName(problemTypeName)
   
 	def getProblemSnippet() : ProblemSnippet = knownProblemTypes(this.problemTypeName.is)
 	
@@ -64,7 +67,7 @@ class Problem extends LongKeyedMapper[Problem] with IdPK {
 	object shortDescription extends MappedText(this)
 	object longDescription extends MappedText(this)
 	
-	def getTypeName() : String = (problemType.obj.map(_.problemTypeName.is)) openOr ""
+	def getTypeName() : String = (problemType.obj.map(_.getProblemTypeName)) openOr ""
 	def getType : ProblemType = this.problemType.obj openOrThrowException "Every problem must have an associated type"
 	
 	def isPublic = this.visibility.is == 0

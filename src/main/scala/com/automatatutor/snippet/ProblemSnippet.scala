@@ -78,7 +78,7 @@ class Problems {
     val headerLine = <h2> Choose Problem Type </h2>
 
     val knownProblemTypes = ProblemType.findAll.map(problemType => <li> {
-      SHtml.link("/problems/create", () => chosenProblemType(problemType), Text(problemType.problemTypeName.is))
+      SHtml.link("/problems/create", () => chosenProblemType(problemType), Text(problemType.getProblemTypeName))
     }
     </li> )
     val knownProblemTypesList = <ul> { knownProblemTypes } </ul>
