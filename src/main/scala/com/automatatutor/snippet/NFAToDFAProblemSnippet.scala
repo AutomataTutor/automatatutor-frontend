@@ -55,7 +55,7 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
       
       val specificProblem : NFAToDFAProblem = NFAToDFAProblem.create
-      specificProblem.problemId(unspecificProblem).automaton(automaton)
+      specificProblem.setGeneralProblem(unspecificProblem).setAutomaton(automaton)
       specificProblem.save
       
       returnFunc()
@@ -144,6 +144,6 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
   }
     
   override def onDelete( problem : Problem ) : Unit = {
-    NFAToDFAProblem.bulkDelete_!!(By(NFAToDFAProblem.problemId, problem))
+    NFAToDFAProblem.deleteByGeneralProblem(problem)
   }
 }

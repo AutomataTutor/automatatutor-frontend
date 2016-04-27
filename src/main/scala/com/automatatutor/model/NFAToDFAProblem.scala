@@ -13,8 +13,15 @@ import scala.xml.NodeSeq
 class NFAToDFAProblem extends LongKeyedMapper[NFAToDFAProblem] with IdPK with SpecificProblem[NFAToDFAProblem] {
 	def getSingleton = NFAToDFAProblem
 
-	object problemId extends MappedLongForeignKey(this, Problem)
-	object automaton extends MappedText(this)
+	protected object problemId extends MappedLongForeignKey(this, Problem)
+	protected object automaton extends MappedText(this)
+	
+	def getGeneralProblem = this.problemId.obj openOrThrowException "Every NFAToDFAProblem must have a ProblemId"
+	override def setGeneralProblem(problem : Problem) = this.problemId(problem)
+	
+	def getAutomaton = this.automaton.get
+	def setAutomaton( automaton : String ) = this.automaton(automaton)
+	def setAutomaton( automaton : NodeSeq ) = this.automaton(automaton.mkString)
 	
 	def getXmlDescription : NodeSeq = XML.loadString(this.automaton.is)
 	
@@ -26,11 +33,12 @@ class NFAToDFAProblem extends LongKeyedMapper[NFAToDFAProblem] with IdPK with Sp
 	  retVal.automaton(this.automaton.get)
 	  return retVal
 	}
-	
-	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
 }
 
 object NFAToDFAProblem extends NFAToDFAProblem with LongKeyedMetaMapper[NFAToDFAProblem] {
 	def findByGeneralProblem(generalProblem : Problem) : NFAToDFAProblem =
 	  find(By(NFAToDFAProblem.problemId, generalProblem)) openOrThrowException("Must only be called if we are sure that generalProblem is a DFAConstructionProblem")
+
+	def deleteByGeneralProblem(generalProblem : Problem) : Boolean =
+    NFAToDFAProblem.bulkDelete_!!(By(NFAToDFAProblem.problemId, generalProblem))
 }
