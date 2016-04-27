@@ -50,7 +50,7 @@ object DFAConstructionSnippet extends ProblemSnippet {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
       
       val specificProblem : DFAConstructionProblem = DFAConstructionProblem.create
-      specificProblem.problemId(unspecificProblem).category(category).automaton(automaton)
+      specificProblem.setGeneralProblem(unspecificProblem).category(category).setAutomaton(automaton)
       specificProblem.save
       
       returnFunc()
@@ -58,7 +58,7 @@ object DFAConstructionSnippet extends ProblemSnippet {
     
     val allCategories = DFAConstructionProblemCategory.findAll()
 
-    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.categoryName.is))
+    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.getCategoryName))
     def setCategoryToChosen (pickedId : String) = category = DFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
     
     // Remember to remove all newlines from the generated XML by using filter
@@ -187,7 +187,7 @@ object DFAConstructionSnippet extends ProblemSnippet {
   }
   
   override def onDelete( generalProblem : Problem ) : Unit = {
-    DFAConstructionProblem.bulkDelete_!!(By(DFAConstructionProblem.problemId, generalProblem))
+    DFAConstructionProblem.deleteByGeneralProblem(generalProblem)
   }
 }
 
@@ -206,14 +206,14 @@ class Dfacreationsnippet {
 
     def edit() = {
       unspecificProblem.shortDescription(shortDescription).longDescription(longDescription).save
-      dfaConstructionProblem.automaton(automaton).save
+      dfaConstructionProblem.setAutomaton(automaton).save
       
       S.redirectTo("/problems/index")
     }
     
     val allCategories = DFAConstructionProblemCategory.findAll()
     
-    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.categoryName.is))
+    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.getCategoryName))
     def setCategoryToChosen (pickedId : String) = category = DFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
     
     val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")

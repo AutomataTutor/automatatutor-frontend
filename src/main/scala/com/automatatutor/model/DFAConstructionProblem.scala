@@ -15,7 +15,10 @@ class DFAConstructionProblemCategory extends LongKeyedMapper[DFAConstructionProb
 	val knownConstructionTypes = List("Starts with", "Ends with", "Find substring", "Counting", "Counting Modulo", "Other")
 	def getSingleton = DFAConstructionProblemCategory
 
-	object categoryName extends MappedString(this, 40)
+	protected object categoryName extends MappedString(this, 40)
+	
+	def getCategoryName = this.categoryName.is
+	def setCategoryName(categoryName : String) = this.categoryName(categoryName)
 }
 
 object DFAConstructionProblemCategory extends DFAConstructionProblemCategory with LongKeyedMetaMapper[DFAConstructionProblemCategory] with StartupHook {
@@ -30,9 +33,16 @@ object DFAConstructionProblemCategory extends DFAConstructionProblemCategory wit
 class DFAConstructionProblem extends LongKeyedMapper[DFAConstructionProblem] with IdPK with SpecificProblem[DFAConstructionProblem] {
 	def getSingleton = DFAConstructionProblem
 
-	object problemId extends MappedLongForeignKey(this, Problem)
-	object automaton extends MappedText(this)
+	protected object problemId extends MappedLongForeignKey(this, Problem)
+	protected object automaton extends MappedText(this)
 	object category extends MappedLongForeignKey(this, DFAConstructionProblemCategory)
+	
+	def getGeneralProblem = this.problemId.obj openOrThrowException "Every DFAConstructionProblem must have a ProblemId"
+	override def setGeneralProblem(problem : Problem) : DFAConstructionProblem = this.problemId(problem)
+	
+	def getAutomaton = this.automaton.is
+	def setAutomaton(automaton : String) = this.automaton(automaton)
+	def setAutomaton(automaton : NodeSeq) = this.automaton(automaton.mkString)
 	
 	def getXmlDescription : NodeSeq = XML.loadString(this.automaton.is)
 	
@@ -45,11 +55,12 @@ class DFAConstructionProblem extends LongKeyedMapper[DFAConstructionProblem] wit
 	  retVal.category(this.category.get)
 	  return retVal
 	}
-	
-	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
 }
 
 object DFAConstructionProblem extends DFAConstructionProblem with LongKeyedMetaMapper[DFAConstructionProblem] {
 	def findByGeneralProblem(generalProblem : Problem) : DFAConstructionProblem =
 	  find(By(DFAConstructionProblem.problemId, generalProblem)) openOrThrowException("Must only be called if we are sure that generalProblem is a DFAConstructionProblem")
+
+	def deleteByGeneralProblem(generalProblem : Problem) : Boolean =
+    bulkDelete_!!(By(DFAConstructionProblem.problemId, generalProblem))
 }
