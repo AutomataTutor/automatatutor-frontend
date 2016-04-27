@@ -35,7 +35,7 @@ class NFAConstructionProblem extends LongKeyedMapper[NFAConstructionProblem] wit
 
 	protected object problemId extends MappedLongForeignKey(this, Problem)
 	protected object automaton extends MappedText(this)
-	object category extends MappedLongForeignKey(this, NFAConstructionProblemCategory)
+	protected object category extends MappedLongForeignKey(this, NFAConstructionProblemCategory)
 	
 	def getGeneralProblem = this.problemId.obj openOrThrowException "Every NFAConstructionProblem must have a ProblemId"
 	override def setGeneralProblem(newProblem: Problem) = this.problemId(newProblem)
@@ -43,6 +43,9 @@ class NFAConstructionProblem extends LongKeyedMapper[NFAConstructionProblem] wit
 	def getAutomaton = this.automaton.get
 	def setAutomaton(automaton : String) = this.automaton(automaton)
 	def setAutomaton(automaton : NodeSeq) = this.automaton(automaton.mkString)
+	
+	def getCategory = this.category.obj openOrThrowException "Every NFAConstructionProblem must have a Category"
+	def setCategory(category : NFAConstructionProblemCategory) = this.category(category)
 	
 	def getXmlDescription : NodeSeq = XML.loadString(this.automaton.is)
 	

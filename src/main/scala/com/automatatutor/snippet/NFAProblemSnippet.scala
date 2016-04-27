@@ -62,7 +62,7 @@ object NFAProblemSnippet extends ProblemSnippet {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
       
       val specificProblem : NFAConstructionProblem = NFAConstructionProblem.create
-      specificProblem.setGeneralProblem(unspecificProblem).category(category).setAutomaton(automaton)
+      specificProblem.setGeneralProblem(unspecificProblem).setCategory(category).setAutomaton(automaton)
       specificProblem.save
       
       returnFunc()
@@ -170,7 +170,7 @@ class Nfacreationsnippet {
     var shortDescription : String = chosenProblem.shortDescription.is
     var longDescription : String = chosenProblem.longDescription.is
     var automaton : String = "" // Will get replaced by an XML-description of the canvas anyways
-    var category : NFAConstructionProblemCategory = nfaConstructionProblem.category.obj openOrThrowException "Category must have been set"
+    var category : NFAConstructionProblemCategory = nfaConstructionProblem.getCategory
 
     def edit() = {
       unspecificProblem.shortDescription(shortDescription).longDescription(longDescription).save
