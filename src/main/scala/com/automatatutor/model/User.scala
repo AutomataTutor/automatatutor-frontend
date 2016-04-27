@@ -78,7 +78,7 @@ object User extends User with MetaMegaProtoUser[User] with StartupHook {
 	// this overridse the noreply@... address that is set by default right now
 	// for this to work the correct properties must
 	//Mailer.authenticator.map(_.user) openOr 
-	override def emailFrom = Props.get("mail.user") openOr super.emailFrom
+	override def emailFrom = Props.get("mail.from") openOr super.emailFrom
 	
 	// Display the standard template around the User-defined pages
 	override def screenWrap = Full(<lift:surround with="default" at="content"><lift:bind /></lift:surround>)
