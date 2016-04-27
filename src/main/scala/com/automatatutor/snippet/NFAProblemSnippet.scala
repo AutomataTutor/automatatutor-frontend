@@ -137,7 +137,7 @@ object NFAProblemSnippet extends ProblemSnippet {
 	  Editor.canvas.setAlphabet( { alphabetJavaScriptArray } ); </script>
 	
     val problemAlphabetNodeSeq = Text("{" + problemAlphabet.mkString(",") + "}")    
-    val problemDescriptionNodeSeq = Text(generalProblem.longDescription.is)    
+    val problemDescriptionNodeSeq = Text(generalProblem.getLongDescription)    
 		
     
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
@@ -167,13 +167,13 @@ class Nfacreationsnippet {
     val unspecificProblem : Problem = chosenProblem
     val nfaConstructionProblem : NFAConstructionProblem = NFAConstructionProblem.findByGeneralProblem(chosenProblem)
 
-    var shortDescription : String = chosenProblem.shortDescription.is
-    var longDescription : String = chosenProblem.longDescription.is
+    var shortDescription : String = chosenProblem.getShortDescription
+    var longDescription : String = chosenProblem.getLongDescription
     var automaton : String = "" // Will get replaced by an XML-description of the canvas anyways
     var category : NFAConstructionProblemCategory = nfaConstructionProblem.getCategory
 
     def edit() = {
-      unspecificProblem.shortDescription(shortDescription).longDescription(longDescription).save
+      unspecificProblem.setShortDescription(shortDescription).setLongDescription(longDescription).save
       nfaConstructionProblem.setAutomaton(automaton).save
       
       S.redirectTo("/problems/index")

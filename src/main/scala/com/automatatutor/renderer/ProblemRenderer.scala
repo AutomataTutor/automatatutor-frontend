@@ -14,7 +14,7 @@ import net.liftweb.http.S
 class ProblemRenderer(problem : Problem) {
   def renderDeleteLink : NodeSeq = {
     val target = "/problems/index"
-    def function() = { problem.problemType.obj.openOrThrowException("Every problem must belong to some category").getProblemSnippet().onDelete(problem); problem.delete_! }
+    def function() = { problem.getProblemType.getProblemSnippet().onDelete(problem); problem.delete_! }
     val label = if(problem.canBeDeleted) { Text("Delete") } else { Text("Cannot delete Problem") }
     val onclick : JsCmd = if(problem.canBeDeleted) { 
         JsRaw("return confirm('Are you sure you want to delete this problem?')") 

@@ -61,22 +61,33 @@ object ProblemType extends ProblemType with LongKeyedMetaMapper[ProblemType] wit
 class Problem extends LongKeyedMapper[Problem] with IdPK {
 	def getSingleton = Problem
 
-	object problemType extends MappedLongForeignKey(this, ProblemType)
-	object visibility extends MappedLong(this)
-	object createdBy extends MappedLongForeignKey(this, User)
-	object shortDescription extends MappedText(this)
-	object longDescription extends MappedText(this)
+	protected object problemType extends MappedLongForeignKey(this, ProblemType)
+	protected object visibility extends MappedLong(this)
+	protected object createdBy extends MappedLongForeignKey(this, User)
+	protected object shortDescription extends MappedText(this)
+	protected object longDescription extends MappedText(this)
+	
+	def getProblemType = this.problemType.obj openOrThrowException "Every Problem must have a ProblemType"
+	def setProblemType(problemType : ProblemType) = this.problemType(problemType)
 	
 	def getTypeName() : String = (problemType.obj.map(_.getProblemTypeName)) openOr ""
-	def getType : ProblemType = this.problemType.obj openOrThrowException "Every problem must have an associated type"
 	
 	def isPublic = this.visibility.is == 0
 	def isPrivate = this.visibility.is == 1
 	
-	def makePublic = this.visibility(0).save
-	def makePrivate = this.visibility(1).save
+	def makePublic = this.visibility(0)
+	def makePrivate = this.visibility(1)
 	
 	def toggleVisibility = if(this.isPublic) { makePrivate } else { makePublic }
+	
+	def getCreator : User = this.createdBy.obj openOrThrowException "Every Problem must have a CreatedBy"
+	def setCreator( creator : User ) = this.createdBy(creator)
+	
+	def getShortDescription = this.shortDescription.is
+	def setShortDescription( description : String ) = this.shortDescription(description)
+	
+	def getLongDescription = this.longDescription.is
+	def setLongDescription( description : String ) = this.longDescription(description)
 	
 	def isPosed : Boolean = PosedProblem.existsForProblem(this)
 	

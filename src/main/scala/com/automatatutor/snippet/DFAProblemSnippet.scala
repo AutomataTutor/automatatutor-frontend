@@ -170,7 +170,7 @@ object DFAConstructionSnippet extends ProblemSnippet {
     val alphabetScript : NodeSeq = <script type="text/javascript"> Editor.canvas.setAlphabet( { alphabetJavaScriptArray } ) </script>
     
     val problemAlphabetNodeSeq = Text("{" + problemAlphabet.mkString(",") + "}")
-    val problemDescriptionNodeSeq = Text(generalProblem.longDescription.is)
+    val problemDescriptionNodeSeq = Text(generalProblem.getLongDescription)
     
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("Editor.canvas.exportAutomaton()"), grade(_))
@@ -199,13 +199,13 @@ class Dfacreationsnippet {
     val unspecificProblem : Problem = chosenProblem
     val dfaConstructionProblem : DFAConstructionProblem = DFAConstructionProblem.findByGeneralProblem(chosenProblem)
 
-    var shortDescription : String = chosenProblem.shortDescription.is
-    var longDescription : String = chosenProblem.longDescription.is
+    var shortDescription : String = chosenProblem.getShortDescription
+    var longDescription : String = chosenProblem.getLongDescription
     var automaton : String = "" // Will get replaced by an XML-description of the canvas anyways
     var category = dfaConstructionProblem.getCategory
 
     def edit() = {
-      unspecificProblem.shortDescription(shortDescription).longDescription(longDescription).save
+      unspecificProblem.setShortDescription(shortDescription).setLongDescription(longDescription).save
       dfaConstructionProblem.setAutomaton(automaton).save
       
       S.redirectTo("/problems/index")

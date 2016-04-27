@@ -128,7 +128,7 @@ object RegExConstructionSnippet extends ProblemSnippet {
     }
     // Remember to remove all newlines from the generated XML by using filter
     val alphabetText = Text("{" + specificProblem.alphabet + "}")
-    val problemDescription = generalProblem.longDescription.is
+    val problemDescription = generalProblem.getLongDescription
     val regExField = SHtml.text("", value => {}, "id" -> "regexfield")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")

@@ -54,7 +54,7 @@ class Problemsets {
 	  val posedProblems = problemSetToEdit.getPosedProblems
 	  
 	  val posedProblemsTable = TableHelper.renderTableWithHeader(posedProblems,
-	      ("Short Description", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.shortDescription.is)),
+	      ("Short Description", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getShortDescription)),
 	      ("Problem Type", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getTypeName)),
 	      ("Allowed Attempts", (posedProblem : PosedProblem) => Text(posedProblem.getAllowedAttempts.toString() + " Attempts allowed")),
 	      ("", (posedProblem : PosedProblem) => SHtml.link("/problemsets/edit", () => { ProblemSetToEdit(problemSetToEdit); problemSetToEdit.removeProblem(posedProblem)}, Text("Remove problem from set"))))
@@ -70,7 +70,7 @@ class Problemsets {
 	  val problems : Seq[Problem] = Problem.findAllByCreator(currentUser)
 	  
 	  return TableHelper.renderTableWithHeader(problems,
-	      ("Short Description", (problem : Problem) => Text(problem.shortDescription.is)),
+	      ("Short Description", (problem : Problem) => Text(problem.getShortDescription)),
 	      ("Problem Type", (problem : Problem) => Text(problem.getTypeName)),
 	      ("", (problem : Problem) => SHtml.link("/problemsets/poseproblem", () => { ProblemSetToEdit(problemSetToEdit); ProblemToPose(problem) }, Text("Pose this problem"))))
 	}

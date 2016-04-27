@@ -72,7 +72,7 @@ class Courses {
     val posedProblems = practiceSet.getPosedProblems
     
     return TableHelper.renderTableWithHeader(posedProblems, 
-        ("Name", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.shortDescription.is)),
+        ("Name", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getShortDescription)),
         ("Type", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getTypeName)),
         ("", (posedProblem : PosedProblem) => SHtml.link("/courses/solvepractice", () => { PosedProblemReqVar(posedProblem) }, Text("solve"))))
   }
@@ -414,7 +414,7 @@ class Courses {
     }
     
     return TableHelper.renderTableWithHeader(posedProblems,
-        ("Description", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.shortDescription.is)),
+        ("Description", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getShortDescription)),
         ("Problem Type", (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getTypeName)),
         ("Attempts remaining", (posedProblem : PosedProblem) => renderAttemptsRemaining(posedProblem)),
         ("Grade", (posedProblem : PosedProblem) => renderGrade(posedProblem)),
@@ -428,7 +428,7 @@ class Courses {
     val posedProblem = PosedProblemReqVar.is
     
     val problem = posedProblem.getProblem
-    val problemSnippet = problem.getType.getProblemSnippet
+    val problemSnippet = problem.getProblemType.getProblemSnippet
     
     val lastAttempt = SolutionAttempt.getLatestAttempt(user, posedProblemSet, posedProblem)
     
@@ -459,7 +459,7 @@ class Courses {
   def rendersolvepractice ( ignored : NodeSeq ) : NodeSeq = {
     val posedProblem : PosedProblem = PosedProblemReqVar.is
     val problem : Problem = posedProblem.getProblem
-    val snippet = problem.getType.getProblemSnippet
+    val snippet = problem.getProblemType.getProblemSnippet
     return snippet.renderSolve(posedProblem.getProblem, posedProblem.getMaxGrade, Empty,
         (grade, date) => SolutionAttempt, () => S.redirectTo("/courses/index"), () => 1, () => 0)
   }

@@ -39,7 +39,7 @@ class Practicesets {
     val posedProblems = practiceSet.getPosedProblems
     
     return TableHelper.renderTable(posedProblems, 
-        (posedProblem : PosedProblem) => Text(posedProblem.getProblem.shortDescription.is),
+        (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getShortDescription),
         (posedProblem : PosedProblem) => Text(posedProblem.getProblem.getTypeName),
         (posedProblem : PosedProblem) => SHtml.link("/practicesets/solve", () => { PosedProblemReqVar(posedProblem) }, Text("solve")))
   }  

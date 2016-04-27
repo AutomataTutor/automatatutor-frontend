@@ -29,7 +29,7 @@ class Problems {
 
     val completeTable = TableHelper.renderTableWithHeader(usersProblems,
         ("Problem Type", (problem : Problem) => Text(problem.getTypeName)),
-        ("Description", (problem : Problem) => Text(problem.shortDescription.is)),
+        ("Description", (problem : Problem) => Text(problem.getShortDescription)),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderSharingWidget),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderTogglePublicLink),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderDeleteLink))
@@ -45,8 +45,8 @@ class Problems {
     def createUnspecificProb ( shortDesc : String, longDesc : String) : Problem = {
       val createdBy : User = User.currentUser openOrThrowException "Lift protects this page against non-logged-in users"
 
-      val unspecificProblem : Problem = Problem.create.createdBy(createdBy).visibility(1)
-      unspecificProblem.shortDescription(shortDesc).longDescription(longDesc).problemType(problemType)
+      val unspecificProblem : Problem = Problem.create.setCreator(createdBy).makePrivate
+      unspecificProblem.setShortDescription(shortDesc).setLongDescription(longDesc).setProblemType(problemType)
       unspecificProblem.save
 
       return unspecificProblem
@@ -68,7 +68,7 @@ class Problems {
       S.warning("Please choose a problem to edit first")
       return S.redirectTo("/problems/index")
     } else {
-      val problem : ProblemType = (chosenProblem.problemType.obj openOrThrowException "chosenProblem should have been set beforehand")
+      val problem : ProblemType = (chosenProblem.getProblemType)
       val problemSnippet : ProblemSnippet = problem.getProblemSnippet()
       return problemSnippet.renderEdit(chosenProblem)
     }
@@ -92,7 +92,7 @@ class Problems {
     val publicProblems = Problem.findPublicProblems
 
     return TableHelper.renderTableWithHeader(publicProblems, 
-        ("Short Description", (problem : Problem) => Text(problem.shortDescription.is)),
+        ("Short Description", (problem : Problem) => Text(problem.getShortDescription)),
         ("Category", (problem : Problem) => Text(problem.getTypeName)),
         ("", (problem : Problem) => SHtml.link("/preview/solve", () => chosenProblem.set(problem), Text("Solve"))))
   }
@@ -103,7 +103,7 @@ class Problems {
       S.redirectTo("/preview/index", 
           () => S.notice("Please login. We temporarily disabled the Try it Now problems."))
     }
-    val snippet = problem.getType.getProblemSnippet
+    val snippet = problem.getProblemType.getProblemSnippet
     return snippet.renderSolve(problem, 10, Empty, 
         (date, grade) => SolutionAttempt, 
         	() => S.redirectTo("/preview/index"), 

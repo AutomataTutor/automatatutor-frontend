@@ -119,7 +119,7 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
 	
 	val problemAlphabet = nfaToDfaProblem.getAlphabet    
     val problemAlphabetNodeSeq = Text("{" + problemAlphabet.mkString(",") + "}")
-    val problemDescriptionNodeSeq = Text(generalProblem.longDescription.is)
+    val problemDescriptionNodeSeq = Text(generalProblem.getLongDescription)
     
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("Editor.canvasDfa.exportAutomaton()"), grade(_))
