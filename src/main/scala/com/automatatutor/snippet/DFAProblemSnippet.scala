@@ -50,7 +50,7 @@ object DFAConstructionSnippet extends ProblemSnippet {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
       
       val specificProblem : DFAConstructionProblem = DFAConstructionProblem.create
-      specificProblem.setGeneralProblem(unspecificProblem).category(category).setAutomaton(automaton)
+      specificProblem.setGeneralProblem(unspecificProblem).setCategory(category).setAutomaton(automaton)
       specificProblem.save
       
       returnFunc()
@@ -202,7 +202,7 @@ class Dfacreationsnippet {
     var shortDescription : String = chosenProblem.shortDescription.is
     var longDescription : String = chosenProblem.longDescription.is
     var automaton : String = "" // Will get replaced by an XML-description of the canvas anyways
-    var category : DFAConstructionProblemCategory = dfaConstructionProblem.category.obj openOrThrowException "Category must have been set"
+    var category = dfaConstructionProblem.getCategory
 
     def edit() = {
       unspecificProblem.shortDescription(shortDescription).longDescription(longDescription).save
