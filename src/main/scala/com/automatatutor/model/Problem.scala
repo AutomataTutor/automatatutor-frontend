@@ -112,7 +112,7 @@ object Problem extends Problem with LongKeyedMetaMapper[Problem] {
 
 abstract trait SpecificProblem[T] {
   /// Does not save the modified problem. Caller has to do that manually by calling save()
-  def setGeneralProblem(newProblem: Problem)
+  def setGeneralProblem(newProblem: Problem) : T
   def save(): Boolean
   def copy(): SpecificProblem[T]
 }
