@@ -90,9 +90,7 @@ object NFAProblemSnippet extends ProblemSnippet {
         "submit" -> submitButton)
   }
 
-  override def renderEdit( problem : Problem ) : NodeSeq = {
-    return NodeSeq.Empty
-  }
+  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Empty
   
   override def renderSolve ( generalProblem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
       recordSolutionAttempt: (Int, Date)  => SolutionAttempt,

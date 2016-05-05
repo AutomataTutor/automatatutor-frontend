@@ -34,6 +34,7 @@ import net.liftweb.http.js.JE.Call
 import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.http.SHtmlJ
 import net.liftweb.util.Html5
+import net.liftweb.common.Empty
 
 object PumpingLemmaProblemSnippet extends ProblemSnippet {
   def preprocessAutomatonXml(input: String): String = input.filter(!List('\n', '\r').contains(_)).replace("\u0027", "\'")
@@ -113,9 +114,7 @@ object PumpingLemmaProblemSnippet extends ProblemSnippet {
       "submit" -> submitButton)
   }
 
-  override def renderEdit(generalProblem: Problem): NodeSeq = {
-    return Text("Editing is currently not supported.") ++ <br/> ++ SHtml.link("/problems/index", () => {}, Text("Click here to return to the problem index"))
-  }
+  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Empty
 
   override def renderSolve(generalProblem: Problem, maxGrade: Long, lastAttempt: Box[SolutionAttempt],
                            recordSolutionAttempt: (Int, Date) => SolutionAttempt, returnFunc: () => Unit, remainingAttempts: () => Int,

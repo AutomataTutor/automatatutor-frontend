@@ -77,57 +77,7 @@ object DFAConstructionSnippet extends ProblemSnippet {
         "submit" -> submitButton)
   }
   
-  override def renderEdit( generalProblem : Problem ) : NodeSeq = {
-        
-    return null;
-    /*val dfaConstructionProblem : DFAConstructionProblem = DFAConstructionProblem.findByGeneralProblem(generalProblem)
-    val automatonXml : String = dfaConstructionProblem.automaton.is
-    val setAutomatonXmlJs : NodeSeq = <script type='text/javascript'> var automatonXml = " { automatonXml } " </script>
-    val applet : NodeSeq = <lift:embed what="/dfa-construction/edit" />
-
-    var shortDescription : String = ""
-    var longDescription : String = ""
-    var automaton : String = ""
-    var category : DFAConstructionProblemCategory = null
-
-    def edit() = {
-      val unspecificProblem = editUnspecificProb(shortDescription, longDescription)
-      
-      val specificProblem : DFAConstructionProblem = DFAConstructionProblem.create
-      specificProblem.problemId(unspecificProblem).category(category).automaton(automaton)
-      specificProblem.save
-      
-      returnFunc()
-    }
-    
-    val allCategories = DFAConstructionProblemCategory.findAll()
-
-    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.categoryName.is))
-    def setCategoryToChosen (pickedId : String) = category = DFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
-    
-    // Remember to remove all newlines from the generated XML by using filter
-    val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
-    val categoryPicker = SHtml.select(categoryPickerEntries, Empty, setCategoryToChosen)
-    val shortDescriptionField = SHtml.text("", shortDescription = _)
-    val longDescriptionField = SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
-    val submitButton = SHtml.submit("Edit", edit, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
-    
-    val problemAlphabet = dfaConstructionProblem.getAlphabet 
-    val alphabetJavaScriptArray = "[\"" + problemAlphabet.mkString("\",\"") + "\"]"
-    val setupScript : NodeSeq =
-      <script type="text/javascript">
-    Editor.canvasDfa.setAutomaton( '{ dfaConstructionProblem.getXmlDescription.toString }' );
-      Editor.canvasDfa.setAlphabet( { alphabetJavaScriptArray } );
-      </script>
-    
-    val template : NodeSeq = Templates(List("dfa-construction", "create")) openOr Text("Could not find template /dfa-construction/create")
-    Helpers.bind("editform", template,
-        "automaton" -> automatonField,
-        "category" -> categoryPicker,
-        "shortdescription" -> shortDescriptionField,
-        "longdescription" -> longDescriptionField,
-        "submit" -> submitButton)*/
-  }
+  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Empty
   
   override def renderSolve(generalProblem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
       recordSolutionAttempt : (Int, Date) => SolutionAttempt, returnFunc : () => Unit, remainingAttempts: () => Int,

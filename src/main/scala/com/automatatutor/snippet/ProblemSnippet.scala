@@ -1,23 +1,21 @@
 package com.automatatutor.snippet
 
 import java.util.Date
-
 import scala.xml.NodeSeq
 import scala.xml.Text
-
 import com.automatatutor.lib.TableHelper
 import com.automatatutor.model.Problem
 import com.automatatutor.model.ProblemType
 import com.automatatutor.model.SolutionAttempt
 import com.automatatutor.model.User
 import com.automatatutor.renderer.ProblemRenderer
-
 import net.liftweb.common.Box
 import net.liftweb.common.Empty
 import net.liftweb.http.RequestVar
 import net.liftweb.http.S
 import net.liftweb.http.SHtml
 import net.liftweb.util.AnyVar.whatVarIs
+import net.liftweb.common.Full
 
 object chosenProblem extends RequestVar[Problem](null)
 object chosenProblemType extends RequestVar[ProblemType](null)
@@ -32,6 +30,7 @@ class Problems {
         ("Description", (problem : Problem) => Text(problem.getShortDescription)),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderSharingWidget),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderTogglePublicLink),
+        ("", (problem : Problem) => new ProblemRenderer(problem).renderEditLink),
         ("", (problem : Problem) => new ProblemRenderer(problem).renderDeleteLink))
     
     val creationLink = SHtml.link("/problems/create", () => {}, Text("Create new problem"))
@@ -70,7 +69,11 @@ class Problems {
     } else {
       val problem : ProblemType = (chosenProblem.getProblemType)
       val problemSnippet : ProblemSnippet = problem.getProblemSnippet()
-      return problemSnippet.renderEdit(chosenProblem)
+      problemSnippet.renderEdit match {
+        case Full(renderFunc) => renderFunc(chosenProblem, () => S.redirectTo("/problems/index"))
+        case Empty => S.error("Editing not implemented for this problem type"); S.redirectTo("/problems/index")
+        case _ => S.error("Error when retrieving editing function"); S.redirectTo("/problems/index")
+      }
     }
   }
 
@@ -121,7 +124,7 @@ trait ProblemSnippet {
 
   /** Should produce a NodeSeq that allows the user to edit the problem
    *  associated with the given unspecific problem. */
-  def renderEdit( problem : Problem ) : NodeSeq
+  def renderEdit : Box[((Problem, () => Nothing) => NodeSeq)]
   
   /** Should produce a NodeSeq that allows the user a try to solve the problem
    *  associated with the given unspecific problem. The function

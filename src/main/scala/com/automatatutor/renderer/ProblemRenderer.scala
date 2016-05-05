@@ -1,15 +1,20 @@
 package com.automatatutor.renderer
 
+import scala.xml.NodeSeq
+import scala.xml.Text
+
+import com.automatatutor.model.Problem
+import com.automatatutor.model.User
+import com.automatatutor.snippet.chosenProblem
+
+import net.liftweb.common.Empty
+import net.liftweb.common.Full
+import net.liftweb.http.S
+import net.liftweb.http.SHtml
 import net.liftweb.http.js.JE.JsRaw
 import net.liftweb.http.js.JsCmd
-import net.liftweb.http.SHtml
-import scala.xml.NodeSeq
 import net.liftweb.http.js.JsCmds
 import net.liftweb.http.js.JsCmds._
-import com.automatatutor.model.Problem
-import scala.xml.Text
-import com.automatatutor.model.User
-import net.liftweb.http.S
 
 class ProblemRenderer(problem : Problem) {
   def renderDeleteLink : NodeSeq = {
@@ -40,5 +45,13 @@ class ProblemRenderer(problem : Problem) {
       else { S.error("Could not find user " + email) }
     }
     <form action="/problems/index"> { SHtml.text("", shareWithFeedback(_)) } <input type="submit" value="Share"/> </form>
+  }
+  
+  def renderEditLink : NodeSeq = {
+    problem.getProblemType.getProblemSnippet().renderEdit match {
+      case Full(_) => SHtml.link("/problems/edit", () => chosenProblem(problem), Text("Edit"))
+      case Empty => NodeSeq.Empty
+      case _ => S.error("Error when retrieving editing function"); S.redirectTo("/problems/index")
+    }
   }
 }
