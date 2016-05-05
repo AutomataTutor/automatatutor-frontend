@@ -77,7 +77,44 @@ object DFAConstructionSnippet extends ProblemSnippet {
         "submit" -> submitButton)
   }
   
-  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Empty
+  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Full(renderEditFunc)
+  
+  private def renderEditFunc(problem : Problem, returnFunc : () => Nothing) : NodeSeq = {
+    val dfaConstructionProblem = DFAConstructionProblem.findByGeneralProblem(problem)
+
+    var shortDescription : String = ""
+    var longDescription : String = ""
+    var automaton : String = ""
+    var category : DFAConstructionProblemCategory = null
+
+    def create() = {
+      problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
+      dfaConstructionProblem.setCategory(category).setAutomaton(automaton).save()
+      returnFunc()
+    }
+    
+    val allCategories = DFAConstructionProblemCategory.findAll()
+
+    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.getCategoryName))
+    def setCategoryToChosen (pickedId : String) = category = DFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
+    
+    // Remember to remove all newlines from the generated XML by using filter
+    val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
+    val categoryPicker = SHtml.select(categoryPickerEntries, Empty, setCategoryToChosen)
+    val shortDescriptionField = SHtml.text("", shortDescription = _)
+    val longDescriptionField = SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
+    val submitButton = SHtml.submit("Edit", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
+    val setupScript = <script type="text/javascript"> Editor.canvas.setAutomaton("{ dfaConstructionProblem.getAutomaton }") </script>
+    
+    val template : NodeSeq = Templates(List("dfa-construction", "edit")) openOr Text("Could not find template /dfa-construction/edit")
+    Helpers.bind("editform", template,
+        "automaton" -> automatonField,
+        "category" -> categoryPicker,
+        "setupscript" -> setupScript,
+        "shortdescription" -> shortDescriptionField,
+        "longdescription" -> longDescriptionField,
+        "submit" -> submitButton)
+  }
   
   override def renderSolve(generalProblem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
       recordSolutionAttempt : (Int, Date) => SolutionAttempt, returnFunc : () => Unit, remainingAttempts: () => Int,
