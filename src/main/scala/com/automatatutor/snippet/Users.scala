@@ -6,7 +6,6 @@ import com.automatatutor.lib.TableHelper
 import com.automatatutor.model.Attendance
 import com.automatatutor.model.Course
 import com.automatatutor.model.DFAConstructionProblem
-import com.automatatutor.model.DFAConstructionProblemCategory
 import com.automatatutor.model.DFAConstructionSolutionAttempt
 import com.automatatutor.model.NFAConstructionProblem
 import com.automatatutor.model.NFAConstructionProblemCategory
@@ -117,7 +116,7 @@ class Users extends PaginatorSnippet[User] {
   def resetlink(ignored : NodeSeq) : NodeSeq = {
     def resetDatabase() = {
       List(Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
-          DFAConstructionProblem, DFAConstructionProblemCategory, NFAConstructionProblem, NFAConstructionProblemCategory,
+          DFAConstructionProblem, NFAConstructionProblem, NFAConstructionProblemCategory,
           NFAToDFAProblem, NFAToDFASolutionAttempt,
           ProblemSet, SolutionAttempt, Supervision, DFAConstructionSolutionAttempt, NFAConstructionSolutionAttempt).map(_.bulkDelete_!!())
     }

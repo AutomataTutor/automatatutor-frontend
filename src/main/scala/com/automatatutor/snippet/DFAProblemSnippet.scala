@@ -10,13 +10,11 @@ import scala.xml.XML
 
 import com.automatatutor.lib.GraderConnection
 import com.automatatutor.model.DFAConstructionProblem
-import com.automatatutor.model.DFAConstructionProblemCategory
 import com.automatatutor.model.DFAConstructionSolutionAttempt
 import com.automatatutor.model.Problem
 import com.automatatutor.model.SolutionAttempt
 
 import net.liftweb.common.Box
-import net.liftweb.common.Empty
 import net.liftweb.common.Full
 import net.liftweb.http.S
 import net.liftweb.http.SHtml
@@ -30,7 +28,6 @@ import net.liftweb.http.js.JsCmds.JsShowId
 import net.liftweb.http.js.JsCmds.SetHtml
 import net.liftweb.http.js.JsCmds.cmdToString
 import net.liftweb.http.js.JsCmds.jsExpToJsCmd
-import net.liftweb.mapper.By
 import net.liftweb.util.AnyVar.whatVarIs
 import net.liftweb.util.Helpers
 import net.liftweb.util.Helpers.strToSuperArrowAssoc
@@ -44,26 +41,20 @@ object DFAConstructionSnippet extends ProblemSnippet {
     var shortDescription : String = ""
     var longDescription : String = ""
     var automaton : String = ""
-    var category : DFAConstructionProblemCategory = null
 
     def create() = {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
       
       val specificProblem : DFAConstructionProblem = DFAConstructionProblem.create
-      specificProblem.setGeneralProblem(unspecificProblem).setCategory(category).setAutomaton(automaton)
+      specificProblem.setGeneralProblem(unspecificProblem).setAutomaton(automaton)
       specificProblem.save
       
       returnFunc()
     }
     
-    val allCategories = DFAConstructionProblemCategory.findAll()
-
-    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.getCategoryName))
-    def setCategoryToChosen (pickedId : String) = category = DFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
     
     // Remember to remove all newlines from the generated XML by using filter
     val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
-    val categoryPicker = SHtml.select(categoryPickerEntries, Empty, setCategoryToChosen)
     val shortDescriptionField = SHtml.text("", shortDescription = _)
     val longDescriptionField = SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
     val submitButton = SHtml.submit("Create", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
@@ -71,7 +62,6 @@ object DFAConstructionSnippet extends ProblemSnippet {
     val template : NodeSeq = Templates(List("dfa-construction", "create")) openOr Text("Could not find template /dfa-construction/create")
     Helpers.bind("createform", template,
         "automaton" -> automatonField,
-        "category" -> categoryPicker,
         "shortdescription" -> shortDescriptionField,
         "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
@@ -85,22 +75,15 @@ object DFAConstructionSnippet extends ProblemSnippet {
     var shortDescription : String = problem.getShortDescription
     var longDescription : String = problem.getLongDescription
     var automaton : String = ""
-    var category : DFAConstructionProblemCategory = null
 
     def create() = {
       problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
-      dfaConstructionProblem.setCategory(category).setAutomaton(automaton).save()
+      dfaConstructionProblem.setAutomaton(automaton).save()
       returnFunc()
     }
     
-    val allCategories = DFAConstructionProblemCategory.findAll()
-
-    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.getCategoryName))
-    def setCategoryToChosen (pickedId : String) = category = DFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
-    
     // Remember to remove all newlines from the generated XML by using filter
     val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
-    val categoryPicker = SHtml.select(categoryPickerEntries, Empty, setCategoryToChosen)
     val shortDescriptionField = SHtml.text("", shortDescription = _)
     val longDescriptionField = SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
     val submitButton = SHtml.submit("Edit", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
@@ -109,7 +92,6 @@ object DFAConstructionSnippet extends ProblemSnippet {
     val template : NodeSeq = Templates(List("dfa-construction", "edit")) openOr Text("Could not find template /dfa-construction/edit")
     Helpers.bind("editform", template,
         "automaton" -> automatonField,
-        "category" -> categoryPicker,
         "setupscript" -> setupScript,
         "shortdescription" -> shortDescriptionField,
         "longdescription" -> longDescriptionField,
@@ -189,7 +171,6 @@ class Dfacreationsnippet {
     var shortDescription : String = chosenProblem.getShortDescription
     var longDescription : String = chosenProblem.getLongDescription
     var automaton : String = "" // Will get replaced by an XML-description of the canvas anyways
-    var category = dfaConstructionProblem.getCategory
 
     def edit() = {
       unspecificProblem.setShortDescription(shortDescription).setLongDescription(longDescription).save
@@ -198,20 +179,13 @@ class Dfacreationsnippet {
       S.redirectTo("/problems/index")
     }
     
-    val allCategories = DFAConstructionProblemCategory.findAll()
-    
-    val categoryPickerEntries = allCategories.map(category => (category.id.toString, category.getCategoryName))
-    def setCategoryToChosen (pickedId : String) = category = DFAConstructionProblemCategory.findByKey(pickedId.toLong) openOrThrowException("Lift has already verified that this category exists")
-    
     val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
-    val categoryPicker = SHtml.select(categoryPickerEntries, Full(category.id.toString), setCategoryToChosen)
     val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
     val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
     val submitButton = SHtml.submit("Submit", edit, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
     
     Helpers.bind("createform", xhtml,
         "automaton" -> automatonField,
-        "category" -> categoryPicker,
         "shortdescription" -> shortDescriptionField,
         "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
