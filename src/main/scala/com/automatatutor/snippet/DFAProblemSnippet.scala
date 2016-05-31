@@ -82,8 +82,8 @@ object DFAConstructionSnippet extends ProblemSnippet {
   private def renderEditFunc(problem : Problem, returnFunc : () => Nothing) : NodeSeq = {
     val dfaConstructionProblem = DFAConstructionProblem.findByGeneralProblem(problem)
 
-    var shortDescription : String = ""
-    var longDescription : String = ""
+    var shortDescription : String = problem.getShortDescription
+    var longDescription : String = problem.getLongDescription
     var automaton : String = ""
     var category : DFAConstructionProblemCategory = null
 
