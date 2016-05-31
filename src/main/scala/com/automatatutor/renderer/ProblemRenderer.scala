@@ -33,7 +33,7 @@ class ProblemRenderer(problem : Problem) {
   def renderTogglePublicLink : NodeSeq = {
     if(User.currentUser_!.hasAdminRole) {
       val linkText = if(problem.isPublic) { Text("Make private") } else {Text("Make public")}
-      return SHtml.link("/problems/index", () => problem.toggleVisibility, linkText)
+      return SHtml.link("/problems/index", () => problem.toggleVisibility.save(), linkText)
     } else {
       return NodeSeq.Empty
     }
