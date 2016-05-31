@@ -8,7 +8,6 @@ import com.automatatutor.model.Course
 import com.automatatutor.model.DFAConstructionProblem
 import com.automatatutor.model.DFAConstructionSolutionAttempt
 import com.automatatutor.model.NFAConstructionProblem
-import com.automatatutor.model.NFAConstructionProblemCategory
 import com.automatatutor.model.NFAConstructionSolutionAttempt
 import com.automatatutor.model.NFAToDFAProblem
 import com.automatatutor.model.NFAToDFASolutionAttempt
@@ -116,7 +115,7 @@ class Users extends PaginatorSnippet[User] {
   def resetlink(ignored : NodeSeq) : NodeSeq = {
     def resetDatabase() = {
       List(Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
-          DFAConstructionProblem, NFAConstructionProblem, NFAConstructionProblemCategory,
+          DFAConstructionProblem, NFAConstructionProblem,
           NFAToDFAProblem, NFAToDFASolutionAttempt,
           ProblemSet, SolutionAttempt, Supervision, DFAConstructionSolutionAttempt, NFAConstructionSolutionAttempt).map(_.bulkDelete_!!())
     }
