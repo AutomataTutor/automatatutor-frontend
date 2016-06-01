@@ -30,13 +30,13 @@ import net.liftweb.util.Helpers.strToSuperArrowAssoc
 import net.liftweb.http.PaginatorSnippet
 import net.liftweb.mapper.StartAt
 import net.liftweb.mapper.MaxRows
-import net.liftweb.util.Props
+import com.automatatutor.lib.Config
 
 object userToEdit extends RequestVar[User](null)
 
 class Users extends PaginatorSnippet[User] {
   override def count = User.findAll().size
-  override def itemsPerPage = Props.getInt("layout.usersperpage") openOr 50
+  override def itemsPerPage = Config.layout.usersPerPage.get
   override def page = User.findAll(StartAt(curPage*itemsPerPage), MaxRows(itemsPerPage)) 
   
   def showuser (xhtml : NodeSeq) : NodeSeq = {

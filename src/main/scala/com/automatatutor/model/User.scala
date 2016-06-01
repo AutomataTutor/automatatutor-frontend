@@ -6,12 +6,12 @@ import net.liftweb.http.SessionVar
 import net.liftweb.util.StringHelpers
 import net.liftweb.util.Mailer
 import net.liftweb.common.Empty
-import net.liftweb.util.Props
 import net.liftweb.util.FieldError
 import scala.xml.Text
-import net.liftweb.util.{Props, Mailer}
+import net.liftweb.util.Mailer
 import javax.mail.{Authenticator,PasswordAuthentication}
 import bootstrap.liftweb.StartupHook
+import com.automatatutor.lib.Config
 
 class User extends MegaProtoUser[User] {	
 
@@ -78,7 +78,7 @@ object User extends User with MetaMegaProtoUser[User] with StartupHook {
 	// this overridse the noreply@... address that is set by default right now
 	// for this to work the correct properties must
 	//Mailer.authenticator.map(_.user) openOr 
-	override def emailFrom = Props.get("mail.from") openOr super.emailFrom
+	override def emailFrom = Config.mail.from.get
 	
 	// Display the standard template around the User-defined pages
 	override def screenWrap = Full(<lift:surround with="default" at="content"><lift:bind /></lift:surround>)
@@ -95,10 +95,10 @@ object User extends User with MetaMegaProtoUser[User] with StartupHook {
 	)
 	
 	def onStartup = {
-	  val adminEmail = Props.get("admin.email") openOr "admin@automatatutor.com"
-	  val adminPassword = Props.get("admin.password") openOr "admin"
-	  val adminFirstName = Props.get("admin.firstname") openOr "Admin"
-	  val adminLastName = Props.get("admin.lastname") openOr "Admin"
+	  val adminEmail = Config.admin.email.get
+	  val adminPassword = Config.admin.password.get
+	  val adminFirstName = Config.admin.firstname.get
+	  val adminLastName = Config.admin.lastname.get
 	  
 	  /* Delete all existing admin accounts, in case there are any leftover from
 	   * previous runs */
@@ -106,14 +106,14 @@ object User extends User with MetaMegaProtoUser[User] with StartupHook {
 	 
 	  //User.bulkDelete_!!(By(User.email, adminEmail))
 	  
-	  // Create new admin only if the user in the props does not exists	  
+	  // Create new admin only if the user in the config does not exists	  
 	  if (adminAccounts.isEmpty){
 		  val adminUser = User.create
 		  adminUser.firstName(adminFirstName).lastName(adminLastName).email(adminEmail).password(adminPassword).validated(true).save
 		  adminUser.addAdminRole
 		  adminUser.addInstructorRole
 	  } else {
-		  // otherwise just change the password for his account to the one in the props
+		  // otherwise just change the password for his account to the one in the config
 		  var user = adminAccounts.head
 		  var passwordList = List(adminPassword,adminPassword)
 		  passwordList

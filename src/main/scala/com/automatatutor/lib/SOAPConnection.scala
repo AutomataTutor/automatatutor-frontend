@@ -13,7 +13,6 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.IOException
 import scala.xml.XML
-import net.liftweb.util.Props
 import com.automatatutor.model.User
 
 class SOAPConnection(val url : URL) {
@@ -99,11 +98,11 @@ class SOAPConnection(val url : URL) {
 }
 
 object GraderConnection {
-	val serverUrlString = Props.get("grader.url") openOrThrowException "URL of grader not specified"
+	val serverUrlString = Config.grader.url.get
 	val serverUrl = new URL(serverUrlString)
 	val soapConnection = new SOAPConnection(serverUrl)
 	
-	val namespace = Props.get("grader.methodnamespace") openOrThrowException "Namespace of grader methods not specified"	
+	val namespace = Config.grader.methodnamespace.get
 	
 	// DFA
 	

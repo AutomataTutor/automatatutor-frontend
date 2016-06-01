@@ -13,9 +13,9 @@ import net.liftweb.db.{DB,StandardDBVendor,DefaultConnectionIdentifier}
 import net.liftweb.mapper.Schemifier
 import com.automatatutor.model._
 import java.io.FileInputStream
-
-import net.liftweb.util.{Props, Mailer}
+import net.liftweb.util.Mailer
 import javax.mail.{Authenticator,PasswordAuthentication}
+import com.automatatutor.lib.Config
 
 /**
  * A class that's instantiated early and run.  It allows the application
@@ -25,8 +25,8 @@ class Boot {
   def boot {
   
      Mailer.authenticator = for {
-	  user <- Props.get("mail.user")
-	  pass <- Props.get("mail.password")
+	  user <- Full(Config.mail.user.get)
+	  pass <- Full(Config.mail.password.get)
 	} yield new Authenticator {	  
 	  override def getPasswordAuthentication =
 		new PasswordAuthentication(user,pass)
@@ -36,10 +36,10 @@ class Boot {
 	LiftRules.addToPackages("com.automatatutor")
 
 	if(!DB.jndiJdbcConnAvailable_?) {
-		val dbDriver = Props.get("db.driver") openOrThrowException "No db-driver specificied"
-		val dbUrl = Props.get("db.url") openOrThrowException "No db-path specified"
-		val dbUser = Props.get("db.user")
-		val dbPassword = Props.get("db.password")
+		val dbDriver = Config.db.driver.get
+		val dbUrl = Config.db.url.get
+		val dbUser = Config.db.user.get
+		val dbPassword = Config.db.password.get
 		val vendor = new StandardDBVendor(dbDriver, dbUrl, dbUser, dbPassword)
 
 		LiftRules.unloadHooks.append(vendor.closeAllConnections_!)
