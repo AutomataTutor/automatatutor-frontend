@@ -4,6 +4,8 @@ import net.liftweb.common.Box
 import net.liftweb.common.Empty
 import net.liftweb.common.Full
 import net.liftweb.util.Props
+import net.liftweb.db.StandardDBVendor
+import net.liftweb.db.ConnectionManager
 
 object Config {
 
@@ -33,11 +35,13 @@ object Config {
     val from: ConfigParam[String] = StringParam(Prop("mail.from", Default("noreply@automatatutor.com")))
   }
 
-  object db {
-    val driver: ConfigParam[String] = StringParam(Prop("db.driver", Mandatory))
-    val url: ConfigParam[String] = StringParam(Prop("db.url", Mandatory))
-    val user: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.user") }
-    val password: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.password") }
+  object db extends ConfigParam[ConnectionManager] {
+    private val driver: ConfigParam[String] = StringParam(Prop("db.driver", Mandatory))
+    private val url: ConfigParam[String] = StringParam(Prop("db.url", Mandatory))
+    private val user: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.user") }
+    private val password: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.password") }
+
+    def get = new StandardDBVendor(driver.get, url.get, user.get, password.get)
   }
 
   object admin {

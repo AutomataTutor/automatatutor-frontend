@@ -33,15 +33,8 @@ class Boot {
 	LiftRules.addToPackages("com.automatatutor")
 
 	if(!DB.jndiJdbcConnAvailable_?) {
-		val dbDriver = Config.db.driver.get
-		val dbUrl = Config.db.url.get
-		val dbUser = Config.db.user.get
-		val dbPassword = Config.db.password.get
-		val vendor = new StandardDBVendor(dbDriver, dbUrl, dbUser, dbPassword)
-
-		LiftRules.unloadHooks.append(vendor.closeAllConnections_!)
-
-		DB.defineConnectionManager(DefaultConnectionIdentifier, vendor)
+		DB.defineConnectionManager(DefaultConnectionIdentifier, Config.db.get)
+		LiftRules.unloadHooks.append(Config.db.get.closeAllConnections_!)
 	}
 
 	Schemifier.schemify(true, Schemifier.infoF _, 
