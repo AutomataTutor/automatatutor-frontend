@@ -23,14 +23,11 @@ import com.automatatutor.lib.Config
  */
 class Boot {
   def boot {
-  
-     Mailer.authenticator = for {
-	  user <- Full(Config.mail.user.get)
-	  pass <- Full(Config.mail.password.get)
-	} yield new Authenticator {	  
-	  override def getPasswordAuthentication =
-		new PasswordAuthentication(user,pass)
-	}
+
+    Mailer.authenticator = Full( new Authenticator {
+      override def getPasswordAuthentication =
+        new PasswordAuthentication(Config.mail.user.get, Config.mail.password.get)
+    } )
   
     // where to search snippet
 	LiftRules.addToPackages("com.automatatutor")
