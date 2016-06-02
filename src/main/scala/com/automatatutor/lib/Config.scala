@@ -24,31 +24,31 @@ object Config {
   private case object Mandatory extends Accessor { def access = throw new Exception("Improper configuration") }
 
   object layout {
-    def usersPerPage: ConfigParam[Int] = IntParam(Prop("layout.usersperpage", Default("50")))
+    val usersPerPage: ConfigParam[Int] = IntParam(Prop("layout.usersperpage", Default("50")))
   }
 
   object mail {
-    def user: ConfigParam[String] = StringParam(Prop("mail.user", Default("")))
-    def password: ConfigParam[String] = StringParam(Prop("mail.password", Default("")))
-    def from: ConfigParam[String] = StringParam(Prop("mail.from", Default("noreply@automatatutor.com")))
+    val user: ConfigParam[String] = StringParam(Prop("mail.user", Default("")))
+    val password: ConfigParam[String] = StringParam(Prop("mail.password", Default("")))
+    val from: ConfigParam[String] = StringParam(Prop("mail.from", Default("noreply@automatatutor.com")))
   }
 
   object db {
-    def driver: ConfigParam[String] = StringParam(Prop("db.driver", Mandatory))
-    def url: ConfigParam[String] = StringParam(Prop("db.url", Mandatory))
-    def user: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.user") }
-    def password: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.password") }
+    val driver: ConfigParam[String] = StringParam(Prop("db.driver", Mandatory))
+    val url: ConfigParam[String] = StringParam(Prop("db.url", Mandatory))
+    val user: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.user") }
+    val password: ConfigParam[Box[String]] = new ConfigParam[Box[String]] { def get = Props.get("db.password") }
   }
 
   object admin {
-    def firstname: ConfigParam[String] = StringParam(Prop("admin.firstname", Default("Admin")))
-    def lastname: ConfigParam[String] = StringParam(Prop("admin.lastname", Default("Admin")))
-    def password: ConfigParam[String] = StringParam(Prop("admin.password", Default("admin")))
-    def email: ConfigParam[String] = StringParam(Prop("admin.email", Default("admin@automatatutor.com")))
+    val firstname: ConfigParam[String] = StringParam(Prop("admin.firstname", Default("Admin")))
+    val lastname: ConfigParam[String] = StringParam(Prop("admin.lastname", Default("Admin")))
+    val password: ConfigParam[String] = StringParam(Prop("admin.password", Default("admin")))
+    val email: ConfigParam[String] = StringParam(Prop("admin.email", Default("admin@automatatutor.com")))
   }
 
   object grader {
-    def url: ConfigParam[String] = StringParam(Prop("grader.url", Mandatory))
-    def methodnamespace: ConfigParam[String] = StringParam(Prop("grader.methodnamespace", Mandatory))
+    val url: ConfigParam[String] = StringParam(Prop("grader.url", Mandatory))
+    val methodnamespace: ConfigParam[String] = StringParam(Prop("grader.methodnamespace", Mandatory))
   }
 }
