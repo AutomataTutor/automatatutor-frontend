@@ -265,7 +265,7 @@ feel free to do so.
 1. For each class in the model there should be a corresponding renderer that
 is parametrized with an instance of this class and creates HTML from the model
 instance. This renderer can then be used in the snippets once the relevant
-model instances have been loaded
+model instances have been loaded.
 
 2. Do not query the database directly anywhere but in the model class. For
 example, if you want to find a user with a given name, do not write
@@ -278,6 +278,15 @@ example, if you want to find a user with a given name, do not write
 
 	in `com.automatatutor.model.User` that does this. This helps keep the
 snippets as clean and small as possible.
+
+3. If possible, do not use any magical numbers in the code. The only
+exception to this is `com.automatatutor.lib.Config`, where *all* configuration
+is to be stored. In particular, this also implies non-usage of
+`net.liftweb.util.Props` everywhere but in `com.automatatutor.lib.Config`.
+
+4. New code should be formatted using
+[scalariform](https://github.com/scala-ide/scalariform). A profile for this
+can be found at `formatterPreferences.properties`.
 
 *TODO*: Write down more guidelines
 
