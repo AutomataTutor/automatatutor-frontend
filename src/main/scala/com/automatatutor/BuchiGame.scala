@@ -1,12 +1,10 @@
 package com.automatatutor
 
 import scala.xml.NodeSeq
-
 import com.automatatutor.lib.TemplateLoader
 import com.automatatutor.model.DFAConstructionProblem
 import com.automatatutor.model.Problem
 import com.automatatutor.model.SolutionAttempt
-
 import net.liftweb.http.SHtml
 import net.liftweb.mapper.IdPK
 import net.liftweb.mapper.LongKeyedMapper
@@ -15,6 +13,9 @@ import net.liftweb.mapper.MappedLongForeignKey
 import net.liftweb.mapper.MappedText
 import net.liftweb.util.Helpers
 import net.liftweb.util.Helpers.strToSuperArrowAssoc
+import com.automatatutor.lib.Renderer
+import com.automatatutor.lib.Binding
+import com.automatatutor.lib.Binder
 
 object BuchiGameSolving {
   class Task extends LongKeyedMapper[Task] with IdPK {
@@ -45,6 +46,20 @@ object BuchiGameSolving {
     var longDescription : String = ""
     var arena : String = ""
 
+    object canvasRenderer extends Renderer { def render = {
+      <lift:embed what="/applets/buchi-game"> </lift:embed> ++
+      SHtml.hidden(arena = _, "", "id" -> "arenaField")
+    } }
+    object submitButtonRenderer extends Renderer { def render = {
+      SHtml.submit("Create", create, "onClick" -> "document.getElementById('arenaField').value = Editor.canvas.exportAutomaton()")
+    } }
+    object shortDescRenderer extends Renderer { def render = {
+      SHtml.text("", shortDescription = _)
+    } }
+    object longDescRenderer extends Renderer { def render = {
+      SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
+    } }
+
     def create() = {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
       
@@ -55,18 +70,14 @@ object BuchiGameSolving {
       returnFunc()
     }
     
-    val arenaField = SHtml.hidden(arena = _, "", "id" -> "arenaField")
-    val submitButton = SHtml.submit("Create", create, "onClick" -> "document.getElementById('arenaField').value = Editor.canvas.exportAutomaton()")
+    val arenaBinding = new Binding("arena", canvasRenderer)
+    val submitBinding = new Binding("submit", submitButtonRenderer)
 
-    val shortDescriptionField = SHtml.text("", shortDescription = _)
-    val longDescriptionField = SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
+    val shortDescBinding  = new Binding("shortdescription", shortDescRenderer)
+    val longDescBinding = new Binding("longdescription", longDescRenderer)
     
     val template : NodeSeq = TemplateLoader.BuchiSolving.create
-    Helpers.bind("createform", template,
-        "arena" -> arenaField,
-        "shortdescription" -> shortDescriptionField,
-        "longdescription" -> longDescriptionField,
-        "submit" -> submitButton)
+    new Binder("createform", arenaBinding, submitBinding, shortDescBinding, longDescBinding).bind(template)
   }
 
 }
