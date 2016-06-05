@@ -11,7 +11,7 @@ class Binding(val target : String, val renderer : Renderer)
 class Binder(context : String, bindings : Binding*) {
   def this(bindings : Binding*) = this("", bindings : _*)
   
-  def bind(template : NodeSeq) = {
+  def bind(template : NodeSeq) : NodeSeq = {
     val bindParams : Seq[BindParam]  = bindings map (binding => new TheBindParam(binding.target, binding.renderer.render).asInstanceOf[BindParam])
     Helpers.bind(context, template, bindParams : _*)
   }
