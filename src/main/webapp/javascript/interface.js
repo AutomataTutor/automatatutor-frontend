@@ -314,6 +314,8 @@ $.SvgCanvas = function(container, config, style) {
 	links = [],
 	alphabet = [];
 
+	var solveMode = false
+
     // init D3 force layout
     var force;
 
@@ -450,16 +452,16 @@ $.SvgCanvas = function(container, config, style) {
 	    if(config.transition.deterministic)
 		return;
 	    if(draggingLink && draggingEntire){
-		var toSplice = links.filter( function(l) {
-		    return (l.source === trash_link.source && l.target === trash_link.target);
-		});
+			var toSplice = links.filter( function(l) {
+				return (l.source === trash_link.source && l.target === trash_link.target);
+			});
 
-		toSplice.map(function(l) {
-		    links.splice(links.indexOf(l), 1);
-		});
-	    }
-	    else if(draggingLink)
-		links.splice(links.indexOf(trash_link), 1);
+			toSplice.map(function(l) {
+				links.splice(links.indexOf(l), 1);
+			});
+	    } else if(draggingLink) {
+			links.splice(links.indexOf(trash_link), 1);
+		}
 	    
 	    draggingLink = false;
 	    draggingEntire = false;
@@ -790,10 +792,12 @@ $.SvgCanvas = function(container, config, style) {
 
 	circle.selectAll('circle#main')
 		.classed('hidden', function(d) { return d.owner === 1 })
+		.classed('nonewinning', function(d) { return config.twoPlayers === true && d.winningPlayer === -1 })
 		.classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
     	.classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 	circle.selectAll('rect#main')
 		.classed('hidden', function(d) { return d.owner === 0 })
+		.classed('nonewinning', function(d) { return config.twoPlayers === true && d.winningPlayer === -1 })
 		.classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
     	.classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 
@@ -823,7 +827,12 @@ $.SvgCanvas = function(container, config, style) {
 	}
 
 	function onNodeDblclick(d) {
-		d.accepting = !d.accepting;
+		if(config.twoPlayers) {
+			// Iterate through -1, 0, 1
+			d.winningPlayer = ((d.winningPlayer + 2) % 3 )- 1
+		} else {
+			d.accepting = !d.accepting;
+		}
 		restart();
 		return;
 	}
@@ -833,9 +842,11 @@ $.SvgCanvas = function(container, config, style) {
 		hidden_link = null;
 		selected_node = d;
 
-		circle.call(node_drag);
-		svg.classed('ctrl', true);
-		draggingNode = true;
+		if(!solveMode) {
+			circle.call(node_drag);
+			svg.classed('ctrl', true);
+			draggingNode = true;
+		}
 
 		resetMouseVars();
 		restart();
@@ -948,6 +959,7 @@ $.SvgCanvas = function(container, config, style) {
 	    .style('stroke', '#5B90B2')
 	    .classed('hidden', function(d) { return d.owner === 1 })
 	    .classed('accepting', function(d) { return config.acceptanceMarker === 'css' && d.accepting; })
+	    .classed('nonewinning', function(d) { return config.twoPlayers === true && d.winningPlayer === -1 })
 	    .classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
 	    .classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 	    .on('mouseover', onNodeMouseover)
@@ -975,6 +987,7 @@ $.SvgCanvas = function(container, config, style) {
 	    .style('stroke', '#5B90B2')
 	    .classed('hidden', function(d) { return d.owner === 0 })
 	    .classed('accepting', function(d) { return config.acceptanceMarker === 'css' && d.accepting; })
+	    .classed('nonewinning', function(d) { return config.twoPlayers === true && d.winningPlayer === -1 })
 	    .classed('winningp0', function(d) { return config.twoPlayers === true && d.winningPlayer === 0 })
 	    .classed('winningp1', function(d) { return config.twoPlayers === true && d.winningPlayer === 1 })
 	    .on('mouseover', onNodeMouseover)
@@ -1014,7 +1027,7 @@ $.SvgCanvas = function(container, config, style) {
 	circle.exit().remove();
 
 	// handles the hoverMenu, if drawing an NFA
-	if(useHoverMenu()) {
+	if(useHoverMenu() && !solveMode) {
 	    hoverMenu = hoverMenu.data(nodes, function(d) { return d.id; });
 	    hoverMenu.selectAll('circle')
 	    	.classed('visible', isHoverMenuVisible);
@@ -1290,7 +1303,7 @@ $.SvgCanvas = function(container, config, style) {
     function mousedownPath(d) {
 	if(d3.event.button === 1 || d3.event.button === 2) return;
 
-	if(draggingNode) return;
+	if(draggingNode || solveMode) return;
 
 	// select link
 	mousedown_link = d;
@@ -1353,9 +1366,11 @@ $.SvgCanvas = function(container, config, style) {
 
 	if(draggingNode || mousedown_node || mousedown_link || overTrash || overClear) return;
 
-	// insert new node at point
-	var point = d3.mouse(this);
-	addNode(point[0], point[1]);
+	if(!solveMode) {
+		// insert new node at point
+		var point = d3.mouse(this);
+		addNode(point[0], point[1]);
+	}
 
 	restart();
     }
@@ -1746,7 +1761,7 @@ $.SvgCanvas = function(container, config, style) {
 			flip: true,
 			menu_visible: false,
 			owner: 0,
-			winningPlayer: 0,
+			winningPlayer: -1,
 			priority: 0
 		};
 		node.x = x;
@@ -1876,6 +1891,8 @@ $.SvgCanvas = function(container, config, style) {
 		function(e) {
 		    var menu_items = $('#cmenu_canvas > li');
 		    menu_items.disableContextMenu();
+			if(solveMode) return
+
 		    if(hover_node){
 				if(hover_node.accepting) {
 					menu_items.enableContextMenuItems('#non-final');
@@ -1888,7 +1905,8 @@ $.SvgCanvas = function(container, config, style) {
 				}
 
 				if(config.hasInitialNode && !(hover_node.initial)) {
-					menu_items.enableContextMenuItems('#remove,#init')
+					menu_items.enableContextMenuItems('#remove')
+					menu_items.enableContextMenuItems('#init')
 				} else if (!config.hasInitialNode) {
 					menu_items.enableContextMenuItems('#remove')
 				}
@@ -1899,12 +1917,12 @@ $.SvgCanvas = function(container, config, style) {
 					} else {
 						menu_items.enableContextMenuItems('#makep0')
 					}
-
+					/*
 					if(hover_node.winningPlayer === 0) {
 						menu_items.enableContextMenuItems('#p1wins')
 					} else {
 						menu_items.enableContextMenuItems('#p0wins')
-					}
+					}*/
 				}
 
 				if(config.node.label === 'priority') {
@@ -1998,6 +2016,13 @@ $.SvgCanvas = function(container, config, style) {
 		    var nodeId = parseInt(currState.getElementsByTagName("label")[0].firstChild.nodeValue);
 		    addNode(posX, posY);
 		    nodes[nodes.length - 1].id = nodeId;
+		    if(config.twoPlayers) {
+				nodes[nodes.length - 1].owner = parseInt(currState.getAttribute("owner"))
+				nodes[nodes.length - 1].winningPlayer = parseInt(currState.getAttribute("winner"))
+			}
+			if(config.node.label === 'priority') {
+				nodes[nodes.length - 1].priority = parseInt(currState.getAttribute("priority"))
+			}
 		}
 
 		//TODO merge edges that have the same source+target and concat the labels
@@ -2006,7 +2031,11 @@ $.SvgCanvas = function(container, config, style) {
 		    var currEdge = edgeTags[i];
 		    var from = parseInt(currEdge.getElementsByTagName("from")[0].firstChild.nodeValue);
 		    var to = parseInt(currEdge.getElementsByTagName("to")[0].firstChild.nodeValue);
-		    var read = currEdge.getElementsByTagName("read")[0].firstChild.nodeValue.trim();
+		    if(currEdge.getElementsByTagName("read")[0].firstChild) {
+		    	var read = currEdge.getElementsByTagName("read")[0].firstChild.nodeValue.trim();
+			} else {
+				var read = ""
+			}
 		    
 		    var transArray = [];
 		    for(var j = 0; j < alphabet.length; j++){
@@ -2034,14 +2063,16 @@ $.SvgCanvas = function(container, config, style) {
 		    }
 		}
 
-		var initTag = xmlDoc.getElementsByTagName("initState")[0].getElementsByTagName("state");
-		var initId = parseInt(initTag[0].getAttribute('sid'));
-		initial_node = nodes[0];
-		for(i = 0; i < nodes.length; i++) {
-		    if(nodes[i].id === initId){
-				nodes[i].initial = true;
-				initial_node = nodes[i];
-		    }
+		if(config.hasInitialNode) {
+			var initTag = xmlDoc.getElementsByTagName("initState")[0].getElementsByTagName("state");
+			var initId = parseInt(initTag[0].getAttribute('sid'));
+			initial_node = nodes[0];
+			for(i = 0; i < nodes.length; i++) {
+			    if(nodes[i].id === initId){
+					nodes[i].initial = true;
+					initial_node = nodes[i];
+			    }
+			}
 		}
 
 		restart();
@@ -2082,16 +2113,28 @@ $.SvgCanvas = function(container, config, style) {
 		//States
 		var states = "	<stateSet>\n";
 
-		var accepting = new Array(),
-		init = false,
-		initState = "<initState><state sid='" + initial_node.id + "' /></initState>";
+		var accepting = new Array()
+		var init = false
+		if(config.hasInitialNode) {
+			var initState = "<initState><state sid='" + initial_node.id + "' /></initState>";
+		} else {
+			var initState = ""
+		}
 
 		for(var i = 0; i < nodes.length; i++){
 			if(nodes[i].accepting){
 				accepting.push(nodes[i].id);
 			}
 
-			states = states + "		<state sid='" + nodes[i].id + "' ><label>" + nodes[i].id + "</label><posX>" + Math.round(parseFloat(nodes[i].x)) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y)) + "</posY></state>\n";
+			states = states + "		<state sid='" + nodes[i].id + "' "
+			if(config.twoPlayers) {
+				states += "owner='" + nodes[i].owner + "' "
+				states += "winner='" + nodes[i].winningPlayer + "' "
+			}
+			if(config.node.label === 'priority') {
+				states += "priority='" + nodes[i].priority + "' "
+			}
+			states += "><label>" + nodes[i].id + "</label><posX>" + Math.round(parseFloat(nodes[i].x)) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y)) + "</posY></state>\n";
 
 		}
 		states = states + "	</stateSet>\n";
@@ -2117,6 +2160,15 @@ $.SvgCanvas = function(container, config, style) {
 					+ "			<from>" + fromId + "</from>\n"
 					+ "			<to>" + toId + "</to>\n"
 					+ "			<read>" + labels[j] + "</read>\n"
+					+ "			<edgeDistance>" + edgeDistance + "</edgeDistance>\n"
+					+ "		</transition>\n";
+					transitionNo = transitionNo + 1;
+				}
+				if(labels.length == 0) {
+					transitions += "<transition tid='" + transitionNo + "'>\n"
+					+ "			<from>" + fromId + "</from>\n"
+					+ "			<to>" + toId + "</to>\n"
+					+ "			<read></read>\n"
 					+ "			<edgeDistance>" + edgeDistance + "</edgeDistance>\n"
 					+ "		</transition>\n";
 					transitionNo = transitionNo + 1;
@@ -2208,4 +2260,18 @@ $.SvgCanvas = function(container, config, style) {
      	clearRect.style('visibility', 'visible');
      	clearText.style('visibility', 'visible');
      }
+
+	this.enterSolveMode = function() {
+		solveMode = true
+     	trashLabel.style('visibility', 'hidden');
+     	clearRect.style('visibility', 'hidden');
+     	clearText.style('visibility', 'hidden');
+	}
+
+	this.exitSolveMode = function() {
+		solveMode = false
+     	trashLabel.style('visibility', 'visible');
+     	clearRect.style('visibility', 'visible');
+     	clearText.style('visibility', 'visible');
+	}
 }

@@ -17,6 +17,8 @@ import net.liftweb.mapper.MappedString
 import net.liftweb.mapper.MappedText
 import net.liftweb.mapper.MappedLongForeignKey
 import bootstrap.liftweb.StartupHook
+import com.automatatutor.lib.Config
+import com.automatatutor.BuchiGameSolving
 
 class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	def getSingleton = ProblemType
@@ -26,13 +28,15 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	val NFAToDFATypeName = "NFA to DFA"
 	val EnglishToRegExTypeName = "English to Regular Expression"
 	val PLTypeName = "Pumping Lemma Proof"
+	val BuchiSolvingTypeName = "Buchi Game Solving"
 
     val knownProblemTypes : Map[String, ProblemSnippet] = Map(
         DFAConstructionTypeName -> DFAConstructionSnippet,
         NFAConstructionTypeName -> NFAProblemSnippet,
         NFAToDFATypeName -> NFAToDFAProblemSnippet,
         EnglishToRegExTypeName -> RegExConstructionSnippet,
-        PLTypeName -> PumpingLemmaProblemSnippet)
+        PLTypeName -> PumpingLemmaProblemSnippet) ++
+        (if(Config.buchiGameSolving.enabled.get) { Map(BuchiSolvingTypeName -> BuchiGameSolving.SnippetAdapter) } else { Map[String, ProblemSnippet]() })
 	
 	protected object problemTypeName extends MappedString(this, 200)
 	

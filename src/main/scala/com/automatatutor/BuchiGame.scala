@@ -16,8 +16,38 @@ import net.liftweb.util.Helpers.strToSuperArrowAssoc
 import com.automatatutor.lib.Renderer
 import com.automatatutor.lib.Binding
 import com.automatatutor.lib.Binder
+import com.automatatutor.snippet.ProblemSnippet
+import java.util.Date
+import net.liftweb.common.Box
 
 object BuchiGameSolving {
+  object SnippetAdapter extends ProblemSnippet {
+    /** Should produce a NodeSeq that allows the user to create a new problem of
+     *  the type. This NodeSeq also has to handle creation of the unspecific
+     *  {@link Problem}. */
+    def renderCreate( createUnspecificProb : (String, String) => Problem, returnFunc : () => Nothing ) : NodeSeq = BuchiGameSolving.renderCreate(createUnspecificProb, returnFunc)
+
+    /** Should produce a NodeSeq that allows the user to edit the problem
+     *  associated with the given unspecific problem. */
+    def renderEdit : Box[((Problem, () => Nothing) => NodeSeq)] = ???
+    
+    /** Should produce a NodeSeq that allows the user a try to solve the problem
+     *  associated with the given unspecific problem. The function
+     *  recordSolutionAttempt must be called once for every solution attempt
+     *  and expects the grade of the attempt (which must be <= maxGrade) and the
+     *  time the attempt was made. After finishing the solution attempt, the
+     *  snippet should send the user back to the overview of problems in the
+     *  set by calling returnToSet */
+    def renderSolve ( problem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
+        recordSolutionAttempt: (Int, Date)  => SolutionAttempt,
+        returnToSet : () => Unit , attemptsLeft : () => Int, bestGrade : () => Int) : NodeSeq = ???
+    
+    /** Is called before the given unspecific problem is deleted from the database.
+     *  This method should delete everything associated with the given unspecific
+     *  problem from the database */
+    def onDelete( problem : Problem ) : Unit = ???
+    
+  }
   class Task extends LongKeyedMapper[Task] with IdPK {
     def getSingleton = Task
     

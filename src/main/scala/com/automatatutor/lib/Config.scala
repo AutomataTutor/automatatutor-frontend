@@ -13,6 +13,7 @@ object Config {
 
   private case class StringParam(protected val accessor: Accessor) extends ConfigParam[String]() { def get = accessor.access }
   private case class IntParam(protected val accessor: Accessor) extends ConfigParam[Int]() { def get = accessor.access.toInt }
+  private case class BoolParam(protected val accessor: Accessor) extends ConfigParam[Boolean]() { def get = accessor.access.toBoolean }
 
   private abstract class Accessor { def access: String }
   private case class Prop(id: String, fallback: Accessor) extends Accessor {
@@ -54,5 +55,9 @@ object Config {
   object grader {
     val url: ConfigParam[String] = StringParam(Prop("grader.url", Mandatory))
     val methodnamespace: ConfigParam[String] = StringParam(Prop("grader.methodnamespace", Mandatory))
+  }
+  
+  object buchiGameSolving {
+    val enabled : ConfigParam[Boolean] = BoolParam(Prop("buchigamesolving.enabled", Default("false")))
   }
 }
