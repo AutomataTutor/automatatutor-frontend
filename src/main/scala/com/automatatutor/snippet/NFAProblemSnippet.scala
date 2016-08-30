@@ -15,7 +15,7 @@ import com.automatatutor.model.Problem
 import com.automatatutor.model.SolutionAttempt
 
 import net.liftweb.common.Box
-import net.liftweb.common.Empty
+import net.liftweb.common.Full
 import net.liftweb.http.S
 import net.liftweb.http.SHtml
 import net.liftweb.http.SHtml.ElemAttr.pairToBasic
@@ -44,7 +44,7 @@ object NFAProblemSnippet extends ProblemSnippet {
 	val containsEpsilon = <epsilon> { containsEpsilonBool } </epsilon>
     val automatonWithoutAlphabet = asXml.child.filter(_.label != "alphabet")
     val newAutomaton = <automaton> { alphabetWithoutEpsilon } { containsEpsilon } { automatonWithoutAlphabet } </automaton>
-    return newAutomaton.toString
+    return newAutomaton.toString.replace("\"","\'") //Very important line, otherwise app doesn't render
   }
 
   override def renderCreate( createUnspecificProb : (String, String) => Problem,
@@ -79,7 +79,36 @@ object NFAProblemSnippet extends ProblemSnippet {
         "submit" -> submitButton)
   }
 
-  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Empty
+  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Full(renderEditFunc)
+  
+  private def renderEditFunc(problem : Problem, returnFunc : () => Nothing) : NodeSeq = {
+    val nfaConstructionProblem = NFAConstructionProblem.findByGeneralProblem(problem)
+
+    var shortDescription : String = problem.getShortDescription
+    var longDescription : String = problem.getLongDescription
+    var automaton : String = ""
+
+    def create() = {
+      problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
+      nfaConstructionProblem.setAutomaton(automaton).save()
+      returnFunc()
+    }
+    
+    // Remember to remove all newlines from the generated XML by using filter
+    val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")    
+    val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
+    val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
+    val submitButton = SHtml.submit("Edit", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
+    val setupScript = <script type="text/javascript"> Editor.canvas.setAutomaton("{ preprocessAutomatonXml(nfaConstructionProblem.getAutomaton) }") </script>
+    
+    val template : NodeSeq = Templates(List("description-to-nfa-problem", "edit")) openOr Text("Could not find template /description-to-nfa-problem/edit")
+    Helpers.bind("editform", template,
+        "automaton" -> automatonField,
+        "setupscript" -> setupScript,
+        "shortdescription" -> shortDescriptionField,
+        "longdescription" -> longDescriptionField,
+        "submit" -> submitButton)
+  }
   
   override def renderSolve ( generalProblem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
       recordSolutionAttempt: (Int, Date)  => SolutionAttempt,
@@ -150,7 +179,7 @@ object NFAProblemSnippet extends ProblemSnippet {
 class Nfacreationsnippet {
   def preprocessAutomatonXml ( input : String ) : String = input.filter(!List('\n', '\r').contains(_)).replace("\u0027", "\'")
   
-  def editform( xhtml : NodeSeq ) : NodeSeq = {
+  /*def editform( xhtml : NodeSeq ) : NodeSeq = {
     val unspecificProblem : Problem = chosenProblem
     val nfaConstructionProblem : NFAConstructionProblem = NFAConstructionProblem.findByGeneralProblem(chosenProblem)
 
@@ -175,5 +204,5 @@ class Nfacreationsnippet {
         "shortdescription" -> shortDescriptionField,
         "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
-  }
+  }*/
 }

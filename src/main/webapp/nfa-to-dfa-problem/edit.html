@@ -1,0 +1,57 @@
+<div>
+
+    <link rel="stylesheet" href="/stylesheets/proto2.css" type="text/css"/>
+    <link rel="stylesheet" href="/stylesheets/interface.css" type="text/css"/>
+
+    <script type="text/javascript" src="/javascript/lib/d3.min.js"></script>
+    <script type="text/javascript" src="/javascript/lib/jquery-2.1.1.min.js"></script>
+    <script type="text/javascript" src="/javascript/lib/jquery.contextmenu.js"></script>
+    <script type="text/javascript" src="/javascript/lib/browser.js"></script>
+    <script type="text/javascript" src="/javascript/lib/contextmenu.js"></script>
+
+	<script type="text/javascript" src="/javascript/interface.js"> </script>
+	<script type="text/javascript" src="/javascript/includeNFA.js"> </script>
+	<script type="text/javascript" src="/javascript/alphabetUtil.js"> </script>
+
+	<script type="text/javascript">
+		function setAlphabet() {
+			var alphabet = parseAlphabet();
+			if(alphabetChecks(alphabet)){
+				Editor.canvas.setAlphabet(alphabet);	
+			}
+		}
+	</script>
+
+	<h2> Create a new NFA to DFA problem </h2>
+
+	<form id="alphabetForm" action="">
+		Note that resetting the alphabet will also reset the whole automaton <br />
+		Alphabet (separated by commas, spaces will be removed): <input type="text" id="alphabetField">
+		<input type="button" value="Set Alphabet" onclick="setAlphabet()">
+	</form>
+
+	<lift:embed what="/nfa-to-dfa-problem/applet-nfa"> </lift:embed>
+	
+	<script type="text/javascript">
+		// On load, set the alphabet to a,b as standard.
+		document.getElementById('alphabetField').value = "a b";
+		setAlphabet();
+	</script>
+
+	<lift:Identity form="POST">
+	<editform:setupscript> </editform:setupscript>
+	<table> 
+		<tr> 
+			<td> </td>
+			<td> <editform:automaton> </editform:automaton> </td>
+		</tr>
+		<tr> 
+			<td> Short Description: </td>
+			<td> <editform:shortdescription> </editform:shortdescription> </td>
+		</tr>
+		<tr> 
+			<td> <editform:submit> </editform:submit> </td>
+			<td> </td>			
+		</tr>
+	</lift:Identity>
+</div> 

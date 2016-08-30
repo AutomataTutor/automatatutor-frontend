@@ -42,8 +42,7 @@ object PumpingLemmaProblemSnippet extends ProblemSnippet {
   override def renderCreate(createUnspecificProb: (String, String) => Problem,
                             returnFunc: () => Nothing): NodeSeq = {
 
-    def create(formValues: String): JsCmd = {
-
+    def create(formValues: String): JsCmd = {     
       val formValuesXml = XML.loadString(formValues)
       val language = (formValuesXml \ "languagefield").head.text
       val constraint = (formValuesXml \ "constraintfield").head.text

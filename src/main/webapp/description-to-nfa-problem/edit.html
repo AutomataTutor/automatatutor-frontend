@@ -1,0 +1,44 @@
+<div>
+
+	<script type="text/javascript" src="/javascript/alphabetUtil.js"> </script>
+
+	<script type="text/javascript">
+		function setAlphabet() {
+			var alphabet = parseAlphabet();			
+			if(alphabetChecks(alphabet)){
+				Editor.canvas.setAlphabet(alphabet);
+			}
+		}
+	</script>	
+
+	<h2> Edit NFA-construction problem </h2>
+
+	<form id="alphabetForm" action="">
+		Note that resetting the alphabet will also reset the whole automaton <br />
+		Alphabet (separated by spaces): <input type="text" id="alphabetField">
+		<input type="button" value="Set Alphabet" onclick="setAlphabet()">
+	</form>
+
+	<lift:embed what="/description-to-nfa-problem/applet"> </lift:embed>	
+
+	<lift:Identity form="POST">
+	<editform:setupscript> </editform:setupscript>
+	<table> 
+		<tr> 
+			<td> </td>
+			<td> <editform:automaton> </editform:automaton> </td>
+		</tr>
+		<tr> 
+			<td> Short Description: </td>
+			<td> <editform:shortdescription> </editform:shortdescription> </td>
+		</tr>
+		<tr> 
+			<td> Long Description (will appear in the problem in the form of "Construct an NFA that recognizes the following language: {long description}"): </td>
+			<td> <editform:longdescription> </editform:longdescription> </td>
+		</tr>
+		<tr> 
+			<td> </td>
+			<td> <editform:submit> </editform:submit> </td>
+		</tr>
+	</lift:Identity>
+</div> 

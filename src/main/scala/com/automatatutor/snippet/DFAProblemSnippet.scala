@@ -55,8 +55,8 @@ object DFAConstructionSnippet extends ProblemSnippet {
     
     // Remember to remove all newlines from the generated XML by using filter
     val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
-    val shortDescriptionField = SHtml.text("", shortDescription = _)
-    val longDescriptionField = SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
+    val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
+    val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
     val submitButton = SHtml.submit("Create", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
     
     val template : NodeSeq = Templates(List("dfa-construction", "create")) openOr Text("Could not find template /dfa-construction/create")
@@ -84,8 +84,8 @@ object DFAConstructionSnippet extends ProblemSnippet {
     
     // Remember to remove all newlines from the generated XML by using filter
     val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
-    val shortDescriptionField = SHtml.text("", shortDescription = _)
-    val longDescriptionField = SHtml.textarea("", longDescription = _, "cols" -> "80", "rows" -> "5")
+    val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
+    val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
     val submitButton = SHtml.submit("Edit", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
     val setupScript = <script type="text/javascript"> Editor.canvas.setAutomaton("{ dfaConstructionProblem.getAutomaton }") </script>
     
@@ -164,7 +164,7 @@ object DFAConstructionSnippet extends ProblemSnippet {
 class Dfacreationsnippet {
   def preprocessAutomatonXml ( input : String ) : String = input.filter(!List('\n', '\r').contains(_)).replace("\u0027", "\'")
   
-  def editform( xhtml : NodeSeq ) : NodeSeq = {
+  /*def editform( xhtml : NodeSeq ) : NodeSeq = {
     val unspecificProblem : Problem = chosenProblem
     val dfaConstructionProblem : DFAConstructionProblem = DFAConstructionProblem.findByGeneralProblem(chosenProblem)
 
@@ -189,5 +189,5 @@ class Dfacreationsnippet {
         "shortdescription" -> shortDescriptionField,
         "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
-  }
+  }*/
 }
