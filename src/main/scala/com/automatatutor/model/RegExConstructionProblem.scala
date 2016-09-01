@@ -16,6 +16,12 @@ class RegExConstructionProblem extends LongKeyedMapper[RegExConstructionProblem]
 	object problemId extends MappedLongForeignKey(this, Problem)
 	object regEx extends MappedText(this)
 	object alphabet extends MappedText(this)
+	
+	def getAlphabet = this.alphabet.is
+	def getRegex = this.regEx.is
+	
+	def setRegex(regEx : String) = this.regEx(regEx)
+	def setAlphabet(alphabet : String) = this.alphabet(alphabet)
 
 	override def copy(): RegExConstructionProblem = {
 	  val retVal = new RegExConstructionProblem

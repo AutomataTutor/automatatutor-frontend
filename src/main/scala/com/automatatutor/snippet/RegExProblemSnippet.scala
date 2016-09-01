@@ -14,6 +14,7 @@ import com.automatatutor.model.RegExConstructionProblem
 import com.automatatutor.model.RegexConstructionSolutionAttempt
 import com.automatatutor.model.SolutionAttempt
 import net.liftweb.common.Box
+import net.liftweb.common.Full
 import net.liftweb.http.SHtml
 import net.liftweb.http.SHtml.ElemAttr.pairToBasic
 import net.liftweb.http.Templates
@@ -88,7 +89,67 @@ object RegExConstructionSnippet extends ProblemSnippet {
         "submit" -> submitButton)
   }
   
-  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Empty
+  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Full(renderEditFunc)
+  
+  private def renderEditFunc(problem : Problem, returnFunc : () => Nothing) : NodeSeq = {
+    
+    val regexConstructionProblem = RegExConstructionProblem.findByGeneralProblem(problem)    
+    
+    
+    var alphabet : String = regexConstructionProblem.getAlphabet
+    var shortDescription : String = problem.getShortDescription
+    var longDescription : String = problem.getLongDescription
+    var regex : String = regexConstructionProblem.getRegex
+
+    def edit(formValues : String) : JsCmd = {   
+      val formValuesXml = XML.loadString(formValues)
+      val regEx = (formValuesXml \ "regexfield").head.text
+      val alphabet = (formValuesXml \ "alphabetfield").head.text
+      val shortDescription = (formValuesXml \ "shortdescfield").head.text
+      val longDescription = (formValuesXml \ "longdescfield").head.text
+      
+      //Keep only the chars
+      val alphabetList = alphabet.split(" ").filter(_.length()>0);
+      val parsingErrors = GraderConnection.getRegexParsingErrors(regEx, alphabetList)
+      
+      if(parsingErrors.isEmpty) {        
+              
+        val alphabetToSave = alphabetList.mkString(" ")
+        val specificProblem : RegExConstructionProblem = RegExConstructionProblem.create
+      
+        problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
+        regexConstructionProblem.setAlphabet(alphabetToSave).setRegex(regEx).save()                       
+        returnFunc()
+      } else {
+        return JsCmds.JsShowId("submitbutton") & JsCmds.JsShowId("feedbackdisplay") & JsCmds.SetHtml("parsingerror", Text(parsingErrors.mkString("<br/>")))
+      }                 
+    }
+    
+    // Remember to remove all newlines from the generated XML by using filter    
+    val alphabetFieldValXmlJs : String = "<alphabetfield>' + document.getElementById('alphabetfield').value + '</alphabetfield>"
+    val regexFieldValXmlJs : String = "<regexfield>' + document.getElementById('regexfield').value + '</regexfield>"
+    val shortdescFieldValXmlJs : String = "<shortdescfield>' + document.getElementById('shortdescfield').value + '</shortdescfield>"
+    val longdescFieldValXmlJs : String = "<longdescfield>' + document.getElementById('longdescfield').value + '</longdescfield>"
+      
+    val alphabetField = SHtml.text(alphabet, alphabet=_, "id" -> "alphabetfield")  
+    val regExField = SHtml.text(regex, regex=_, "id" -> "regexfield")
+    val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _, "id" -> "shortdescfield")
+    val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5", "id" -> "longdescfield")
+    
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + alphabetFieldValXmlJs + regexFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), edit(_))
+    val hideSubmitButton : JsCmd = JsHideId("submitbutton")
+    val checkAlphabetAndSubmit : JsCmd = JsIf(Call("alphabetChecks",Call("parseAlphabetByFieldName", "alphabetfield")), hideSubmitButton & ajaxCall)    
+    
+    val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={checkAlphabetAndSubmit}>Submit</button>
+    
+    val template : NodeSeq = Templates(List("description-to-regex-problem", "edit")) openOr Text("Could not find template /description-to-regex-problem/edit")
+    Helpers.bind("editform", template,
+        "alphabetfield" -> alphabetField,
+        "regexfield" -> regExField,
+        "shortdescription" -> shortDescriptionField,
+        "longdescription" -> longDescriptionField,
+        "submit" -> submitButton)
+  }
   
   override def renderSolve(generalProblem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
       recordSolutionAttempt : (Int, Date) => SolutionAttempt, returnFunc : () => Unit, remainingAttempts: () => Int,

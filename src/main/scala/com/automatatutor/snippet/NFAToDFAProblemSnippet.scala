@@ -23,7 +23,7 @@ import net.liftweb.http.js.JsCmds.cmdToString
 import net.liftweb.http.js.JsCmds.jsExpToJsCmd
 
 import net.liftweb.common.Box
-import net.liftweb.common.Empty
+import net.liftweb.common.Full
 import net.liftweb.http.S
 import net.liftweb.http.SHtml
 import net.liftweb.http.Templates
@@ -39,7 +39,7 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
     val alphabetWithoutEpsilon = <alphabet> { symbolsWithoutEpsilon } </alphabet>
     val automatonWithoutAlphabet = asXml.child.filter(_.label != "alphabet")
     val newAutomaton = <automaton> { alphabetWithoutEpsilon } { automatonWithoutAlphabet } </automaton>
-    return newAutomaton.toString
+    return newAutomaton.toString.replace("\"","\'")
   }
 
   override def renderCreate( createUnspecificProb : (String, String) => Problem,
@@ -73,7 +73,37 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
         )
   }
 
-  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Empty
+  override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Full(renderEditFunc)
+  
+  private def renderEditFunc(problem : Problem, returnFunc : () => Nothing) : NodeSeq = {
+    val nfaToDfaProblem = NFAToDFAProblem.findByGeneralProblem(problem)
+
+    var shortDescription : String = problem.getShortDescription    
+    var automaton : String = ""
+
+    def create() = {
+      problem.setShortDescription(shortDescription).save()
+      nfaToDfaProblem.setAutomaton(automaton).save()
+      returnFunc()
+    }
+    
+    // Remember to remove all newlines from the generated XML by using filter
+    val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
+    val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
+    val submitButton = SHtml.submit("Edit", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
+    val setupScript =
+      <script type="text/javascript">
+		Editor.canvas.setAutomaton( "{ preprocessAutomatonXml(nfaToDfaProblem.getAutomaton) }" );
+      </script>
+    
+    
+    val template : NodeSeq = Templates(List("nfa-to-dfa-problem", "edit")) openOr Text("Could not find template /nfa-to-dfa-problem/edit")
+    Helpers.bind("editform", template,
+        "automaton" -> automatonField,
+        "setupscript" -> setupScript,
+        "shortdescription" -> shortDescriptionField,
+        "submit" -> submitButton)
+  }
   
   override def renderSolve ( generalProblem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
       recordSolutionAttempt: (Int, Date)  => SolutionAttempt,
@@ -118,9 +148,10 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
     
 	val returnLink : NodeSeq = SHtml.link("/courses/show", returnFunc, Text("Return to Course"))
 	val alphabetJavaScriptArray = "[\"" + problemAlphabet.mkString("\",\"") + "\"]"
+	
     val setupScript : NodeSeq =
-      <script type="text/javascript">
-		Editor.canvasNfa.setAutomaton( '{ nfaToDfaProblem.getXmlDescription.toString }' );
+      <script type="text/javascript">		
+		Editor.canvasNfa.setAutomaton( "{ preprocessAutomatonXml(nfaToDfaProblem.getXmlDescription.toString) }" );
     	Editor.canvasDfa.setAlphabet( { alphabetJavaScriptArray } );
       </script>
 	

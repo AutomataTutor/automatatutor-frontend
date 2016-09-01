@@ -1,0 +1,43 @@
+<div>
+	
+	<script type="text/javascript" src="/javascript/alphabetUtil.js"> </script>
+
+	<h2> Edit Description to Regex problem </h2>
+
+	<h4> Regular Expression Syntax </h4>
+
+	The union is expressed as R|R, star as R*, plus as R+, concatenation as RR. <br />
+	Epsilon is not supported but you can write R? for the regex (R|epsilon). <br /> <br />
+
+	<h4> Problem Definition </h4>
+
+	<lift:Identity form="POST">	
+	<table> 
+		<tr>
+			<td> Alphabet (separated by spaces): </td>
+			<td> <editform:alphabetfield> </editform:alphabetfield> </td>
+		</tr> 
+		<tr>
+			<td> Regular Expression: </td>
+			<td> <editform:regexfield> </editform:regexfield> </td>
+		</tr> 
+			<td> Short Description: </td>
+			<td> <editform:shortdescription> </editform:shortdescription> </td>
+		</tr>
+		<tr> 
+			<td> Long Description (will appear in the problem in the form of "Construct a regular expression that recognizes the following language: {long description}"): </td>
+			<td> <editform:longdescription> </editform:longdescription> </td>
+		</tr>
+		<tr> 
+			<td> </td>
+			<td> <editform:submit> </editform:submit> </td>
+		</tr>
+	</lift:Identity>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Parsing Error: </h3>
+		<ul>
+			<div id="parsingerror"/>
+		</ul>
+	</div>
+</div> 

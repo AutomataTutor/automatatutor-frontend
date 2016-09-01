@@ -27,15 +27,15 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	val NFAConstructionTypeName = "English to NFA"
 	val NFAToDFATypeName = "NFA to DFA"
 	val EnglishToRegExTypeName = "English to Regular Expression"
-	val PLTypeName = "Pumping Lemma Proof"
+	//val PLTypeName = "Pumping Lemma Proof"
 	val BuchiSolvingTypeName = "Buchi Game Solving"
 
     val knownProblemTypes : Map[String, ProblemSnippet] = Map(
         DFAConstructionTypeName -> DFAConstructionSnippet,
         NFAConstructionTypeName -> NFAProblemSnippet,
         NFAToDFATypeName -> NFAToDFAProblemSnippet,
-        EnglishToRegExTypeName -> RegExConstructionSnippet,
-        PLTypeName -> PumpingLemmaProblemSnippet) ++
+        EnglishToRegExTypeName -> RegExConstructionSnippet
+        ) ++
         (if(Config.buchiGameSolving.enabled.get) { Map(BuchiSolvingTypeName -> BuchiGameSolving.SnippetAdapter) } else { Map[String, ProblemSnippet]() })
 	
 	protected object problemTypeName extends MappedString(this, 200)
@@ -50,7 +50,6 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	  case NFAConstructionTypeName => NFAConstructionProblem.findByGeneralProblem(generalProblem)
 	  case NFAToDFATypeName => NFAToDFAProblem.findByGeneralProblem(generalProblem)
 	  case EnglishToRegExTypeName => RegExConstructionProblem.findByGeneralProblem(generalProblem)
-	  case PLTypeName => PumpingLemmaProblem.findByGeneralProblem(generalProblem)
 	}
 }
 
