@@ -151,7 +151,8 @@ object NFAToDFAProblemSnippet extends ProblemSnippet {
 	
     val setupScript : NodeSeq =
       <script type="text/javascript">		
-		Editor.canvasNfa.setAutomaton( "{ preprocessAutomatonXml(nfaToDfaProblem.getXmlDescription.toString) }" );
+			Editor.canvasNfa.setAutomaton( "{ preprocessAutomatonXml(nfaToDfaProblem.getXmlDescription.toString) }" );
+			Editor.canvasNfa.lockCanvas();
     	Editor.canvasDfa.setAlphabet( { alphabetJavaScriptArray } );
       </script>
 	
