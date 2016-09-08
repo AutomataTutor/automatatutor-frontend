@@ -2238,6 +2238,7 @@ $.SvgCanvas = function(container, config, style) {
      	hoverMenu.style('pointer-events', 'none');
      	circle.style('pointer-events', 'none');
      	labels.style('pointer-events', 'none');
+    	d3.select(container).style('pointer-events', 'none');
 
      	trashLabel.style('visibility', 'hidden');
      	clearRect.style('visibility', 'hidden');
@@ -2255,6 +2256,7 @@ $.SvgCanvas = function(container, config, style) {
      	hoverMenu.style('pointer-events', 'auto');
      	circle.style('pointer-events', 'auto');
      	labels.style('pointer-events', 'auto');
+    	d3.select(container).style('pointer-events', 'auto');
 
      	trashLabel.style('visibility', 'visible');
      	clearRect.style('visibility', 'visible');
