@@ -94,7 +94,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  this.firstPosedProblemSet.map(_.getLastPosedProblemSet)
 	}
 	
-	def canBeDeleted : Boolean = !this.hasEnrolledStudents
+	def canBeDeleted : Boolean = true //!this.hasEnrolledStudents
 	def getDeletePreventers : Seq[String] = if(this.hasEnrolledStudents) { return List("Course still has students enrolled") } else { List() }
 	override def delete_! : Boolean = {
 	  if (!this.canBeDeleted) {
