@@ -24,7 +24,7 @@ class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	
 	def getNextPosedProblem : Box[PosedProblem] = this.nextPosedProblemId.obj
 	def setNextPosedProblem ( posedProblem : PosedProblem ) : PosedProblem = this.nextPosedProblemId(posedProblem)
-	def setNextPosedProblem ( posedProblem : Box[PosedProblem] ) : PosedProblem = this.nextPosedProblemId(posedProblem)
+	def setNextPosedProblem ( posedProblem : Box[PosedProblem] ) : PosedProblem = this.nextPosedProblemId(posedProblem)		
 	
 	def deleteRecursively : Unit = {
 	  this.nextPosedProblemId.obj match {
@@ -40,7 +40,7 @@ class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	    case Full(nextProblem) => nextProblem.getListRecursively
 	    case _ => Nil
 	  } )
-	}
+	}	
 	
 	def removeProblemRecursively ( toRemove : PosedProblem ) : Unit = {
 	  this.nextPosedProblemId.obj match {

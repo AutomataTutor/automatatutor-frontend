@@ -100,7 +100,11 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  if (!this.canBeDeleted) {
 		return false 
 	  } else {
+	    //Delete the courses I own and the students enrollment
 	    Supervision.deleteByCourse(this)
+	    for (st<-this.getEnrolledStudents._1)
+	      dismiss(st)
+	    
 	    return super.delete_!
 	  }
 	}
