@@ -66,14 +66,7 @@ class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 	def getNumberOfProblems : Int = this.getPosedProblems.size
 	
 	def removeProblem( toRemove : PosedProblem ) = {
-	  this.posedProblem.obj match {
-	    case Full(problem) => if(problem.equals(toRemove)) { 
-	    	this.posedProblem(problem.getNextPosedProblem); problem.delete_!
-	      } else { 
-	    	problem.removeProblemRecursively(toRemove)
-	      }
-	    case _ => {} // Do nothing, we cannot remove the problem from this list if it is not in there
-	  }
+	  this.getPosedProblems.filter { _.equals(toRemove) }.map { _.delete_! }
 	}
 	
 	def appendProblem( problem : Problem, numberOfAttempts : Int, maxGrade : Int ) = {

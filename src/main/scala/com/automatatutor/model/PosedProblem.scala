@@ -60,18 +60,6 @@ class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	  } )
 	}
 	
-	def removeProblemRecursively ( toRemove : PosedProblem ) : Unit = {
-	  this.nextPosedProblemId.obj match {
-	    case Full(nextProblem) => if (nextProblem.equals(toRemove)) { 
-	    	this.nextPosedProblemId(nextProblem.nextPosedProblemId.obj).save
-	    	nextProblem.delete_!
-	      } else { 
-	        nextProblem.removeProblemRecursively(toRemove)
-	      }
-	    case _ => {} // We cannot remove the problem if it is not in the list, thus do nothing
-	  }
-	}
-	
 	def appendProblemRecursively ( toAppend : PosedProblem )  : Unit = {
 	  this.nextPosedProblemId.obj match {
 	    case Full(nextPosedProblem) => nextPosedProblem.appendProblemRecursively(toAppend)
