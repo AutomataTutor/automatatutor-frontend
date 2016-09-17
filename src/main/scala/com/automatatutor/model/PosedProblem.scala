@@ -26,6 +26,24 @@ class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	def setNextPosedProblem ( posedProblem : PosedProblem ) : PosedProblem = this.nextPosedProblemId(posedProblem)
 	def setNextPosedProblem ( posedProblem : Box[PosedProblem] ) : PosedProblem = this.nextPosedProblemId(posedProblem)
 	
+	override def delete_! : Boolean = {
+	  val superSucceeded = super.delete_!
+
+	  if (!superSucceeded) return false
+
+	  // If this is not the first PosedProblem in a list, fix the previous list pointer to point at the next one
+	  PosedProblem.findByNextPosedProblem(this).map { previousPosedProblem =>
+	    previousPosedProblem.setNextPosedProblem(this.nextPosedProblemId.obj)
+	    if (!previousPosedProblem.save()) return false
+	  }
+	  // If this is the first PosedProblem in a list, fix the head pointer to point to the next
+	  ProblemSet.findByFirstPosedProblem(this).map { problemSet => 
+	    problemSet.setPosedProblem(this.nextPosedProblemId.obj)
+	    if (!problemSet.save()) return false
+	  }
+	  return true
+	}
+	
 	def deleteRecursively : Unit = {
 	  this.nextPosedProblemId.obj match {
 	    case Full(nextPosedProblem) => nextPosedProblem.deleteRecursively
@@ -111,4 +129,5 @@ object PosedProblem extends PosedProblem with LongKeyedMetaMapper[PosedProblem] 
 	def existsForProblem(problem : Problem) : Boolean = this.find(By(PosedProblem.problemId, problem)) match { 
 	case Empty => false case Full(_) => true case _ => false}
 	def findByProblem(problem : Problem) : Seq[PosedProblem] = this.findAll(By(PosedProblem.problemId, problem))
+	def findByNextPosedProblem(nextProblem : PosedProblem) : Box[PosedProblem] = this.find(By(PosedProblem.nextPosedProblemId, nextProblem))
 }

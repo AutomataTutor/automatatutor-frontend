@@ -104,4 +104,6 @@ class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 object ProblemSet extends ProblemSet with LongKeyedMetaMapper[ProblemSet] {
 	def getByCreator( creator : User ) : Seq[ProblemSet] = findAll(By(ProblemSet.createdBy, creator))
 	def getPracticeSets : Seq[ProblemSet] = findAll(By(ProblemSet.practiceSet, true))
+	
+	def findByFirstPosedProblem ( posedProblem : PosedProblem ) = find(By(ProblemSet.posedProblem, posedProblem))
 }
