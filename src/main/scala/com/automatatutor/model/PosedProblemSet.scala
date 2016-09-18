@@ -126,9 +126,9 @@ class PosedProblemSet extends LongKeyedMapper[PosedProblemSet] with IdPK {
 	  return endDateTimestamp - nowTimestamp
 	}
 	
-	def canBeRemoved : Boolean = !this.isActive
+	def canBeRemoved : Boolean = true //!this.isActive
 	def getRemovePreventers : Seq[String] = if(this.isActive) { List("Problem Set is currently active") } else { List() }
-	def remove(toRemove : PosedProblemSet) : Unit = {
+	def remove(toRemove : PosedProblemSet) : Unit = {	  	 
 	  this.nextPosedProblemSet.obj match {
 	    case Full(nextPosedSet) => if (nextPosedSet == toRemove) {
 	    		this.nextPosedProblemSet(nextPosedSet.nextPosedProblemSet.obj).save
@@ -137,7 +137,7 @@ class PosedProblemSet extends LongKeyedMapper[PosedProblemSet] with IdPK {
 	    		nextPosedSet.remove(toRemove)
 	    	}
 	    case _ => () // We reached the end of the list, do nothing
-	  }
+	  }	  
 	}
 	
 	def deleteRecursively : Unit = {

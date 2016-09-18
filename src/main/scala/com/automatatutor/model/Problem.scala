@@ -98,7 +98,9 @@ class Problem extends LongKeyedMapper[Problem] with IdPK {
 	def getDeletePreventers : Seq[String] = {
 	  return (if(this.isPosed) { List("Problem is posed in some problem set")} else { List() }) ++ (if(this.isPublic) { List("Problem is public") } else { List() })
 	}
-	override def delete_! : Boolean = if(!this.canBeDeleted) { return false } else { return super.delete_! }
+	override def delete_! : Boolean = if(!this.canBeDeleted) { return false } else { 	  
+	  return super.delete_! 	  
+	}
 	
 	def shareWithUserByEmail(email: String) : Boolean = {
 	  val otherUser = User.findByEmail(email) match {

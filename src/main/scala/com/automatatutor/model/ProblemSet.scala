@@ -27,6 +27,10 @@ class ProblemSet extends LongKeyedMapper[ProblemSet] with IdPK {
 	def setPracticeSet ( practiceSet : Boolean ) = this.practiceSet(practiceSet)
 	
 	def deleteWithProblems = {
+	  //Remove the containing posed problem set
+	  for (posedProbSet <- PosedProblemSet.findByProblemSet(this))
+	    posedProbSet.getCourse.removePosedProblemSet(posedProbSet)	  
+	  
 	  // Make sure that we also delete the posed problems from the database
 	  this.posedProblem.obj match {
 	    case Full(problem) => problem.deleteRecursively // This will recursively remove all the posed problems
