@@ -102,8 +102,7 @@ class Course extends LongKeyedMapper[Course] with IdPK {
 	  } else {
 	    //Delete the courses I own and the students enrollment
 	    Supervision.deleteByCourse(this)
-	    for (st<-this.getEnrolledStudents._1)
-	      dismiss(st)
+	    this.getEnrolledStudents._1.map { this.dismiss(_) }
 	    
 	    return super.delete_!
 	  }
