@@ -2,19 +2,20 @@ package com.automatatutor.snippet
 
 import scala.xml.NodeSeq
 import scala.xml.Text
-
 import com.automatatutor.lib.TableHelper
 import com.automatatutor.model.PosedProblem
 import com.automatatutor.model.Problem
 import com.automatatutor.model.ProblemSet
 import com.automatatutor.model.User
 import com.automatatutor.renderer.ProblemSetRenderer
-
 import net.liftweb.http.RequestVar
 import net.liftweb.http.S
 import net.liftweb.http.SHtml
 import net.liftweb.util.Helpers
 import net.liftweb.util.Helpers._
+import com.automatatutor.lib.Binding
+import com.automatatutor.lib.Renderer
+import com.automatatutor.lib.Binder
 
 
 object ProblemSetToEdit extends RequestVar[ProblemSet](null)
@@ -36,17 +37,21 @@ class Problemsets {
 	
 	def rendercreate ( xhtml : NodeSeq ) : NodeSeq = {
 	  var name : String = ""
-	  val nameField = SHtml.text("", name = _, "maxlength" -> "50")
 	  
 	  def create() = {
 	    ProblemSet.create.setName(name).setCreatedBy(User.currentUser_!).save
 	  }
-
-	  val createButton = SHtml.submit("Create", () => { create(); S.redirectTo("/problemsets/index") })
 	  
-	  Helpers.bind("problemsetcreate", xhtml,
-	      "namefield" -> nameField,
-	      "createbutton" -> createButton)
+	  object nameFieldRenderer extends Renderer { def render = {
+      SHtml.text("", name = _, "maxlength" -> "50")
+	  } }
+	  object createButtonRenderer extends Renderer { def render = {
+	    SHtml.submit("Create", () => { create(); S.redirectTo("/problemsets/index") })
+	  } }
+	  val nameFieldBinding = new Binding("namefield", nameFieldRenderer)
+	  val createButtonBinding = new Binding("createbutton", createButtonRenderer)
+	  
+	  new Binder("problemsetcreate", nameFieldBinding, createButtonBinding).bind(xhtml)
 	}
 	
 	def renderedit ( xhtml : NodeSeq ) : NodeSeq = {
