@@ -101,13 +101,19 @@ class Problemsets {
 	    S.redirectTo("/problemsets/edit", () => ProblemSetToEdit(problemSetToEdit))
 	  }
 	  
-	  val maxGradeField = SHtml.text("10", maxGrade = _)
-	  val attemptsField = SHtml.text("3", attempts = _)
-	  val submitButton = SHtml.submit("Pose Problem", () => poseProblem)
-	  
-	  Helpers.bind("poseproblemform", xhtml,
-	      "maxgradefield" -> maxGradeField,
-	      "attemptsfield" -> attemptsField,
-	      "posebutton" -> submitButton)
+	  object maxGradeFieldRenderer extends Renderer { def render = {
+	    SHtml.text("10", maxGrade = _)
+	  } }
+	  object attemptsFieldRenderer extends Renderer { def render = {
+	    SHtml.text("3", attempts = _)
+	  } }
+	  object submitButtonRenderer extends Renderer { def render = {
+	    SHtml.submit("Pose Problem", () => poseProblem)
+	  } }
+	  val maxGradeFieldBinding = new Binding("maxgradefield", maxGradeFieldRenderer)
+	  val attemptsFieldBinding = new Binding("attemptsfield", attemptsFieldRenderer)
+	  val poseButtonBinding = new Binding("posebutton", submitButtonRenderer)
+
+	  new Binder("poseproblemform", maxGradeFieldBinding, attemptsFieldBinding, poseButtonBinding).bind(xhtml)
 	}
 }
