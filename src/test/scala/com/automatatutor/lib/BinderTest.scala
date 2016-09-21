@@ -1,5 +1,6 @@
 package com.automatatutor.lib
 
+import scala.xml.XML
 import scala.xml.NodeSeq
 import scala.xml.NodeSeq.seqToNodeSeq
 
@@ -16,8 +17,15 @@ class BinderTest extends Specification { def is = s2"""
     }
     handle templates correctly ${
       val binding = new Binding("testTag", new DynamicRenderer { def render(template : NodeSeq) = { <b>{ template.text }</b> } })
-      System.out.println(new Binder("testNamespace", binding).bind(<testNamespace:testTag>testText</testNamespace:testTag>))
       new Binder("testNamespace", binding).bind(<testNamespace:testTag>testText</testNamespace:testTag>).contains(<b>testText</b>) must beTrue
+    }
+    handle data correctly ${
+      val data = Seq(4,8,15,16,23,42)
+      val renderer = new DataRenderer(data) { def render(template : NodeSeq, data : Int) = { <b>{ template.text + data.toString() }</b> } }
+      val binding = new Binding("testTag", renderer)
+      val expected = <p><b>value4</b><b>value8</b><b>value15</b><b>value16</b><b>value23</b><b>value42</b></p>
+      val obtained = new Binder("testNamespace", binding).bind(<p><testNamespace:testTag>value</testNamespace:testTag></p>)
+      obtained.mkString.equals(expected.mkString) must beTrue
     }
     replace elements by NodeSeqs correctly ${
       val binding = new Binding("test", new Renderer { def render = <result></result><resultPrime></resultPrime> })

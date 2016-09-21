@@ -13,6 +13,11 @@ trait Renderer extends AbstractRenderer {
   protected def render : NodeSeq
   def render ( input : NodeSeq ) : NodeSeq = { this.render }
 }
+abstract class DataRenderer[T](data : Seq[T]) extends AbstractRenderer {
+  protected def render ( template : NodeSeq, data : T ) : NodeSeq
+  def render( template : NodeSeq ) : NodeSeq = data.flatMap { data => render(template, data) }
+}
+
 class Binding(val target : String, val renderer : AbstractRenderer)
 
 class Binder(context : String, bindings : Binding*) {
@@ -20,8 +25,8 @@ class Binder(context : String, bindings : Binding*) {
   
   def bind(template : NodeSeq) : NodeSeq = {
     val bindParams : Seq[BindParam]  = bindings map ( { binding =>
-        val filteredTemplate = (template \\ (binding.target)).filter( _.prefix == context )
-        new TheBindParam(binding.target, binding.renderer.render(filteredTemplate)).asInstanceOf[BindParam]
+      val filteredTemplate = (template \\ binding.target).filter( _.prefix == context )
+      new TheBindParam(binding.target, binding.renderer.render(filteredTemplate)).asInstanceOf[BindParam]
     } )
     Helpers.bind(context, template, bindParams : _*)
   }
