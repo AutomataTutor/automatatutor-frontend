@@ -19,7 +19,23 @@ class BinderTest extends Specification { def is = s2"""
       val binding = new Binding("testTag", new DynamicRenderer { def render(template : NodeSeq) = { <b>{ template.text }</b> } })
       new Binder("testNamespace", binding).bind(<testNamespace:testTag>testText</testNamespace:testTag>).contains(<b>testText</b>) must beTrue
     }
-    handle data correctly ${
+    handle empty data sets correctly ${
+      val data = Seq[Int]()
+      val renderer = new DataRenderer(data) { def render(template : NodeSeq, data : Int) = { <b>{ template.text + data.toString() }</b> } }
+      val binding = new Binding("testTag", renderer)
+      val expected = <p/>
+      val obtained = new Binder("testNamespace", binding).bind(<p><testNamespace:testTag>value</testNamespace:testTag></p>)
+      obtained.mkString.equals(expected.mkString) must beTrue
+    }
+    handle singleton data sets correctly ${
+      val data = Seq(42)
+      val renderer = new DataRenderer(data) { def render(template : NodeSeq, data : Int) = { <b>{ template.text + data.toString() }</b> } }
+      val binding = new Binding("testTag", renderer)
+      val expected = <p><b>value42</b></p>
+      val obtained = new Binder("testNamespace", binding).bind(<p><testNamespace:testTag>value</testNamespace:testTag></p>)
+      obtained.mkString.equals(expected.mkString) must beTrue
+    }
+    handle more than three data items correctly ${
       val data = Seq(4,8,15,16,23,42)
       val renderer = new DataRenderer(data) { def render(template : NodeSeq, data : Int) = { <b>{ template.text + data.toString() }</b> } }
       val binding = new Binding("testTag", renderer)
