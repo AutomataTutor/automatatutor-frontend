@@ -16,23 +16,36 @@ import net.liftweb.util.Helpers._
 import com.automatatutor.lib.Binding
 import com.automatatutor.lib.Renderer
 import com.automatatutor.lib.Binder
+import com.automatatutor.lib.DataRenderer
 
 
 object ProblemSetToEdit extends RequestVar[ProblemSet](null)
 object ProblemToPose extends RequestVar[Problem](null)
 
 class Problemsets {
-	def renderindex ( ignored : NodeSeq ) : NodeSeq = {
-	  val problemSets : Seq[ProblemSet] = ProblemSet.getByCreator(User.currentUser openOrThrowException "Lift only lets logged in users onto this site")
+	def renderindex ( template : NodeSeq ) : NodeSeq = {
 	  
-	  val completeTable = TableHelper.renderTableWithHeader(problemSets,
-	      ("Short Description", (problemSet : ProblemSet) => Text(problemSet.getName)),
-	      ("", (problemSet : ProblemSet) => new ProblemSetRenderer(problemSet).renderTogglePracticeSetLink),
-	      ("", (problemSet : ProblemSet) => (new ProblemSetRenderer(problemSet).renderEditLink)),
-	      ("", (problemSet : ProblemSet) => (new ProblemSetRenderer(problemSet)).renderDeleteLink))
+	  val problemSets : Seq[ProblemSet] = ProblemSet.getByCreator(User.currentUser openOrThrowException "Lift only lets logged in users onto this site")
 
-	  val createNewProblemSetLink = SHtml.link("/problemsets/create", () => {}, Text("Create new Problemset"))
-	  return completeTable ++ createNewProblemSetLink
+	  object problemSetRenderer extends DataRenderer(problemSets) {
+	    def render( template : NodeSeq, problemSet : ProblemSet ) : NodeSeq = {
+	      object nameRenderer extends Renderer { def render : NodeSeq = Text(problemSet.getName) }
+	      object togglePracticeSetLinkRenderer extends Renderer { def render : NodeSeq = new ProblemSetRenderer(problemSet).renderTogglePracticeSetLink }
+	      object editLinkRenderer extends Renderer { def render : NodeSeq = new ProblemSetRenderer(problemSet).renderEditLink }
+	      object deleteLinkRenderer extends Renderer { def render : NodeSeq = new ProblemSetRenderer(problemSet).renderDeleteLink }
+	      
+	      val nameBinding = new Binding("name", nameRenderer)
+	      val togglePracticeSetLinkBinding = new Binding("togglepracticesetlink", togglePracticeSetLinkRenderer)
+	      val editLinkBinding = new Binding("editlink", editLinkRenderer)
+	      val deleteLinkBinding = new Binding("deletelink", deleteLinkRenderer)
+	      
+	      return new Binder("problemset", nameBinding, togglePracticeSetLinkBinding, editLinkBinding, deleteLinkBinding).bind(template)
+	    }
+	  }
+	  
+	  Helpers.bind("problemsets", template,
+	    "foreach" -> { template : NodeSeq => problemSetRenderer.render(template) },
+	    "createnewlink" -> { template : NodeSeq => SHtml.link("/problemsets/create", () => {}, Text(template(0).text)) } )
 	}
 	
 	def rendercreate ( xhtml : NodeSeq ) : NodeSeq = {
