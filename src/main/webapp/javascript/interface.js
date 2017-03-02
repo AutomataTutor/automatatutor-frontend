@@ -1768,7 +1768,7 @@ $.SvgCanvas = function(container, config, style) {
 		node.y = y;
 		nodes.push(node);
 
-		if(config.transition.deterministic) {
+		if(config.transition.deterministic & !editing) {
 		    for(var i = 0; i < alphabet.length; i++){
 				var t = [];
 				for(var j = 0; j < alphabet.length; j++){
@@ -1981,12 +1981,14 @@ $.SvgCanvas = function(container, config, style) {
 	restart();
     }
 
+    editing = false;
     /**
      * Draws automaton described by xml
      *
      */
     this.setAutomaton = function (xml) {
 
+        editing = true;
 		if(!started) {
 		    this.initialize();
 		}
@@ -2076,6 +2078,7 @@ $.SvgCanvas = function(container, config, style) {
 		}
 
 		restart();
+        editing = false;
     }
 
     /**
