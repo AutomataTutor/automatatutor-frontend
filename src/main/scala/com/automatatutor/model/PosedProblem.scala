@@ -107,7 +107,7 @@ class PosedProblem extends LongKeyedMapper[PosedProblem] with IdPK {
 	  val maxGrade = this.maxGrade.is
 	  val userGrade = this.getGrade(user, problemSet)
 	  
-	  return isPracticeProblem || (takenAttempts < allowedAttempts && userGrade < maxGrade)
+	  return isPracticeProblem || (takenAttempts < allowedAttempts) //&& userGrade < maxGrade)
 	}
 	
 	def isPracticeProblem = allowedAttempts == 0
