@@ -118,6 +118,27 @@ object GraderConnection {
 	  
 	  return ((responseXml \ "grade").text.toInt, (responseXml \ "feedString" \ "ul" \ "li"))
 	}
+
+  //Product Construction
+
+  def getProductConstructionFeedback(correctDfaDescriptionList : List[String], attemptDfaDescription : String, maxGrade : Int) : (Int, NodeSeq) = {
+
+    def stringListToNodeList(xs: List[String]): List[Node] = xs match{
+      case Nil => List()
+      case y :: ys => Elem(null, "dfaDesc", Null, TopScope, true, XML.loadString(y)) :: stringListToNodeList(ys)
+    }
+
+    val arguments = Map[String, Node](
+      "dfaDescList" -> Elem(null, "dfaDescList", Null, TopScope, true, stringListToNodeList(correctDfaDescriptionList):_*),
+      "dfaAttemptDesc" -> XML.loadString(attemptDfaDescription),
+      "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString)),
+      "feedbackLevel" -> Elem(null, "feedbackLevel", Null, TopScope, true, Text("Hint")),
+      "enabledFeedbacks" -> Elem(null, "enabledFeedbacks", Null, TopScope, true, Text("ignored")))
+
+    val responseXml = soapConnection.callMethod(namespace, "ComputeFeedbackProductConstruction", arguments)
+
+    ((responseXml \ "grade").text.toInt, (responseXml \ "feedString" \ "ul" \ "li"))
+  }
 	
 	// NFA 
 	
