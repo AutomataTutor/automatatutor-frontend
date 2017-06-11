@@ -7,6 +7,8 @@ import com.automatatutor.model.Attendance
 import com.automatatutor.model.Course
 import com.automatatutor.model.DFAConstructionProblem
 import com.automatatutor.model.DFAConstructionSolutionAttempt
+import com.automatatutor.model.ProductConstructionProblem
+import com.automatatutor.model.ProductConstructionSolutionAttempt
 import com.automatatutor.model.NFAConstructionProblem
 import com.automatatutor.model.NFAConstructionSolutionAttempt
 import com.automatatutor.model.NFAToDFAProblem
@@ -115,9 +117,9 @@ class Users extends PaginatorSnippet[User] {
   def resetlink(ignored : NodeSeq) : NodeSeq = {
     def resetDatabase() = {
       List(Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
-          DFAConstructionProblem, NFAConstructionProblem,
+          DFAConstructionProblem, ProductConstructionProblem, NFAConstructionProblem,
           NFAToDFAProblem, NFAToDFASolutionAttempt,
-          ProblemSet, SolutionAttempt, Supervision, DFAConstructionSolutionAttempt, NFAConstructionSolutionAttempt).map(_.bulkDelete_!!())
+          ProblemSet, SolutionAttempt, Supervision, DFAConstructionSolutionAttempt, ProductConstructionSolutionAttempt, NFAConstructionSolutionAttempt).map(_.bulkDelete_!!())
     }
     	
     val resetLink = SHtml.link("/users/index", () => resetDatabase, Text("Reset Database"))

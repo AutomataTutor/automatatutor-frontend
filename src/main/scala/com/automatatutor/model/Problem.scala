@@ -44,6 +44,7 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	
 	def getSpecificProblem(generalProblem: Problem): SpecificProblem[_] = this.problemTypeName.get match {
 	  case DFAConstructionTypeName => DFAConstructionProblem.findByGeneralProblem(generalProblem)
+		case ProductConstructionTypeName => ProductConstructionProblem.findByGeneralProblem(generalProblem)
 	  case NFAConstructionTypeName => NFAConstructionProblem.findByGeneralProblem(generalProblem)
 	  case NFAToDFATypeName => NFAToDFAProblem.findByGeneralProblem(generalProblem)
 	  case EnglishToRegExTypeName => RegExConstructionProblem.findByGeneralProblem(generalProblem)

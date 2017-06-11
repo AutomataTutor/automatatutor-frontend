@@ -47,7 +47,7 @@ object ProductConstructionSnippet extends ProblemSnippet {
     def create() = {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
 
-      val specificProblem : DFAConstructionProblem = DFAConstructionProblem.create
+      val specificProblem : ProductConstructionProblem = ProductConstructionProblem.create
       specificProblem.setGeneralProblem(unspecificProblem).setAutomaton(automaton)
       specificProblem.save
 
@@ -61,7 +61,7 @@ object ProductConstructionSnippet extends ProblemSnippet {
     val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
     val submitButton = SHtml.submit("Create", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
 
-    val template : NodeSeq = Templates(List("dfa-construction", "create")) openOr Text("Could not find template /dfa-construction/create")
+    val template : NodeSeq = Templates(List("product-construction", "create")) openOr Text("Could not find template /product-construction/create")
     Helpers.bind("createform", template,
       "automaton" -> automatonField,
       "shortdescription" -> shortDescriptionField,
@@ -72,7 +72,8 @@ object ProductConstructionSnippet extends ProblemSnippet {
   override def renderEdit : Box[(Problem, () => Nothing) => NodeSeq] = Full(renderEditFunc)
 
   private def renderEditFunc(problem : Problem, returnFunc : () => Nothing) : NodeSeq = {
-    val dfaConstructionProblem = DFAConstructionProblem.findByGeneralProblem(problem)
+    // TODO : Change DFAConstructionProblem to ProductConstructionProblem
+    val productConstructionProblem = ProductConstructionProblem.findByGeneralProblem(problem)
 
     var shortDescription : String = problem.getShortDescription
     var longDescription : String = problem.getLongDescription
@@ -80,7 +81,7 @@ object ProductConstructionSnippet extends ProblemSnippet {
 
     def create() = {
       problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
-      dfaConstructionProblem.setAutomaton(automaton).save()
+      productConstructionProblem.setAutomaton(automaton).save()
       returnFunc()
     }
 
@@ -89,9 +90,9 @@ object ProductConstructionSnippet extends ProblemSnippet {
     val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
     val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
     val submitButton = SHtml.submit("Edit", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
-    val setupScript = <script type="text/javascript"> Editor.canvas.setAutomaton("{ dfaConstructionProblem.getAutomaton }") </script>
+    val setupScript = <script type="text/javascript"> Editor.canvas.setAutomaton("{ productConstructionProblem.getAutomaton }") </script>
 
-    val template : NodeSeq = Templates(List("dfa-construction", "edit")) openOr Text("Could not find template /dfa-construction/edit")
+    val template : NodeSeq = Templates(List("product-construction", "edit")) openOr Text("Could not find template /product-construction/edit")
     Helpers.bind("editform", template,
       "automaton" -> automatonField,
       "setupscript" -> setupScript,
@@ -104,7 +105,7 @@ object ProductConstructionSnippet extends ProblemSnippet {
                            recordSolutionAttempt : (Int, Date) => SolutionAttempt, returnFunc : () => Unit, remainingAttempts: () => Int,
                            bestGrade: () => Int) : NodeSeq = {
 
-    val dfaConstructionProblem = DFAConstructionProblem.findByGeneralProblem(generalProblem)
+    val productConstructionProblem = ProductConstructionProblem.findByGeneralProblem(generalProblem)
 
     def grade( attemptDfaDescription : String ) : JsCmd = {
       if(remainingAttempts() <= 0) {
@@ -116,9 +117,9 @@ object ProductConstructionSnippet extends ProblemSnippet {
       }
 
       val attemptDfaXml = XML.loadString(attemptDfaDescription)
-      val correctDfaDescription = dfaConstructionProblem.getXmlDescription.toString
+      //TODO - Different Automata
+      val correctDfaDescription = productConstructionProblem.getXmlDescription.toString
       val attemptTime = Calendar.getInstance.getTime()
-      // TODO - Different Automata
       val x = List(correctDfaDescription, correctDfaDescription)
       val graderResponse = GraderConnection.getProductConstructionFeedback(x, attemptDfaDescription, maxGrade.toInt)
 
@@ -127,7 +128,7 @@ object ProductConstructionSnippet extends ProblemSnippet {
 
       // Only save the specific attempt if we saved the general attempt
       if(generalAttempt != null) {
-        DFAConstructionSolutionAttempt.create.solutionAttemptId(generalAttempt).attemptAutomaton(attemptDfaDescription).save
+        ProductConstructionSolutionAttempt.create.solutionAttemptId(generalAttempt).attemptAutomaton(attemptDfaDescription).save
       }
 
       val setNumericalGrade : JsCmd = SetHtml("grade", Text(graderResponse._1.toString + "/" + maxGrade.toString))
@@ -137,7 +138,7 @@ object ProductConstructionSnippet extends ProblemSnippet {
       return setNumericalGrade & setFeedback & showFeedback & JsCmds.JsShowId("submitbutton")
     }
 
-    val problemAlphabet = dfaConstructionProblem.getAlphabet
+    val problemAlphabet = productConstructionProblem.getAlphabet
 
     val alphabetJavaScriptArray = "[\"" + problemAlphabet.mkString("\",\"") + "\"]"
     val alphabetScript : NodeSeq = <script type="text/javascript"> Editor.canvas.setAlphabet( { alphabetJavaScriptArray } ) </script>
@@ -150,7 +151,7 @@ object ProductConstructionSnippet extends ProblemSnippet {
     val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={hideSubmitButton & ajaxCall}>Submit</button>
     val returnLink : NodeSeq = SHtml.link("/courses/show", returnFunc, Text("Return to Course"))
 
-    val template : NodeSeq = Templates(List("dfa-construction", "solve")) openOr Text("Template /dfa-construction/solve not found")
+    val template : NodeSeq = Templates(List("product-construction", "solve")) openOr Text("Template /product-construction/solve not found")
     return SHtml.ajaxForm(Helpers.bind("dfaeditform", template,
       "alphabetscript" -> alphabetScript,
       "alphabettext" -> problemAlphabetNodeSeq,
@@ -160,6 +161,6 @@ object ProductConstructionSnippet extends ProblemSnippet {
   }
 
   override def onDelete( generalProblem : Problem ) : Unit = {
-    DFAConstructionProblem.deleteByGeneralProblem(generalProblem)
+    ProductConstructionProblem.deleteByGeneralProblem(generalProblem)
   }
 }

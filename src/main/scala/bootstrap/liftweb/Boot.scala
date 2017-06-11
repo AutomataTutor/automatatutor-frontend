@@ -40,6 +40,7 @@ class Boot {
 	Schemifier.schemify(true, Schemifier.infoF _, 
 	    User, Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
 	    DFAConstructionProblem, DFAConstructionSolutionAttempt,
+      ProductConstructionProblem, ProductConstructionSolutionAttempt,
       NFAConstructionProblem, NFAConstructionSolutionAttempt, 
 	    NFAToDFAProblem, NFAToDFASolutionAttempt, 
       RegExConstructionProblem, RegexConstructionSolutionAttempt,

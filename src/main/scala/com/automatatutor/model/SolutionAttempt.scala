@@ -31,7 +31,20 @@ class DFAConstructionSolutionAttempt extends LongKeyedMapper[DFAConstructionSolu
 
 object DFAConstructionSolutionAttempt extends DFAConstructionSolutionAttempt with LongKeyedMetaMapper[DFAConstructionSolutionAttempt] {
 	def getByGeneralAttempt ( generalAttempt : SolutionAttempt ) : DFAConstructionSolutionAttempt = {
-	  return this.find(By(DFAConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a DFA construction attempt"
+		return this.find(By(DFAConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a DFA construction attempt"
+	}
+}
+
+class ProductConstructionSolutionAttempt extends LongKeyedMapper[ProductConstructionSolutionAttempt] with IdPK {
+	def getSingleton = ProductConstructionSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptAutomaton extends MappedText(this)
+}
+
+object ProductConstructionSolutionAttempt extends ProductConstructionSolutionAttempt with LongKeyedMetaMapper[ProductConstructionSolutionAttempt] {
+	def getByGeneralAttempt ( generalAttempt : SolutionAttempt ) : ProductConstructionSolutionAttempt = {
+		return this.find(By(ProductConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a DFA construction attempt"
 	}
 }
 
