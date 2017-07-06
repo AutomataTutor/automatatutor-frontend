@@ -39,4 +39,12 @@ function alphabetChecks(stringArray){
 		tmpArray.push(elem);
 	}
 	return true;
+}
+
+function multipleAlphabetChecks(){
+	if (arguments.length == 0) return true;
+	var concatenated = arguments[0];
+	var i;
+	for(i = 1; i < arguments.length; i++) concatenated.concat(arguments[i]);
+	return alphabetChecks(concatenated);
 }		

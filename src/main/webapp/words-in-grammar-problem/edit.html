@@ -1,0 +1,50 @@
+<div>
+	<h2> Edit a Words in Grammar Problem </h2>
+
+	<h4> Grammar Syntax </h4>
+	<ul style='font-family: "Lucida Console", Monaco, monospace'>
+		<li>e.g. S -> X Y | TEIL1 a TEIL2 | S S |  | a </li>
+		<li>1 line per production</li>
+		<li>first variable is start variable</li>
+		<li>possible terminals: lower case characters a-z or '('  ')'  '['  ']' </li>
+		<li>possible variables: 1 or more upper case characters A-Z or numbers 0-9 (!can't start with number!) </li>
+		<li>empty word: a blank right side (e.g. "S -> " or "S -> a | ")</li>
+	</ul>
+
+	<h4> Problem Definition </h4>
+
+	<lift:Identity form="POST">
+	<table>
+		<tr>
+			<td> Number of Words IN Grammar: </td>
+			<td> <editform:inneededfield> </editform:inneededfield> </td>
+		</tr> 
+		<tr>
+			<td> Number of Words NOT IN Grammar: </td>
+			<td> <editform:outneededfield> </editform:outneededfield> </td>
+		</tr> 
+		<tr>
+			<td> Grammar: </td>
+			<td> <editform:grammarfield> </editform:grammarfield> </td>
+		</tr> 
+		<tr>
+			<td> Short Description: </td>
+			<td> <editform:shortdescription> </editform:shortdescription> </td>
+		</tr>
+		<tr> 
+			<td> Long Description (will not be displayed...): </td>
+			<td> <editform:longdescription> </editform:longdescription> </td>
+		</tr>
+		<tr> 
+			<td> </td>
+			<td> <editform:submit> </editform:submit> </td>
+		</tr>
+	</lift:Identity>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Parsing Error: </h3>
+		<ul>
+			<div id="parsingerror"/>
+		</ul>
+	</div>
+</div> 

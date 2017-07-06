@@ -166,6 +166,7 @@ object GraderConnection {
 	}
 	
 	def getRegexParsingErrors(potentialRegex : String, alphabet : Seq[String]) : Seq[String] = {
+	  return List()
 	  val arguments = Map[String, Node](
 	      "regexDesc" -> <div> { potentialRegex } </div>,
 	      "alphabet" -> <div> { alphabet.map((symbol : String) => Elem(null, "symbol", Null, TopScope, true, Text(symbol))) } </div>)
@@ -173,6 +174,61 @@ object GraderConnection {
 	  val responseXml = soapConnection.callMethod(namespace, "CheckRegexp", arguments)
 	  
 	  if(responseXml.text.equals("CorrectRegex")) return List() else return List(responseXml.text)
+	}
+	
+	//Grammar
+	def getGrammarParsingErrors(potentialGrammar : String) : Seq[String] = {
+	  val arguments = Map[String, Node](
+	      "grammar" -> Elem(null, "grammar", Null, TopScope, true, Text(potentialGrammar))
+	  )
+	      
+	  val responseXml = soapConnection.callMethod(namespace, "CheckGrammar", arguments)
+	  
+	  if(responseXml.text.equals("CorrectGrammar")) return List() else return List(responseXml.text)
+	}
+	
+	def getWordsInGrammarFeedback(grammar: String, wordsIn : Seq[String], wordsOut : Seq[String], maxGrade : Int) : (Int, NodeSeq) = {
+	  val arguments = Map[String, Node](
+	      "grammar" -> Elem(null, "grammar", Null, TopScope, true, Text(grammar)),
+		  "wordsIn" -> <div> { wordsIn.map((symbol : String) => Elem(null, "word", Null, TopScope, true, Text(symbol))) } </div>,
+		  "wordsOut" -> <div> { wordsOut.map((symbol : String) => Elem(null, "word", Null, TopScope, true, Text(symbol))) } </div>,
+	      "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString))
+	  );
+	  
+	  val responseXml = soapConnection.callMethod(namespace, "ComputeWordsInGrammarFeedback", arguments)
+	  
+	  return ((responseXml \ "grade").head.text.toInt, (responseXml \ "feedback"))
+	}
+	
+	def getDescriptionToGrammarFeedback(solution: String, attempt: String, maxGrade : Int) : (Int, NodeSeq) = {
+	  val arguments = Map[String, Node](
+	      "solution" -> Elem(null, "solution", Null, TopScope, true, Text(solution)),
+		  "attempt" -> Elem(null, "attempt", Null, TopScope, true, Text(attempt)),
+	      "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString)),
+	      "checkEmptyWord" -> Elem(null, "checkEmptyWord", Null, TopScope, true, Text(true.toString))
+	  );
+	  
+	  val responseXml = soapConnection.callMethod(namespace, "ComputeGrammarEqualityFeedback", arguments)
+	  
+	  return ((responseXml \ "grade").head.text.toInt, (responseXml \ "feedback"))
+	}
+	
+	def getGrammarToCNFFeedback(solution: String, attempt: String, maxGrade : Int) : (Int, NodeSeq) = {
+	  //check that attempt is in CNF
+	  val arguments1 = Map[String, Node](
+	      "grammar" -> Elem(null, "grammar", Null, TopScope, true, Text(attempt))
+	  );
+	  val responseXml1 = soapConnection.callMethod(namespace, "isCNF", arguments1)
+	  if ((responseXml1 \ "res").head.text == "n") return (0, (responseXml1 \ "feedback"))
+	
+	  val arguments2 = Map[String, Node](
+	      "solution" -> Elem(null, "solution", Null, TopScope, true, Text(solution)),
+		  "attempt" -> Elem(null, "attempt", Null, TopScope, true, Text(attempt)),
+	      "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString)),
+	      "checkEmptyWord" -> Elem(null, "checkEmptyWord", Null, TopScope, true, Text(false.toString))
+	  );
+	  val responseXml2 = soapConnection.callMethod(namespace, "ComputeGrammarEqualityFeedback", arguments2)
+	  return ((responseXml2 \ "grade").head.text.toInt, (responseXml2 \ "feedback"))
 	}
 	
 	// Pumping lemma
