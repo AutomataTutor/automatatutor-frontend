@@ -6,3 +6,10 @@ function formateGrammar(grammarString) {
 	res = res.replace(/\s(?=\S+\s*->)/, "\n");
 	return res;
 }
+
+function sanitizeInputForXML(id) {
+	var input = document.getElementById(id);
+	if (input === null) return "";
+	input.value = input.value.replace(/[<>]/g, "");
+	return input.value;
+}

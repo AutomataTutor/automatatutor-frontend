@@ -102,6 +102,17 @@ object GrammarToCNFSolutionAttempt extends GrammarToCNFSolutionAttempt with Long
 
 }
 
+class CYKSolutionAttempt extends LongKeyedMapper[CYKSolutionAttempt] with IdPK {
+	def getSingleton = CYKSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attempt extends MappedText(this)
+}
+
+object CYKSolutionAttempt extends CYKSolutionAttempt with LongKeyedMetaMapper[CYKSolutionAttempt] {
+
+}
+
 class PumpingLemmaSolutionAttempt extends LongKeyedMapper[PumpingLemmaSolutionAttempt] with IdPK {
 	def getSingleton = PumpingLemmaSolutionAttempt
 

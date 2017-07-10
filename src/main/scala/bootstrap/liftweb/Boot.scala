@@ -47,6 +47,7 @@ class Boot {
 	  WordsInGrammarProblem, WordsInGrammarSolutionAttempt,
 	  GrammarToCNFProblem, GrammarToCNFSolutionAttempt,
 	  DescriptionToGrammarProblem, DescriptionToGrammarSolutionAttempt,
+	  CYKProblem, CYKSolutionAttempt,
 	    ProblemSet, Role, SolutionAttempt, Supervision)
 	
   StartupHooks.hooks map (hook => hook())

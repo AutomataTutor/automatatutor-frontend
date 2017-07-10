@@ -1,7 +1,17 @@
 <div>
-	<script type="text/javascript" src="/javascript/grammarUtil.js"> </script>
-	
-	<h2> Solve Words in Grammar problem </h3>
+	<script type="text/javascript">
+		function buildCYKTableXML() {
+			var res = '<cyk>'; 
+			var inputs = document.getElementsByClassName('cyk');
+			for (var i = 0; i < inputs.length; ++i) {
+				inputs[i].value = inputs[i].value.replace(/[^A-Z\s]/g, "");
+				res += '<cell start="' + inputs[i].getAttribute("start") + '" end="' + inputs[i].getAttribute("end") + '">' + inputs[i].value + '</cell>';
+			}
+			res += '</cyk>';
+			return res;
+		}
+	</script>
+	<h2> Solve a CYK problem </h3>
 	
 	<h3> Grammar Syntax </h4>
 	<ul style='font-family: "Lucida Console", Monaco, monospace'>
@@ -18,13 +28,14 @@
 	For the grammar with the productions: <br />
 	<br /><strong style="font-size: 150%; font-family: 'Lucida Console', Monaco, monospace"><solveform:grammartext> </solveform:grammartext></strong><br />
 	
-	Give <strong><solveform:inneededtext> </solveform:inneededtext></strong> words that are recognized and <strong><solveform:outneededtext> </solveform:outneededtext></strong> words that aren't recognized!
+	Perform the CYK Algorithm!
 	
 	</br></br>
 
 	<form class="lift:form">
-		words in the grammar: <solveform:wordsin> </solveform:wordsin>
-		words NOT in the grammar: <solveform:wordsout> </solveform:wordsout>
+		<div style="overflow: scroll;">
+		<solveform:cyktable> </solveform:cyktable>
+		</div><br />
 		
 		<solveform:submitbutton> </solveform:submitbutton>
 		<solveform:returnlink> </solveform:returnlink> <br />

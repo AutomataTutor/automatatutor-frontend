@@ -187,6 +187,16 @@ object GraderConnection {
 	  if(responseXml.text.equals("CorrectGrammar")) return List() else return List(responseXml.text)
 	}
 	
+	def getCNFParsingErrors(potentialGrammar : String) : Seq[String] = {
+	  val arguments = Map[String, Node](
+	      "grammar" -> Elem(null, "grammar", Null, TopScope, true, Text(potentialGrammar))
+	  )
+	      
+	  val responseXml = soapConnection.callMethod(namespace, "isCNF", arguments)
+	  
+	  if((responseXml \ "res").head.text.equals("y")) return List() else return List((responseXml \ "feedback").head.text)
+	}
+	
 	def getWordsInGrammarFeedback(grammar: String, wordsIn : Seq[String], wordsOut : Seq[String], maxGrade : Int) : (Int, NodeSeq) = {
 	  val arguments = Map[String, Node](
 	      "grammar" -> Elem(null, "grammar", Null, TopScope, true, Text(grammar)),
@@ -229,6 +239,19 @@ object GraderConnection {
 	  );
 	  val responseXml2 = soapConnection.callMethod(namespace, "ComputeGrammarEqualityFeedback", arguments2)
 	  return ((responseXml2 \ "grade").head.text.toInt, (responseXml2 \ "feedback"))
+	}
+	
+	def getCYKFeedback(grammar: String, word: String, cyk_attempt: String, maxGrade : Int) : (Int, NodeSeq) = {
+	  val arguments = Map[String, Node](
+	      "grammar" -> Elem(null, "grammar", Null, TopScope, true, Text(grammar)),
+		  "word" -> Elem(null, "word", Null, TopScope, true, Text(word)),
+		  "attempt" -> XML.loadString(cyk_attempt),
+	      "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString))
+	  );
+	  
+	  val responseXml = soapConnection.callMethod(namespace, "ComputeCYKFeedback", arguments)
+	  
+	  return ((responseXml \ "grade").head.text.toInt, (responseXml \ "feedback"))
 	}
 	
 	// Pumping lemma

@@ -10,8 +10,8 @@ import scala.xml.Text
 import scala.xml.XML
 import com.automatatutor.lib.GraderConnection
 import com.automatatutor.model.Problem
-import com.automatatutor.model.WordsInGrammarProblem
-import com.automatatutor.model.WordsInGrammarSolutionAttempt
+import com.automatatutor.model.CYKProblem
+import com.automatatutor.model.CYKSolutionAttempt
 import com.automatatutor.model.SolutionAttempt
 import net.liftweb.common.Box
 import net.liftweb.common.Full
@@ -33,7 +33,7 @@ import net.liftweb.util.Helpers.strToSuperArrowAssoc
 import net.liftweb.http.js.JE.Call
 import net.liftweb.common.Empty
 
-object WordsInGrammarSnippet extends ProblemSnippet {
+object CYKProblemSnippet extends ProblemSnippet {
 
   override def renderCreate( createUnspecificProb : (String, String) => Problem,
       returnFunc : () => Nothing ) : NodeSeq = {
@@ -41,18 +41,17 @@ object WordsInGrammarSnippet extends ProblemSnippet {
     def create(formValues : String) : JsCmd = {
       val formValuesXml = XML.loadString(formValues)
       val grammar = (formValuesXml \ "grammarfield").head.text
-	  val inNeeded = (formValuesXml \ "inneededfield").head.text.toInt
-	  val outNeeded = (formValuesXml \ "outneededfield").head.text.toInt
+      val word = (formValuesXml \ "wordfield").head.text
       val shortDescription = (formValuesXml \ "shortdescfield").head.text
       val longDescription = (formValuesXml \ "longdescfield").head.text
       
-      val parsingErrors = GraderConnection.getGrammarParsingErrors(grammar)
+      val parsingErrors = GraderConnection.getCNFParsingErrors(grammar)
       
       if(parsingErrors.isEmpty) {
         val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
 		
-        val specificProblem : WordsInGrammarProblem = WordsInGrammarProblem.create
-        specificProblem.problemId(unspecificProblem).grammar(grammar).inNeeded(inNeeded).outNeeded(outNeeded)
+        val specificProblem : CYKProblem = CYKProblem.create
+        specificProblem.problemId(unspecificProblem).grammar(grammar).word(word)
         specificProblem.save
               
         return JsCmds.RedirectTo("/problems/index")
@@ -62,29 +61,25 @@ object WordsInGrammarSnippet extends ProblemSnippet {
       
     }
     val grammarField = SHtml.textarea("", value => {}, "cols" -> "80", "rows" -> "5", "id" -> "grammarfield")
-	val inNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Empty , value => {}, "id" -> "inneededfield")
-	val outNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Empty , value => {}, "id" -> "outneededfield")
+    val wordField = SHtml.text("", value => {}, "id" -> "wordfield")
     val shortDescriptionField = SHtml.text("", value => {}, "id" -> "shortdescfield")
     val longDescriptionField = SHtml.textarea("", value => {}, "cols" -> "80", "rows" -> "5", "id" -> "longdescfield")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val grammarFieldValXmlJs : String = "<grammarfield>' + document.getElementById('grammarfield').value + '</grammarfield>"
-	val inNeededFieldValXmlJs : String = "<inneededfield>' + document.getElementById('inneededfield').value + '</inneededfield>"
-	val outNeededFieldValXmlJs : String = "<outneededfield>' + document.getElementById('outneededfield').value + '</outneededfield>"
+    val wordFieldValXmlJs : String = "<wordfield>' + document.getElementById('wordfield').value + '</wordfield>"
     val shortdescFieldValXmlJs : String = "<shortdescfield>' + document.getElementById('shortdescfield').value + '</shortdescfield>"
     val longdescFieldValXmlJs : String = "<longdescfield>' + document.getElementById('longdescfield').value + '</longdescfield>"
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + inNeededFieldValXmlJs + outNeededFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), create(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + wordFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), create(_))
     
-    //val checkGrammarAndSubmit : JsCmd = JsIf(Call("multipleAlphabetChecks",Call("parseAlphabetByFieldName", "terminalsfield"),Call("parseAlphabetByFieldName", "nonterminalsfield")), hideSubmitButton & ajaxCall)    
-	val submit : JsCmd = hideSubmitButton & ajaxCall
+    val submit : JsCmd = hideSubmitButton & ajaxCall
     
     val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={submit}>Submit</button>
     
-    val template : NodeSeq = Templates(List("words-in-grammar-problem", "create")) openOr Text("Could not find template /words-in-grammar-problem/create")
+    val template : NodeSeq = Templates(List("cyk-problem", "create")) openOr Text("Could not find template /cyk-problem/create")
     Helpers.bind("createform", template,
         "grammarfield" -> grammarField,
-        "inneededfield" -> inNeededField,
-        "outneededfield" -> outNeededField,
+        "wordfield" -> wordField,
         "shortdescription" -> shortDescriptionField,
         "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
@@ -94,29 +89,27 @@ object WordsInGrammarSnippet extends ProblemSnippet {
   
   private def renderEditFunc(problem : Problem, returnFunc : () => Nothing) : NodeSeq = {
     
-    val wordsInGrammarProblem = WordsInGrammarProblem.findByGeneralProblem(problem)    
+    val cykProblem = CYKProblem.findByGeneralProblem(problem)    
     
     var shortDescription : String = problem.getShortDescription
     var longDescription : String = problem.getLongDescription
-    var grammar : String = wordsInGrammarProblem.getGrammar
-    var inNeeded : Int = wordsInGrammarProblem.getInNeeded
-    var outNeeded : Int = wordsInGrammarProblem.getOutNeeded
+    var grammar : String = cykProblem.getGrammar
+    var word : String = cykProblem.getWord
 
     def edit(formValues : String) : JsCmd = {   
       val formValuesXml = XML.loadString(formValues)
       val grammar = (formValuesXml \ "grammarfield").head.text
-	  val inNeeded = (formValuesXml \ "inneededfield").head.text.toInt
-	  val outNeeded = (formValuesXml \ "outneededfield").head.text.toInt
+      val word = (formValuesXml \ "wordfield").head.text
       val shortDescription = (formValuesXml \ "shortdescfield").head.text
       val longDescription = (formValuesXml \ "longdescfield").head.text
       
-      val parsingErrors = GraderConnection.getGrammarParsingErrors(grammar)
+      val parsingErrors = GraderConnection.getCNFParsingErrors(grammar)
       
       if(parsingErrors.isEmpty) {        
-        val specificProblem : WordsInGrammarProblem = WordsInGrammarProblem.create
+        val specificProblem : CYKProblem = CYKProblem.create
       
         problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
-        wordsInGrammarProblem.grammar(grammar).inNeeded(inNeeded).outNeeded(outNeeded).save()                       
+        cykProblem.grammar(grammar).word(word).save()                       
         returnFunc()
       } else {
         return JsCmds.JsShowId("submitbutton") & JsCmds.JsShowId("feedbackdisplay") & JsCmds.SetHtml("parsingerror", Text(parsingErrors.mkString("<br/>")))
@@ -124,28 +117,25 @@ object WordsInGrammarSnippet extends ProblemSnippet {
     }
      
     val grammarField = SHtml.textarea(grammar, grammar=_, "cols" -> "80", "rows" -> "5", "id" -> "grammarfield")
-	val inNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Full("" + inNeeded) , value => {}, "id" -> "inneededfield")
-	val outNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Full("" + outNeeded) , value => {}, "id" -> "outneededfield")
+    val wordField = SHtml.text(word, word=_, "id" -> "wordfield")
     val shortDescriptionField = SHtml.text(shortDescription, shortDescription=_, "id" -> "shortdescfield")
     val longDescriptionField = SHtml.textarea(longDescription, longDescription=_, "cols" -> "80", "rows" -> "1", "id" -> "longdescfield")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val grammarFieldValXmlJs : String = "<grammarfield>' + document.getElementById('grammarfield').value + '</grammarfield>"
-	val inNeededFieldValXmlJs : String = "<inneededfield>' + document.getElementById('inneededfield').value + '</inneededfield>"
-	val outNeededFieldValXmlJs : String = "<outneededfield>' + document.getElementById('outneededfield').value + '</outneededfield>"
+    val wordFieldValXmlJs : String = "<wordfield>' + document.getElementById('wordfield').value + '</wordfield>"
     val shortdescFieldValXmlJs : String = "<shortdescfield>' + document.getElementById('shortdescfield').value + '</shortdescfield>"
     val longdescFieldValXmlJs : String = "<longdescfield>' + document.getElementById('longdescfield').value + '</longdescfield>"
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + inNeededFieldValXmlJs + outNeededFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), edit(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + wordFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), edit(_))
     
     val submit : JsCmd = hideSubmitButton & ajaxCall    
     
     val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={submit}>Submit</button>
     
-    val template : NodeSeq = Templates(List("words-in-grammar-problem", "edit")) openOr Text("Could not find template /words-in-grammar-problem/edit")
+    val template : NodeSeq = Templates(List("cyk-problem", "edit")) openOr Text("Could not find template /cyk-problem/edit")
     Helpers.bind("editform", template,
         "grammarfield" -> grammarField,
-        "inneededfield" -> inNeededField,
-        "outneededfield" -> outNeededField,
+        "wordfield" -> wordField,
         "shortdescription" -> shortDescriptionField,
         "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
@@ -154,33 +144,22 @@ object WordsInGrammarSnippet extends ProblemSnippet {
   override def renderSolve(generalProblem : Problem, maxGrade : Long, lastAttempt : Box[SolutionAttempt],
       recordSolutionAttempt : (Int, Date) => SolutionAttempt, returnFunc : () => Unit, remainingAttempts: () => Int,
       bestGrade: () => Int) : NodeSeq = {
-    val specificProblem = WordsInGrammarProblem.findByGeneralProblem(generalProblem)
+    val specificProblem = CYKProblem.findByGeneralProblem(generalProblem)
     
-    def grade(formValues : String) : JsCmd = {
-	  val formValuesXml = XML.loadString(formValues)
-	  
-	  val wordsIn = new Array[String](specificProblem.getInNeeded);
-	  for(i <- 0 to specificProblem.getInNeeded - 1) {
-		wordsIn(i) = (formValuesXml \ "ins" \ ("in" + i)).head.text.replaceAll("\\s", "")
-	  }
-	  val wordsOut = new Array[String](specificProblem.getOutNeeded);
-	  for(i <- 0 to specificProblem.getOutNeeded - 1) {
-		wordsOut(i) = (formValuesXml \ "outs" \ ("out" + i)).head.text.replaceAll("\\s", "")
-	  }
-	  
+    def grade(cyk_table : String) : JsCmd = {
 	  if(remainingAttempts() <= 0) {
 		return JsShowId("feedbackdisplay") & SetHtml("feedbackdisplay", Text("You do not have any attempts left for this problem. Your final grade is " + bestGrade().toString + "/" + maxGrade.toString + "."))
 	  }
 	  val attemptTime = Calendar.getInstance.getTime()
 
-	  val gradeAndFeedback = GraderConnection.getWordsInGrammarFeedback(specificProblem.grammar.is, wordsIn, wordsOut, maxGrade.toInt)
+	  val gradeAndFeedback = GraderConnection.getCYKFeedback(specificProblem.grammar.is, specificProblem.word.is, cyk_table, maxGrade.toInt)
 	  
 	  val numericalGrade = gradeAndFeedback._1
 	  val generalAttempt = recordSolutionAttempt(numericalGrade, attemptTime)
 	  
 	  // Only save the specific attempt if we saved the general attempt
 	  if(generalAttempt != null) {
-		WordsInGrammarSolutionAttempt.create.solutionAttemptId(generalAttempt).attemptWordsIn((formValuesXml \ "ins").toString()).attemptWordsOut((formValuesXml \ "outs").toString()).save
+		CYKSolutionAttempt.create.solutionAttemptId(generalAttempt).attempt(cyk_table).save
 	  }
 	  
 	  val setNumericalGrade : JsCmd = SetHtml("grade", Text(gradeAndFeedback._1.toString + "/" + maxGrade.toString))
@@ -192,43 +171,30 @@ object WordsInGrammarSnippet extends ProblemSnippet {
 	
     val problemDescription = generalProblem.getLongDescription
 	val grammarText = { specificProblem.getGrammar.replaceAll("->", " -> ").replaceAll("=>", " -> ").replaceAll("\\|", " \\| ").replaceAll("\\s{2,}", " ").split("\\s(?=\\S+\\s*->)").map {Text(_) ++ <br/> } reduceLeft (_ ++ _) }
-	val inNeededText = Text("" + specificProblem.inNeeded)
-	val outNeededText = Text("" + specificProblem.outNeeded)
-	val wordsInFields = new Array[NodeSeq](specificProblem.getInNeeded)
-	for(i <- 0 to specificProblem.getInNeeded - 1) {
-		wordsInFields(i) = SHtml.text("", value => {}, "id" -> ("wordinfield" + i.toString))
-	}
-	val wordsInFieldNodeSeq = <ul>{wordsInFields.map(i => <li>{i}</li>)}</ul>
-	val wordsOutFields = new Array[NodeSeq](specificProblem.getOutNeeded)
-	for(i <- 0 to specificProblem.getOutNeeded - 1) {
-		wordsOutFields(i) = SHtml.text("", value => {}, "id" -> ("wordoutfield" + i.toString))
-	}
-	val wordsOutFieldNodeSeq = <ul>{wordsOutFields.map(i => <li>{i}</li>)}</ul>
+	val wordText = Text("" + specificProblem.word)
 	
-	val insValXmlJs : StringBuilder = new StringBuilder("<ins>")
-	for(i <- 0 to specificProblem.getInNeeded - 1) {
-		insValXmlJs.append("<in" + i.toString + ">' + sanitizeInputForXML('wordinfield" + i.toString + "') + '</in" + i.toString + ">")
+	val word = specificProblem.getWord
+	val n = word.length()
+	val cyk = new Array[ Array[(Int, Int)] ] (n);
+	for(i <- 0 to n - 1) {
+		cyk(i) = new Array[(Int, Int)] (i+1)
+		for(j <- 0 to i) {
+			cyk(i)(j) = (j+1, n + j - i) 
+		}
 	}
-	insValXmlJs.append("</ins>")
-	val outsValXmlJs : StringBuilder = new StringBuilder("<outs>")
-	for(i <- 0 to specificProblem.getOutNeeded - 1) {
-		outsValXmlJs.append("<out" + i.toString + ">' + sanitizeInputForXML('wordoutfield" + i.toString + "') + '</out" + i.toString + ">")
-	}
-	outsValXmlJs.append("</outs>")
-
+	val cykTable = <table style="border-collapse: collapse;">{cyk.map(row => <tr>{row.map(col => <td style="border: 1px solid black; padding: 2px;"><span style="white-space: nowrap;">{ SHtml.text("", value => {}, "class" -> "cyk", "start" -> col._1.toString(), "end" -> col._2.toString(), "size" -> "12") }{ Text("(" + col._1.toString() + "," + col._2.toString() + ")") }</span></td>)}</tr>)} <tr>{ word.map(c => <td style="text-align: center">{"'" + c.toString + "'"}</td>) }</tr></table>
+	
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<solveattempt>" + insValXmlJs + outsValXmlJs + "</solveattempt>'"), grade(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("buildCYKTableXML()"), grade(_))
     val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={hideSubmitButton & ajaxCall}>Submit</button>
     val returnLink : NodeSeq = SHtml.link("/courses/show", returnFunc, Text("Return to Course"))
     
-    val template : NodeSeq = Templates(List("words-in-grammar-problem", "solve")) openOr Text("Could not find template /words-in-grammar-problem/solve")
+    val template : NodeSeq = Templates(List("cyk-problem", "solve")) openOr Text("Could not find template /cyk-problem/solve")
     Helpers.bind("solveform", template,
         "problemdescription" -> problemDescription,
 		"grammartext" -> grammarText,
-		"wordsin" -> wordsInFieldNodeSeq,
-		"wordsout" -> wordsOutFieldNodeSeq,
-		"inneededtext" -> inNeededText,
-		"outneededtext" -> outNeededText,
+		"wordtext" -> wordText,
+		"cyktable" -> cykTable,
         "submitbutton" -> submitButton,
         "returnlink" -> returnLink)
   }

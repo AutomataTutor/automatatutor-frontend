@@ -8,6 +8,7 @@ import com.automatatutor.snippet.RegExConstructionSnippet
 import com.automatatutor.snippet.PumpingLemmaProblemSnippet
 import com.automatatutor.snippet.WordsInGrammarSnippet
 import com.automatatutor.snippet.DescriptionToGrammarSnippet
+import com.automatatutor.snippet.CYKProblemSnippet
 import com.automatatutor.snippet.GrammarToCNFSnippet
 import net.liftweb.common.Empty
 import net.liftweb.common.Full
@@ -35,6 +36,7 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	val WordsInGrammarTypeName = "Words in Grammar"
 	val DescriptionToGrammarTypeName = "English to Grammar"
 	val GrammarToCNFTypeName = "Grammar to CNF"
+	val CYKTypeName = "CYK Algorithm"
 
     val knownProblemTypes : Map[String, ProblemSnippet] = Map(
         DFAConstructionTypeName -> DFAConstructionSnippet,
@@ -43,7 +45,8 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
         EnglishToRegExTypeName -> RegExConstructionSnippet,
         WordsInGrammarTypeName -> WordsInGrammarSnippet,
         DescriptionToGrammarTypeName -> DescriptionToGrammarSnippet,
-        GrammarToCNFTypeName -> GrammarToCNFSnippet
+        GrammarToCNFTypeName -> GrammarToCNFSnippet,
+        CYKTypeName -> CYKProblemSnippet
         ) ++
         (if(Config.buchiGameSolving.enabled.get) { Map(BuchiSolvingTypeName -> BuchiGameSolving.SnippetAdapter) } else { Map[String, ProblemSnippet]() })
 	
@@ -62,6 +65,7 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	  case WordsInGrammarTypeName => WordsInGrammarProblem.findByGeneralProblem(generalProblem)
 	  case DescriptionToGrammarTypeName => DescriptionToGrammarProblem.findByGeneralProblem(generalProblem)
 	  case GrammarToCNFTypeName => GrammarToCNFProblem.findByGeneralProblem(generalProblem)
+	  case CYKTypeName => CYKProblem.findByGeneralProblem(generalProblem)
 	}
 }
 
