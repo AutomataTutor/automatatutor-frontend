@@ -44,12 +44,11 @@ object WordsInGrammarSnippet extends ProblemSnippet {
 	  val inNeeded = (formValuesXml \ "inneededfield").head.text.toInt
 	  val outNeeded = (formValuesXml \ "outneededfield").head.text.toInt
       val shortDescription = (formValuesXml \ "shortdescfield").head.text
-      val longDescription = (formValuesXml \ "longdescfield").head.text
       
       val parsingErrors = GraderConnection.getGrammarParsingErrors(grammar)
       
       if(parsingErrors.isEmpty) {
-        val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
+        val unspecificProblem = createUnspecificProb(shortDescription, shortDescription)
 		
         val specificProblem : WordsInGrammarProblem = WordsInGrammarProblem.create
         specificProblem.problemId(unspecificProblem).grammar(grammar).inNeeded(inNeeded).outNeeded(outNeeded)
@@ -65,15 +64,13 @@ object WordsInGrammarSnippet extends ProblemSnippet {
 	val inNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Empty , value => {}, "id" -> "inneededfield")
 	val outNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Empty , value => {}, "id" -> "outneededfield")
     val shortDescriptionField = SHtml.text("", value => {}, "id" -> "shortdescfield")
-    val longDescriptionField = SHtml.textarea("", value => {}, "cols" -> "80", "rows" -> "5", "id" -> "longdescfield")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val grammarFieldValXmlJs : String = "<grammarfield>' + document.getElementById('grammarfield').value + '</grammarfield>"
 	val inNeededFieldValXmlJs : String = "<inneededfield>' + document.getElementById('inneededfield').value + '</inneededfield>"
 	val outNeededFieldValXmlJs : String = "<outneededfield>' + document.getElementById('outneededfield').value + '</outneededfield>"
     val shortdescFieldValXmlJs : String = "<shortdescfield>' + document.getElementById('shortdescfield').value + '</shortdescfield>"
-    val longdescFieldValXmlJs : String = "<longdescfield>' + document.getElementById('longdescfield').value + '</longdescfield>"
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + inNeededFieldValXmlJs + outNeededFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), create(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + inNeededFieldValXmlJs + outNeededFieldValXmlJs + shortdescFieldValXmlJs + "</createattempt>'"), create(_))
     
     //val checkGrammarAndSubmit : JsCmd = JsIf(Call("multipleAlphabetChecks",Call("parseAlphabetByFieldName", "terminalsfield"),Call("parseAlphabetByFieldName", "nonterminalsfield")), hideSubmitButton & ajaxCall)    
 	val submit : JsCmd = hideSubmitButton & ajaxCall
@@ -86,7 +83,6 @@ object WordsInGrammarSnippet extends ProblemSnippet {
         "inneededfield" -> inNeededField,
         "outneededfield" -> outNeededField,
         "shortdescription" -> shortDescriptionField,
-        "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
   }
   
@@ -97,7 +93,6 @@ object WordsInGrammarSnippet extends ProblemSnippet {
     val wordsInGrammarProblem = WordsInGrammarProblem.findByGeneralProblem(problem)    
     
     var shortDescription : String = problem.getShortDescription
-    var longDescription : String = problem.getLongDescription
     var grammar : String = wordsInGrammarProblem.getGrammar
     var inNeeded : Int = wordsInGrammarProblem.getInNeeded
     var outNeeded : Int = wordsInGrammarProblem.getOutNeeded
@@ -108,14 +103,13 @@ object WordsInGrammarSnippet extends ProblemSnippet {
 	  val inNeeded = (formValuesXml \ "inneededfield").head.text.toInt
 	  val outNeeded = (formValuesXml \ "outneededfield").head.text.toInt
       val shortDescription = (formValuesXml \ "shortdescfield").head.text
-      val longDescription = (formValuesXml \ "longdescfield").head.text
       
       val parsingErrors = GraderConnection.getGrammarParsingErrors(grammar)
       
       if(parsingErrors.isEmpty) {        
         val specificProblem : WordsInGrammarProblem = WordsInGrammarProblem.create
       
-        problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
+        problem.setShortDescription(shortDescription).setLongDescription(shortDescription).save()
         wordsInGrammarProblem.grammar(grammar).inNeeded(inNeeded).outNeeded(outNeeded).save()                       
         returnFunc()
       } else {
@@ -127,15 +121,13 @@ object WordsInGrammarSnippet extends ProblemSnippet {
 	val inNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Full("" + inNeeded) , value => {}, "id" -> "inneededfield")
 	val outNeededField = SHtml.select( Array(("1","1"), ("2","2"), ("3","3"), ("4","4"), ("5","5")), Full("" + outNeeded) , value => {}, "id" -> "outneededfield")
     val shortDescriptionField = SHtml.text(shortDescription, shortDescription=_, "id" -> "shortdescfield")
-    val longDescriptionField = SHtml.textarea(longDescription, longDescription=_, "cols" -> "80", "rows" -> "1", "id" -> "longdescfield")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val grammarFieldValXmlJs : String = "<grammarfield>' + document.getElementById('grammarfield').value + '</grammarfield>"
 	val inNeededFieldValXmlJs : String = "<inneededfield>' + document.getElementById('inneededfield').value + '</inneededfield>"
 	val outNeededFieldValXmlJs : String = "<outneededfield>' + document.getElementById('outneededfield').value + '</outneededfield>"
     val shortdescFieldValXmlJs : String = "<shortdescfield>' + document.getElementById('shortdescfield').value + '</shortdescfield>"
-    val longdescFieldValXmlJs : String = "<longdescfield>' + document.getElementById('longdescfield').value + '</longdescfield>"
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + inNeededFieldValXmlJs + outNeededFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), edit(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + inNeededFieldValXmlJs + outNeededFieldValXmlJs + shortdescFieldValXmlJs + "</createattempt>'"), edit(_))
     
     val submit : JsCmd = hideSubmitButton & ajaxCall    
     
@@ -147,7 +139,6 @@ object WordsInGrammarSnippet extends ProblemSnippet {
         "inneededfield" -> inNeededField,
         "outneededfield" -> outNeededField,
         "shortdescription" -> shortDescriptionField,
-        "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
   }
   

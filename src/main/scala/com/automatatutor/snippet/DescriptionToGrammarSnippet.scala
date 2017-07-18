@@ -70,8 +70,6 @@ object DescriptionToGrammarSnippet extends ProblemSnippet {
     val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), create(_))
     val submit : JsCmd = hideSubmitButton & ajaxCall
     val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={submit}>Submit</button>
-    
-	println("test");
 	
     val template : NodeSeq = Templates(List("description-to-grammar-problem", "create")) openOr Text("Could not find template /description-to-grammar-problem/create")
     Helpers.bind("createform", template,

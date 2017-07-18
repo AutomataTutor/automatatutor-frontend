@@ -43,12 +43,11 @@ object CYKProblemSnippet extends ProblemSnippet {
       val grammar = (formValuesXml \ "grammarfield").head.text
       val word = (formValuesXml \ "wordfield").head.text
       val shortDescription = (formValuesXml \ "shortdescfield").head.text
-      val longDescription = (formValuesXml \ "longdescfield").head.text
       
       val parsingErrors = GraderConnection.getCNFParsingErrors(grammar)
       
       if(parsingErrors.isEmpty) {
-        val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
+        val unspecificProblem = createUnspecificProb(shortDescription, shortDescription)
 		
         val specificProblem : CYKProblem = CYKProblem.create
         specificProblem.problemId(unspecificProblem).grammar(grammar).word(word)
@@ -63,14 +62,12 @@ object CYKProblemSnippet extends ProblemSnippet {
     val grammarField = SHtml.textarea("", value => {}, "cols" -> "80", "rows" -> "5", "id" -> "grammarfield")
     val wordField = SHtml.text("", value => {}, "id" -> "wordfield")
     val shortDescriptionField = SHtml.text("", value => {}, "id" -> "shortdescfield")
-    val longDescriptionField = SHtml.textarea("", value => {}, "cols" -> "80", "rows" -> "5", "id" -> "longdescfield")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val grammarFieldValXmlJs : String = "<grammarfield>' + document.getElementById('grammarfield').value + '</grammarfield>"
     val wordFieldValXmlJs : String = "<wordfield>' + document.getElementById('wordfield').value + '</wordfield>"
     val shortdescFieldValXmlJs : String = "<shortdescfield>' + document.getElementById('shortdescfield').value + '</shortdescfield>"
-    val longdescFieldValXmlJs : String = "<longdescfield>' + document.getElementById('longdescfield').value + '</longdescfield>"
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + wordFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), create(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + wordFieldValXmlJs + shortdescFieldValXmlJs + "</createattempt>'"), create(_))
     
     val submit : JsCmd = hideSubmitButton & ajaxCall
     
@@ -81,7 +78,6 @@ object CYKProblemSnippet extends ProblemSnippet {
         "grammarfield" -> grammarField,
         "wordfield" -> wordField,
         "shortdescription" -> shortDescriptionField,
-        "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
   }
   
@@ -92,7 +88,6 @@ object CYKProblemSnippet extends ProblemSnippet {
     val cykProblem = CYKProblem.findByGeneralProblem(problem)    
     
     var shortDescription : String = problem.getShortDescription
-    var longDescription : String = problem.getLongDescription
     var grammar : String = cykProblem.getGrammar
     var word : String = cykProblem.getWord
 
@@ -101,14 +96,13 @@ object CYKProblemSnippet extends ProblemSnippet {
       val grammar = (formValuesXml \ "grammarfield").head.text
       val word = (formValuesXml \ "wordfield").head.text
       val shortDescription = (formValuesXml \ "shortdescfield").head.text
-      val longDescription = (formValuesXml \ "longdescfield").head.text
       
       val parsingErrors = GraderConnection.getCNFParsingErrors(grammar)
       
       if(parsingErrors.isEmpty) {        
         val specificProblem : CYKProblem = CYKProblem.create
       
-        problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
+        problem.setShortDescription(shortDescription).setLongDescription(shortDescription).save()
         cykProblem.grammar(grammar).word(word).save()                       
         returnFunc()
       } else {
@@ -119,14 +113,12 @@ object CYKProblemSnippet extends ProblemSnippet {
     val grammarField = SHtml.textarea(grammar, grammar=_, "cols" -> "80", "rows" -> "5", "id" -> "grammarfield")
     val wordField = SHtml.text(word, word=_, "id" -> "wordfield")
     val shortDescriptionField = SHtml.text(shortDescription, shortDescription=_, "id" -> "shortdescfield")
-    val longDescriptionField = SHtml.textarea(longDescription, longDescription=_, "cols" -> "80", "rows" -> "1", "id" -> "longdescfield")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
     val grammarFieldValXmlJs : String = "<grammarfield>' + document.getElementById('grammarfield').value + '</grammarfield>"
     val wordFieldValXmlJs : String = "<wordfield>' + document.getElementById('wordfield').value + '</wordfield>"
     val shortdescFieldValXmlJs : String = "<shortdescfield>' + document.getElementById('shortdescfield').value + '</shortdescfield>"
-    val longdescFieldValXmlJs : String = "<longdescfield>' + document.getElementById('longdescfield').value + '</longdescfield>"
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + wordFieldValXmlJs + shortdescFieldValXmlJs + longdescFieldValXmlJs + "</createattempt>'"), edit(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("'<createattempt>" + grammarFieldValXmlJs + wordFieldValXmlJs + shortdescFieldValXmlJs + "</createattempt>'"), edit(_))
     
     val submit : JsCmd = hideSubmitButton & ajaxCall    
     
@@ -137,7 +129,6 @@ object CYKProblemSnippet extends ProblemSnippet {
         "grammarfield" -> grammarField,
         "wordfield" -> wordField,
         "shortdescription" -> shortDescriptionField,
-        "longdescription" -> longDescriptionField,
         "submit" -> submitButton)
   }
   
