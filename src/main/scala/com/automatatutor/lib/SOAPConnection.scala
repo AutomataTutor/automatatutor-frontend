@@ -166,7 +166,6 @@ object GraderConnection {
 	}
 	
 	def getRegexParsingErrors(potentialRegex : String, alphabet : Seq[String]) : Seq[String] = {
-	  return List()
 	  val arguments = Map[String, Node](
 	      "regexDesc" -> <div> { potentialRegex } </div>,
 	      "alphabet" -> <div> { alphabet.map((symbol : String) => Elem(null, "symbol", Null, TopScope, true, Text(symbol))) } </div>)
