@@ -17,10 +17,11 @@ import com.automatatutor.lib.Binding
 import com.automatatutor.lib.Renderer
 import com.automatatutor.lib.Binder
 import com.automatatutor.lib.DataRenderer
+import scala.collection.mutable.Set;
 
 
 object ProblemSetToEdit extends RequestVar[ProblemSet](null)
-object ProblemToPose extends RequestVar[Problem](null)
+object ProblemsToPose extends RequestVar[Set[Problem]](Set())
 
 class Problemsets {
 	def renderindex ( template : NodeSeq ) : NodeSeq = {
@@ -87,18 +88,29 @@ class Problemsets {
 	
 	def renderaddproblem ( xhtml : NodeSeq ) : NodeSeq = {
 	  val problemSetToEdit = ProblemSetToEdit.is
+	  val problemsToPose = ProblemsToPose.is
 	  val currentUser = User.currentUser openOrThrowException "Lift prevents non-logged in users from getting here"
 	  val problems : Seq[Problem] = Problem.findAllByCreator(currentUser)
 	  
-	  return TableHelper.renderTableWithHeader(problems,
+	  def checkAndSubmit() {
+		if (problemsToPose.size > 0) S.redirectTo("/problemsets/poseproblem", () => {ProblemSetToEdit(problemSetToEdit); ProblemsToPose(problemsToPose) } )
+		else S.error("No problem selected");
+	  }
+	  
+	  var addProblemTable = TableHelper.renderTableWithHeader(problems,
 	      ("Short Description", (problem : Problem) => Text(problem.getShortDescription)),
 	      ("Problem Type", (problem : Problem) => Text(problem.getTypeName)),
-	      ("", (problem : Problem) => SHtml.link("/problemsets/poseproblem", () => { ProblemSetToEdit(problemSetToEdit); ProblemToPose(problem) }, Text("Pose this problem"))))
+		  ("Selection", (problem : Problem) => SHtml.checkbox(false, (selected) => {if (selected) problemsToPose += problem} ) )
+		  ) 
+		  
+	  var addSelectedProblemsSubmitButton = SHtml.submit("Pose selected problems", checkAndSubmit )
+	  
+	  return addProblemTable ++ addSelectedProblemsSubmitButton
 	}
 	
 	def renderposeproblem ( xhtml : NodeSeq ) : NodeSeq = {
 	  val problemSetToEdit = ProblemSetToEdit.is
-	  val problemToPose = ProblemToPose.is
+	  val problemsToPose = ProblemsToPose.is
 	  
 	  var attempts = ""
 	  var maxGrade = ""
@@ -106,11 +118,15 @@ class Problemsets {
 	  def poseProblem = {
 	    def redirectToSelf( exception : Exception ) = {
 	        S.error(exception.getMessage())
-	        S.redirectTo("/problemsets/poseproblem", () => { ProblemSetToEdit(problemSetToEdit); ProblemToPose(problemToPose) } )
+	        S.redirectTo("/problemsets/poseproblem", () => { ProblemSetToEdit(problemSetToEdit) } )
 	    }
 		val numAttempts = try { attempts.toInt } catch { case e : Exception => redirectToSelf(e) }
 		val numMaxGrade = try { maxGrade.toInt } catch { case e : Exception => redirectToSelf(e) }
-	    problemSetToEdit.appendProblem( problemToPose, numAttempts, numMaxGrade )
+		problemsToPose.foreach(
+			(problem) => {
+				problemSetToEdit.appendProblem( problem, numAttempts, numMaxGrade )
+			} 
+		)
 	    S.redirectTo("/problemsets/edit", () => ProblemSetToEdit(problemSetToEdit))
 	  }
 	  

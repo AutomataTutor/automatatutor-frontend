@@ -87,6 +87,7 @@ class Courses {
   def displaySupervisedCourses(courses : Seq[Course]) : NodeSeq = {
     return TableHelper.renderTableWithHeader(courses, 
         ("Course Name", (course : Course) => Text(course.getName)),
+		("Password", (course : Course) => Text(course.getPassword)),
         ("Contact", (course : Course) => new CourseRenderer(course).renderContactLink),
         ("", (course : Course) => new CourseRenderer(course).renderManageLink),
         ("", (course : Course) => new CourseRenderer(course).renderDeleteLink))
