@@ -1,5 +1,15 @@
 package com.automatatutor.model
 
+import com.automatatutor.snippet.DFAConstructionSnippet
+import com.automatatutor.snippet.NFAProblemSnippet
+import com.automatatutor.snippet.NFAToDFAProblemSnippet
+import com.automatatutor.snippet.ProblemSnippet
+import com.automatatutor.snippet.RegExConstructionSnippet
+import com.automatatutor.snippet.PumpingLemmaProblemSnippet
+import com.automatatutor.snippet.WordsInGrammarSnippet
+import com.automatatutor.snippet.DescriptionToGrammarSnippet
+import com.automatatutor.snippet.CYKProblemSnippet
+import com.automatatutor.snippet.GrammarToCNFSnippet
 import com.automatatutor.snippet._
 import net.liftweb.common.Empty
 import net.liftweb.common.Full
@@ -22,8 +32,12 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	val NFAConstructionTypeName = "English to NFA"
 	val NFAToDFATypeName = "NFA to DFA"
 	val EnglishToRegExTypeName = "English to Regular Expression"
-	//val PLTypeName = "Pumping Lemma Proof"
+	val PLTypeName = "Pumping Lemma Proof"
 	val BuchiSolvingTypeName = "Buchi Game Solving"
+	val WordsInGrammarTypeName = "Words in Grammar"
+	val DescriptionToGrammarTypeName = "English to Grammar"
+	val GrammarToCNFTypeName = "Grammar to CNF"
+	val CYKTypeName = "CYK Algorithm"
 	val ProductConstructionTypeName = "Product Construction"
 	val MinimizationTypeName = "Minimization"
 
@@ -32,6 +46,10 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
         NFAConstructionTypeName -> NFAProblemSnippet,
         NFAToDFATypeName -> NFAToDFAProblemSnippet,
         EnglishToRegExTypeName -> RegExConstructionSnippet,
+        WordsInGrammarTypeName -> WordsInGrammarSnippet,
+        DescriptionToGrammarTypeName -> DescriptionToGrammarSnippet,
+        GrammarToCNFTypeName -> GrammarToCNFSnippet,
+        CYKTypeName -> CYKProblemSnippet,
 			  ProductConstructionTypeName -> ProductConstructionSnippet,
 			MinimizationTypeName -> MinimizationSnippet
         ) ++
@@ -51,6 +69,10 @@ class ProblemType extends LongKeyedMapper[ProblemType] with IdPK {
 	  case NFAConstructionTypeName => NFAConstructionProblem.findByGeneralProblem(generalProblem)
 	  case NFAToDFATypeName => NFAToDFAProblem.findByGeneralProblem(generalProblem)
 	  case EnglishToRegExTypeName => RegExConstructionProblem.findByGeneralProblem(generalProblem)
+	  case WordsInGrammarTypeName => WordsInGrammarProblem.findByGeneralProblem(generalProblem)
+	  case DescriptionToGrammarTypeName => DescriptionToGrammarProblem.findByGeneralProblem(generalProblem)
+	  case GrammarToCNFTypeName => GrammarToCNFProblem.findByGeneralProblem(generalProblem)
+	  case CYKTypeName => CYKProblem.findByGeneralProblem(generalProblem)
 	}
 }
 

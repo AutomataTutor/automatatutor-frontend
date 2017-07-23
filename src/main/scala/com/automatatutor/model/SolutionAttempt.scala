@@ -101,6 +101,51 @@ object RegexConstructionSolutionAttempt extends RegexConstructionSolutionAttempt
 }
 
 //Pumping Lemma
+class WordsInGrammarSolutionAttempt extends LongKeyedMapper[WordsInGrammarSolutionAttempt] with IdPK {
+	def getSingleton = WordsInGrammarSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptWordsIn extends MappedText(this)
+	object attemptWordsOut extends MappedText(this)
+}
+
+object WordsInGrammarSolutionAttempt extends WordsInGrammarSolutionAttempt with LongKeyedMetaMapper[WordsInGrammarSolutionAttempt] {
+
+}
+
+class DescriptionToGrammarSolutionAttempt extends LongKeyedMapper[DescriptionToGrammarSolutionAttempt] with IdPK {
+	def getSingleton = DescriptionToGrammarSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptGrammar extends MappedText(this)
+}
+
+object DescriptionToGrammarSolutionAttempt extends DescriptionToGrammarSolutionAttempt with LongKeyedMetaMapper[DescriptionToGrammarSolutionAttempt] {
+
+}
+
+class GrammarToCNFSolutionAttempt extends LongKeyedMapper[GrammarToCNFSolutionAttempt] with IdPK {
+	def getSingleton = GrammarToCNFSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptGrammar extends MappedText(this)
+}
+
+object GrammarToCNFSolutionAttempt extends GrammarToCNFSolutionAttempt with LongKeyedMetaMapper[GrammarToCNFSolutionAttempt] {
+
+}
+
+class CYKSolutionAttempt extends LongKeyedMapper[CYKSolutionAttempt] with IdPK {
+	def getSingleton = CYKSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attempt extends MappedText(this)
+}
+
+object CYKSolutionAttempt extends CYKSolutionAttempt with LongKeyedMetaMapper[CYKSolutionAttempt] {
+
+}
+
 class PumpingLemmaSolutionAttempt extends LongKeyedMapper[PumpingLemmaSolutionAttempt] with IdPK {
 	def getSingleton = PumpingLemmaSolutionAttempt
 

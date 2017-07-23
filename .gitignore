@@ -5,6 +5,7 @@
 .settings/
 console.devmode.log
 develop.db.mv.db
+develop.db.trace.db
 project/project/
 project/target/
 target/

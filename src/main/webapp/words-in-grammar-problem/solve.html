@@ -1,0 +1,41 @@
+<div>
+	<script type="text/javascript" src="/javascript/grammarUtil.js"> </script>
+	
+	<h2> Solve Words in Grammar problem </h3>
+	
+	<h3> Grammar Syntax </h4>
+	<ul style='font-family: "Lucida Console", Monaco, monospace'>
+		<li>e.g. S -> X Y | TEIL1 a TEIL2 | S S |  | a </li>
+		<li>1 line per production</li>
+		<li>first variable is start variable</li>
+		<li>possible terminals: lower case characters a-z or '('  ')'  '['  ']' </li>
+		<li>possible variables: 1 or more upper case characters A-Z or numbers 0-9 (!can't start with number!) </li>
+		<li>empty word: a blank right side (e.g. "S -> " or "S -> a | ")</li>
+	</ul>
+	
+	<h3> The Problem </h4>
+	
+	For the grammar with the productions: <br />
+	<br /><strong style="font-size: 150%; font-family: 'Lucida Console', Monaco, monospace"><solveform:grammartext> </solveform:grammartext></strong><br />
+	
+	Give <strong><solveform:inneededtext> </solveform:inneededtext></strong> words that are recognized and <strong><solveform:outneededtext> </solveform:outneededtext></strong> words that aren't recognized!
+	
+	</br></br>
+
+	<form class="lift:form">
+		words in the grammar: <solveform:wordsin> </solveform:wordsin>
+		words NOT in the grammar: <solveform:wordsout> </solveform:wordsout>
+		
+		<solveform:submitbutton> </solveform:submitbutton>
+		<solveform:returnlink> </solveform:returnlink> <br />
+	</form>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Grade: <span id="grade" /> </h3>
+		<h3> Feedback: </h3>
+		<ul>
+			<div id="feedback"/>
+		</ul>
+	</div>
+
+</div> 
