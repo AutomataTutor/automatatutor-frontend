@@ -10,3 +10,5 @@ project/target/
 target/
 src/main/resources/props/default.props
 src/main/resources/props/production.default.props
+.idea
+/.gitignore

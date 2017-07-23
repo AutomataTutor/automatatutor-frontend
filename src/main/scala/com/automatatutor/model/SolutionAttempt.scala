@@ -22,6 +22,7 @@ object SolutionAttempt extends SolutionAttempt with LongKeyedMetaMapper[Solution
 	}
 }
 
+//DFA Construction
 class DFAConstructionSolutionAttempt extends LongKeyedMapper[DFAConstructionSolutionAttempt] with IdPK {
 	def getSingleton = DFAConstructionSolutionAttempt
 
@@ -35,6 +36,7 @@ object DFAConstructionSolutionAttempt extends DFAConstructionSolutionAttempt wit
 	}
 }
 
+//Product Construction
 class ProductConstructionSolutionAttempt extends LongKeyedMapper[ProductConstructionSolutionAttempt] with IdPK {
 	def getSingleton = ProductConstructionSolutionAttempt
 
@@ -44,10 +46,25 @@ class ProductConstructionSolutionAttempt extends LongKeyedMapper[ProductConstruc
 
 object ProductConstructionSolutionAttempt extends ProductConstructionSolutionAttempt with LongKeyedMetaMapper[ProductConstructionSolutionAttempt] {
 	def getByGeneralAttempt ( generalAttempt : SolutionAttempt ) : ProductConstructionSolutionAttempt = {
-		return this.find(By(ProductConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a DFA construction attempt"
+		return this.find(By(ProductConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a product construction attempt"
 	}
 }
 
+//Minimization
+class MinimizationSolutionAttempt extends LongKeyedMapper[MinimizationSolutionAttempt] with IdPK {
+	def getSingleton = MinimizationSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptAutomaton extends MappedText(this)
+}
+
+object MinimizationSolutionAttempt extends MinimizationSolutionAttempt with LongKeyedMetaMapper[MinimizationSolutionAttempt] {
+	def getByGeneralAttempt ( generalAttempt : SolutionAttempt ) : MinimizationSolutionAttempt = {
+		return this.find(By(MinimizationSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a minimization attempt"
+	}
+}
+
+//NFA Construction
 class NFAConstructionSolutionAttempt extends LongKeyedMapper[NFAConstructionSolutionAttempt] with IdPK {
 	def getSingleton = NFAConstructionSolutionAttempt
 
@@ -59,6 +76,7 @@ object NFAConstructionSolutionAttempt extends NFAConstructionSolutionAttempt wit
 
 }
 
+//NFA to DFA
 class NFAToDFASolutionAttempt extends LongKeyedMapper[NFAToDFASolutionAttempt] with IdPK {
 	def getSingleton = NFAToDFASolutionAttempt
 
@@ -70,6 +88,7 @@ object NFAToDFASolutionAttempt extends NFAToDFASolutionAttempt with LongKeyedMet
 
 }
 
+//Regex Construction
 class RegexConstructionSolutionAttempt extends LongKeyedMapper[RegexConstructionSolutionAttempt] with IdPK {
 	def getSingleton = RegexConstructionSolutionAttempt
 
@@ -81,6 +100,7 @@ object RegexConstructionSolutionAttempt extends RegexConstructionSolutionAttempt
 
 }
 
+//Pumping Lemma
 class PumpingLemmaSolutionAttempt extends LongKeyedMapper[PumpingLemmaSolutionAttempt] with IdPK {
 	def getSingleton = PumpingLemmaSolutionAttempt
 

@@ -121,7 +121,7 @@ object GraderConnection {
 
   //Product Construction
 
-  def getProductConstructionFeedback(correctDfaDescriptionList : List[String], attemptDfaDescription : String, maxGrade : Int) : (Int, NodeSeq) = {
+  def getProductConstructionFeedback(correctDfaDescriptionList : List[String], attemptDfaDescription : String, booleanOperation : String, maxGrade : Int) : (Int, NodeSeq) = {
 
     def stringListToNodeList(xs: List[String]): List[Node] = xs match{
       case Nil => List()
@@ -131,11 +131,30 @@ object GraderConnection {
     val arguments = Map[String, Node](
       "dfaDescList" -> Elem(null, "dfaDescList", Null, TopScope, true, stringListToNodeList(correctDfaDescriptionList):_*),
       "dfaAttemptDesc" -> XML.loadString(attemptDfaDescription),
+      "booleanOperation" -> Elem(null, "booleanOperation", Null, TopScope, true, Text(booleanOperation)),
       "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString)),
       "feedbackLevel" -> Elem(null, "feedbackLevel", Null, TopScope, true, Text("Hint")),
       "enabledFeedbacks" -> Elem(null, "enabledFeedbacks", Null, TopScope, true, Text("ignored")))
 
     val responseXml = soapConnection.callMethod(namespace, "ComputeFeedbackProductConstruction", arguments)
+
+    ((responseXml \ "grade").text.toInt, (responseXml \ "feedString" \ "ul" \ "li"))
+  }
+
+  // Minimization
+
+  //TODO: Adjust to work for Minimization
+  def getMinimizationFeedback(dfaDescription : String, attemptDfaDescription : String, maxGrade : Int) : (Int, NodeSeq) = {
+
+    val arguments = Map[String, Node](
+      "dfaDesc" -> XML.loadString(dfaDescription),
+      "dfaAttemptDesc" -> XML.loadString(attemptDfaDescription),
+      "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString)),
+      "feedbackLevel" -> Elem(null, "feedbackLevel", Null, TopScope, true, Text("Hint")),
+      "enabledFeedbacks" -> Elem(null, "enabledFeedbacks", Null, TopScope, true, Text("ignored")));
+
+    //TODO: Implement 'ComputeFeedbackMinimization' in Backend
+    val responseXml = soapConnection.callMethod(namespace, "ComputeFeedbackMinimization", arguments)
 
     ((responseXml \ "grade").text.toInt, (responseXml \ "feedString" \ "ul" \ "li"))
   }

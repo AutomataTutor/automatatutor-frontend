@@ -41,6 +41,7 @@ class Boot {
 	    User, Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
 	    DFAConstructionProblem, DFAConstructionSolutionAttempt,
       ProductConstructionProblem, ProductConstructionSolutionAttempt,
+      MinimizationProblem, MinimizationSolutionAttempt,
       NFAConstructionProblem, NFAConstructionSolutionAttempt, 
 	    NFAToDFAProblem, NFAToDFASolutionAttempt, 
       RegExConstructionProblem, RegexConstructionSolutionAttempt,

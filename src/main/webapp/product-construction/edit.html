@@ -6,15 +6,16 @@
 		function setAlphabet() {
 			var alphabet = parseAlphabet();
 			if(alphabetChecks(alphabet)){
-				Editor.canvas.setAlphabet(alphabet);
+				Editor.canvasDfa1.setAlphabet(alphabet);
+				Editor.canvasDfa2.setAlphabet(alphabet);
 			}
 		}
 
-		function setNumberOfAutomata() {
-			var number = document.getElementById('noAutomata').value;
-			setNumberOfCanvas(number)
-		}
-	</script>	
+		//function setNumberOfAutomata() {
+		//	var number = document.getElementById('noAutomata').value;
+		//	setNumberOfCanvas(number)
+		//}
+	</script>
 
 	<h2> Edit product-construction problem </h2>
 
@@ -27,14 +28,22 @@
 		<input type="button" value="Set Number of Automata" onclick="setNumberOfAutomata()"> <br />
 	</form>
 
-	<lift:embed what="/product-construction/applet"> </lift:embed>
+	<lift:embed what="/product-construction/applet-create-edit"> </lift:embed>
 
 	<lift:Identity form="POST">
 	<editform:setupscript> </editform:setupscript>
-	<table> 
+	<table>
 		<tr> 
 			<td> </td>
-			<td> <editform:automaton> </editform:automaton> </td>
+			<td> <editform:automaton1> </editform:automaton1> </td>
+		</tr>
+		<tr>
+			<td> </td>
+			<td> <editform:automaton2> </editform:automaton2> </td>
+		</tr>
+		<tr>
+			<td> Boolean Operation: </td>
+			<td> <editform:boolop> </editform:boolop> </td>
 		</tr>
 		<tr> 
 			<td> Short Description: </td>

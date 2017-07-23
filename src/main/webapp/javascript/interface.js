@@ -45,6 +45,19 @@ $.SvgCanvas = function(container, config, style) {
 			acceptanceMarker: 'css'
 		},
 
+		'prodaut': {
+        	node: {
+        		label: 'id'
+        	},
+        	transition: {
+        		labeled: true,
+        		deterministic: true
+        	},
+        	hasInitialNode: true,
+        	twoPlayers: false,
+        	acceptanceMarker: 'css'
+        },
+
 		'nondetaut': {
 			node: {
 				label: 'id'

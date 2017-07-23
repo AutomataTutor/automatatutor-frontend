@@ -42,28 +42,38 @@ object ProductConstructionSnippet extends ProblemSnippet {
 
     var shortDescription : String = ""
     var longDescription : String = ""
-    var automaton : String = ""
+    var booleanOperation : String = ""
+    var automaton1 : String = ""
+    var automaton2 : String = ""
 
     def create() = {
       val unspecificProblem = createUnspecificProb(shortDescription, longDescription)
 
       val specificProblem : ProductConstructionProblem = ProductConstructionProblem.create
-      specificProblem.setGeneralProblem(unspecificProblem).setAutomaton(automaton)
+      specificProblem.setGeneralProblem(unspecificProblem).setAutomaton1(automaton1)
+      specificProblem.setGeneralProblem(unspecificProblem).setAutomaton2(automaton2)
+      specificProblem.setGeneralProblem(unspecificProblem).setBooleanOperation(booleanOperation)
       specificProblem.save
 
       returnFunc()
     }
 
-
     // Remember to remove all newlines from the generated XML by using filter
-    val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
+    val automaton1Field = SHtml.hidden(automatonXml => automaton1 = preprocessAutomatonXml(automatonXml), "", "id" -> "automaton1Field")
+    val automaton2Field = SHtml.hidden(automatonXml => automaton2 = preprocessAutomatonXml(automatonXml), "", "id" -> "automaton2Field")
     val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
     val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
-    val submitButton = SHtml.submit("Create", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
+    val booleanOperationField = SHtml.text(booleanOperation, booleanOperation = _)
+    //TODO:   (I) Export both automata   ;   (II) Export boolean Operation   ;   (III) Export variable amount of automata
+    val submitButton = SHtml.submit("Create", create, "onClick" ->
+      ("document.getElementById('automaton1Field').value = Editor.canvasDfa1.exportAutomaton();" +
+      "document.getElementById('automaton2Field').value = Editor.canvasDfa2.exportAutomaton()"))
 
     val template : NodeSeq = Templates(List("product-construction", "create")) openOr Text("Could not find template /product-construction/create")
     Helpers.bind("createform", template,
-      "automaton" -> automatonField,
+      "automaton1" -> automaton1Field,
+      "automaton2" -> automaton2Field,
+      "boolop" -> booleanOperationField,
       "shortdescription" -> shortDescriptionField,
       "longdescription" -> longDescriptionField,
       "submit" -> submitButton)
@@ -77,25 +87,41 @@ object ProductConstructionSnippet extends ProblemSnippet {
 
     var shortDescription : String = problem.getShortDescription
     var longDescription : String = problem.getLongDescription
-    var automaton : String = ""
+    var booleanOperation : String = productConstructionProblem.getBooleanOperation.toString()
+    var automaton1 : String = ""
+    var automaton2 : String = ""
 
     def create() = {
       problem.setShortDescription(shortDescription).setLongDescription(longDescription).save()
-      productConstructionProblem.setAutomaton(automaton).save()
+      productConstructionProblem.setBooleanOperation(booleanOperation).save()
+      productConstructionProblem.setAutomaton1(automaton1).save()
+      productConstructionProblem.setAutomaton2(automaton2).save()
       returnFunc()
     }
 
     // Remember to remove all newlines from the generated XML by using filter
-    val automatonField = SHtml.hidden(automatonXml => automaton = preprocessAutomatonXml(automatonXml), "", "id" -> "automatonField")
+    val automaton1Field = SHtml.hidden(automatonXml => automaton1 = preprocessAutomatonXml(automatonXml), "", "id" -> "automaton1Field")
+    val automaton2Field = SHtml.hidden(automatonXml => automaton2 = preprocessAutomatonXml(automatonXml), "", "id" -> "automaton2Field")
     val shortDescriptionField = SHtml.text(shortDescription, shortDescription = _)
     val longDescriptionField = SHtml.textarea(longDescription, longDescription = _, "cols" -> "80", "rows" -> "5")
-    val submitButton = SHtml.submit("Edit", create, "onClick" -> "document.getElementById('automatonField').value = Editor.canvas.exportAutomaton()")
-    val setupScript = <script type="text/javascript"> Editor.canvas.setAutomaton("{ productConstructionProblem.getAutomaton }") </script>
+    val booleanOperationField = SHtml.text(booleanOperation, booleanOperation = _)
+    val submitButton = SHtml.submit("Edit", create, "onClick" ->
+      ("document.getElementById('automaton1Field').value = Editor.canvasDfa1.exportAutomaton();" +
+        "document.getElementById('automaton2Field').value = Editor.canvasDfa2.exportAutomaton()"))
+
+    val automataList = productConstructionProblem.getAutomataList
+    val setupScript =
+      <script type="text/javascript">
+        Editor.canvasDfa1.setAutomaton("{ automataList(0) }")
+        Editor.canvasDfa2.setAutomaton("{ automataList(1) }")
+      </script>
 
     val template : NodeSeq = Templates(List("product-construction", "edit")) openOr Text("Could not find template /product-construction/edit")
     Helpers.bind("editform", template,
-      "automaton" -> automatonField,
+      "automaton1" -> automaton1Field,
+      "automaton2" -> automaton2Field,
       "setupscript" -> setupScript,
+      "boolop" -> booleanOperationField,
       "shortdescription" -> shortDescriptionField,
       "longdescription" -> longDescriptionField,
       "submit" -> submitButton)
@@ -118,10 +144,12 @@ object ProductConstructionSnippet extends ProblemSnippet {
 
       val attemptDfaXml = XML.loadString(attemptDfaDescription)
       //TODO - Different Automata
-      val correctDfaDescription = productConstructionProblem.getXmlDescription.toString
+      val correctDfaDescription1 = productConstructionProblem.getXmlDescription1.toString
+      val correctDfaDescription2 = productConstructionProblem.getXmlDescription2.toString
+      val booleanOperation = productConstructionProblem.getBooleanOperation.toString()
       val attemptTime = Calendar.getInstance.getTime()
-      val x = List(correctDfaDescription, correctDfaDescription)
-      val graderResponse = GraderConnection.getProductConstructionFeedback(x, attemptDfaDescription, maxGrade.toInt)
+      val x = List(correctDfaDescription1, correctDfaDescription2)
+      val graderResponse = GraderConnection.getProductConstructionFeedback(x, attemptDfaDescription, booleanOperation, maxGrade.toInt)
 
       val numericalGrade = graderResponse._1
       val generalAttempt = recordSolutionAttempt(numericalGrade, attemptTime)
@@ -139,23 +167,30 @@ object ProductConstructionSnippet extends ProblemSnippet {
     }
 
     val problemAlphabet = productConstructionProblem.getAlphabet
+    val automataList = productConstructionProblem.getAutomataList
 
     val alphabetJavaScriptArray = "[\"" + problemAlphabet.mkString("\",\"") + "\"]"
-    val alphabetScript : NodeSeq = <script type="text/javascript"> Editor.canvas.setAlphabet( { alphabetJavaScriptArray } ) </script>
+    val setupScript : NodeSeq =
+      <script type="text/javascript">
+        Editor.canvasDfa1.setAutomaton( "{ automataList(0) }" );
+        Editor.canvasDfa2.setAutomaton( "{ automataList(1) }" );
+        Editor.canvasDfaSol.setAlphabet( { alphabetJavaScriptArray } )
+      </script>
 
     val problemAlphabetNodeSeq = Text("{" + problemAlphabet.mkString(",") + "}")
     val problemDescriptionNodeSeq = Text(generalProblem.getLongDescription)
+    val booleanOperationNodeSeq = Text("{" + productConstructionProblem.getBooleanOperation.toString() + "}")
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("Editor.canvas.exportAutomaton()"), grade(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("Editor.canvasDfaSol.exportAutomaton()"), grade(_))
     val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={hideSubmitButton & ajaxCall}>Submit</button>
     val returnLink : NodeSeq = SHtml.link("/courses/show", returnFunc, Text("Return to Course"))
 
     val template : NodeSeq = Templates(List("product-construction", "solve")) openOr Text("Template /product-construction/solve not found")
     return SHtml.ajaxForm(Helpers.bind("dfaeditform", template,
-      "alphabetscript" -> alphabetScript,
+      "setupscript" -> setupScript,
       "alphabettext" -> problemAlphabetNodeSeq,
-      "problemdescription" -> problemDescriptionNodeSeq,
+      "boolop" -> booleanOperationNodeSeq,
       "submitbutton" -> submitButton,
       "returnlink" -> returnLink))
   }

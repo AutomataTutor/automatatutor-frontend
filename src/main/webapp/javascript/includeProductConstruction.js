@@ -29,6 +29,11 @@ function setNumberOfCanvas(no){
   createCanvas(no)
 }
 
+//TODO
+function setActualCanvas(no) {
+    Editor.canvas = Editor.canvasArray[no];
+}
+
 $(document).ready(function() {
   initCanvas();
 }); 
