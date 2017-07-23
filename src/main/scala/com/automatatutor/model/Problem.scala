@@ -5,13 +5,12 @@ import com.automatatutor.snippet.NFAProblemSnippet
 import com.automatatutor.snippet.NFAToDFAProblemSnippet
 import com.automatatutor.snippet.ProblemSnippet
 import com.automatatutor.snippet.RegExConstructionSnippet
-import com.automatatutor.snippet.PumpingLemmaProblemSnippet
 import com.automatatutor.snippet.WordsInGrammarSnippet
 import com.automatatutor.snippet.DescriptionToGrammarSnippet
 import com.automatatutor.snippet.CYKProblemSnippet
 import com.automatatutor.snippet.GrammarToCNFSnippet
-import com.automatatutor.snippet._
-import net.liftweb.common.Empty
+import com.automatatutor.snippet.MinimizationSnippet
+import com.automatatutor.snippet.ProductConstructionSnippet
 import net.liftweb.common.Full
 import net.liftweb.mapper.By
 import net.liftweb.mapper.IdPK
