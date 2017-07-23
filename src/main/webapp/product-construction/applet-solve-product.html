@@ -1,0 +1,44 @@
+<div>
+    <head>
+        <link rel="stylesheet" href="/stylesheets/proto2.css" type="text/css"/>
+        <link rel="stylesheet" href="/stylesheets/interface.css" type="text/css"/>
+
+        <script type="text/javascript" src="/javascript/lib/d3.min.js"></script>
+        <script type="text/javascript" src="/javascript/lib/jquery-2.1.1.min.js"></script>
+        <script type="text/javascript" src="/javascript/lib/jquery.contextmenu.js"></script>
+        <script type="text/javascript" src="/javascript/lib/browser.js"></script>
+        <script type="text/javascript" src="/javascript/lib/contextmenu.js"></script>
+
+        <script type="text/javascript" src="/javascript/includeProductConstructionSolve.js"></script>
+        <script type="text/javascript" src="/javascript/interface.js"></script>
+    </head>
+
+    <div id="automata_tutor">
+
+        <div id="workarea">
+            <div id="svgcanvasdfa1"></div>
+            <div id="svgcanvasdfa2"></div>
+            <div id="svgcanvasdfasol"></div>
+        </div>
+
+    </div>
+    <ul id="cmenu_canvas" class="contextMenu">
+        <li class="contextMenuLi"><a href="#add">Add State</a></li>
+        <li class="contextMenuLi"><a href="#remove">Remove State</a></li>
+        <li class="contextMenuLi"><a href="#final">Make Final</a></li>
+        <li class="contextMenuLi"><a href="#non-final">Make Non-final</a></li>
+        <li class="contextMenuLi"><a href="#init">Make Initial</a></li>
+        <li class="contextMenuLi"><a href="#flip">Flip Loop</a></li>
+    </ul>
+
+    <script type='text/javascript'>
+        initCanvas();
+        Editor.canvasDfa1.setAlphabet([]);
+        Editor.canvasDfa2.setAlphabet([]);
+        Editor.canvasDfaSol.setAlphabet([]);
+        Editor.canvasDfa1.lockCanvas();
+        Editor.canvasDfa2.lockCanvas();
+    </script>
+
+</div>
+
