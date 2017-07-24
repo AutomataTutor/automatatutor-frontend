@@ -462,7 +462,7 @@ class Courses {
     val problem : Problem = posedProblem.getProblem
     val snippet = problem.getProblemType.getProblemSnippet
     return snippet.renderSolve(posedProblem.getProblem, posedProblem.getMaxGrade, Empty,
-        (grade, date) => SolutionAttempt, () => S.redirectTo("/courses/index"), () => 1, () => 0)
+        (grade, date) => SolutionAttempt, () => S.redirectTo("/practicesets/index"), () => 1, () => 0)
   }
   
   def renderenrollmentform ( xhtml : NodeSeq ) : NodeSeq = {
