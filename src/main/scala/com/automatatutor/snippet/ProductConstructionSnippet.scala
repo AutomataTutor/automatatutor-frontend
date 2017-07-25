@@ -174,7 +174,8 @@ object ProductConstructionSnippet extends ProblemSnippet {
       <script type="text/javascript">
         Editor.canvasDfa1.setAutomaton( "{ automataList(0) }" );
         Editor.canvasDfa2.setAutomaton( "{ automataList(1) }" );
-        Editor.canvasDfaSol.setAlphabet( { alphabetJavaScriptArray } )
+        Editor.canvasDfaSol.setAlphabet( { alphabetJavaScriptArray } );
+        Editor.canvasDfaSol.setNumberOfStates( "{ automataList(0) } " , "{ automataList(1) }" )
       </script>
 
     val problemAlphabetNodeSeq = Text("{" + problemAlphabet.mkString(",") + "}")

@@ -12,7 +12,7 @@ function initCanvas() {
       Editor.canvasNfa = new $.SvgCanvas("#svgcanvasnfa", Editor.curConfigNfa, 'nondetaut'); 
   }
   if(!Editor.canvasDfa) {
-      Editor.canvasDfa = new $.SvgCanvas("#svgcanvasdfa", Editor.curConfigDfa, 'detaut'); 
+      Editor.canvasDfa = new $.SvgCanvas("#svgcanvasdfa", Editor.curConfigDfa, 'powaut');
   }
 }
 
