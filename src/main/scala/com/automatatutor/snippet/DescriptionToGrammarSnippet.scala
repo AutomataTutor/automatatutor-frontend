@@ -144,7 +144,7 @@ object DescriptionToGrammarSnippet extends ProblemSnippet {
 
 	  val gradeAndFeedback = GraderConnection.getDescriptionToGrammarFeedback(specificProblem.grammar.is, attemptGrammar, maxGrade.toInt)
 	  
-	  val numericalGrade = gradeAndFeedback._1
+	  var numericalGrade = gradeAndFeedback._1
 	  val generalAttempt = recordSolutionAttempt(numericalGrade, attemptTime)
 	  
 	  // Only save the specific attempt if we saved the general attempt and grammar was parseable
@@ -152,7 +152,9 @@ object DescriptionToGrammarSnippet extends ProblemSnippet {
 		DescriptionToGrammarSolutionAttempt.create.solutionAttemptId(generalAttempt).attemptGrammar(attemptGrammar).save
 	  }
 	  
-	  val setNumericalGrade : JsCmd = SetHtml("grade", Text(gradeAndFeedback._1.toString + "/" + maxGrade.toString))
+	  if (numericalGrade < 0) numericalGrade = 0; //parse error => no pints
+	  
+	  val setNumericalGrade : JsCmd = SetHtml("grade", Text(numericalGrade.toString + "/" + maxGrade.toString))
 	  val setFeedback : JsCmd = SetHtml("feedback", gradeAndFeedback._2)
 	  val showFeedback : JsCmd = JsShowId("feedbackdisplay")
 	  

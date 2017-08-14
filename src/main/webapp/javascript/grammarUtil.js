@@ -10,6 +10,6 @@ function formateGrammar(grammarString) {
 function sanitizeInputForXML(id) {
 	var input = document.getElementById(id);
 	if (input === null) return "";
-	input.value = input.value.replace(/[<>]/g, "");
+	input.value = input.value.replace(/[<>&]/g, "");
 	return input.value;
 }
