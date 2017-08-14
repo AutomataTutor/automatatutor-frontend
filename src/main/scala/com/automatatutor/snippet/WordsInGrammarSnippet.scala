@@ -187,12 +187,12 @@ object WordsInGrammarSnippet extends ProblemSnippet {
 	val outNeededText = Text("" + specificProblem.outNeeded)
 	val wordsInFields = new Array[NodeSeq](specificProblem.getInNeeded)
 	for(i <- 0 to specificProblem.getInNeeded - 1) {
-		wordsInFields(i) = SHtml.text("", value => {}, "id" -> ("wordinfield" + i.toString))
+		wordsInFields(i) = SHtml.text("", value => {}, "id" -> ("wordinfield" + i.toString), "maxlength" -> "75")
 	}
 	val wordsInFieldNodeSeq = <ul>{wordsInFields.map(i => <li>{i}</li>)}</ul>
 	val wordsOutFields = new Array[NodeSeq](specificProblem.getOutNeeded)
 	for(i <- 0 to specificProblem.getOutNeeded - 1) {
-		wordsOutFields(i) = SHtml.text("", value => {}, "id" -> ("wordoutfield" + i.toString))
+		wordsOutFields(i) = SHtml.text("", value => {}, "id" -> ("wordoutfield" + i.toString), "maxlength" -> "75")
 	}
 	val wordsOutFieldNodeSeq = <ul>{wordsOutFields.map(i => <li>{i}</li>)}</ul>
 	
