@@ -269,7 +269,7 @@ object GraderConnection {
 	      "grammar" -> Elem(null, "grammar", Null, TopScope, true, Text(attempt))
 	  );
 	  val responseXml1 = soapConnection.callMethod(namespace, "isCNF", arguments1)
-	  if ((responseXml1 \ "res").head.text == "n") return (0, (responseXml1 \ "feedback"))
+	  if ((responseXml1 \ "res").head.text == "n") return (-1, (responseXml1 \ "feedback"))
 	
 	  val arguments2 = Map[String, Node](
 	      "solution" -> Elem(null, "solution", Null, TopScope, true, Text(solution)),
