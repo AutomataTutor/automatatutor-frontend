@@ -1,9 +1,9 @@
 var Editor = {
   curConfigDfa1: {
-    dimensions: [740,480]
+    dimensions: [360,240]
   },
   curConfigDfa2: {
-    dimensions: [740,480]
+    dimensions: [360,240]
   },
   curConfigDfaSol: {
     dimensions: [740,480]

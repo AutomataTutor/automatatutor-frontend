@@ -18,6 +18,6 @@ function initCanvas() {
 
 $(document).ready(function() {
   initCanvas();
-}); 
+});
 
 

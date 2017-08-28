@@ -451,6 +451,8 @@ $.SvgCanvas = function(container, config, style) {
     var width = config.dimensions[0];
     var height = config.dimensions[1];
 
+
+
     var started = false;
     var locked = false;
 
@@ -1945,9 +1947,9 @@ $.SvgCanvas = function(container, config, style) {
 		// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
 		var node = {
 			id: idNum,
-			left: 0,
-			right: 0,
-			states: [],
+			left: 0,        //for 'prodaut'
+			right: 0,       //for 'prodaut'
+			states: [],     //for 'powaut'
 			initial: false,
 			accepting: false,
 			reflexiveNum: reflNum,
@@ -2206,8 +2208,8 @@ $.SvgCanvas = function(container, config, style) {
 		var stateTags = xmlDoc.getElementsByTagName("stateSet")[0].getElementsByTagName("state");
 		for (i = 0; i < stateTags.length; i++) {
 		    var currState = stateTags[i];
-		    var posX = parseFloat(currState.getElementsByTagName("posX")[0].firstChild.nodeValue);
-		    var posY = parseFloat(currState.getElementsByTagName("posY")[0].firstChild.nodeValue);
+		    var posX = parseFloat(currState.getElementsByTagName("posX")[0].firstChild.nodeValue) * width / 1000;
+		    var posY = parseFloat(currState.getElementsByTagName("posY")[0].firstChild.nodeValue) * height / 1000;
 		    var nodeId = parseInt(currState.getElementsByTagName("label")[0].firstChild.nodeValue);
 		    addNode(posX, posY);
 		    nodes[nodes.length - 1].id = nodeId;
@@ -2330,7 +2332,35 @@ $.SvgCanvas = function(container, config, style) {
 			if(config.node.label === 'priority') {
 				states += "priority='" + nodes[i].priority + "' "
 			}
-			states += "><label>" + nodes[i].id + "</label><posX>" + Math.round(parseFloat(nodes[i].x)) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y)) + "</posY></state>\n";
+			states += "><id>" + nodes[i].id + "</id>";
+			if(config.node.label === 'tuple') {
+			    states += "<label>" + nodes[i].left + "," + nodes[i].right + "</label>"
+			}
+			else if(config.node.label === 'set') {
+			    states += "<label>"
+			    var last = -1
+			    for(var j = 0; j < nodes[i].states.length; j++) {
+			        if(nodes[i].states[j]) {
+			            last = j;
+			        }
+			    }
+			    if(last > -1) {
+			        for(var j = 0; j < last; j++) {
+			            if(nodes[i].states[j]) {
+			                states += j + ","
+			            }
+			        }
+			        if(nodes[i].states[last]) {
+			            states += (last)
+			        }
+			    }
+			    states += "</label>"
+			}
+			else {
+			    states += "<label>" + nodes[i].id + "</label>"
+			}
+
+            states += "<posX>" + Math.round(parseFloat(nodes[i].x) * 1000 / width) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y) * 1000 / height) + "</posY></state>\n";
 
 		}
 		states = states + "	</stateSet>\n";

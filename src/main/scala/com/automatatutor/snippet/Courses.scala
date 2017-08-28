@@ -68,6 +68,32 @@ class Courses {
     return attendedCoursesNodeSeq ++ supervisedCoursesNodeSeq ++ createCourseLink
   }
 
+  def showall2(ignored : NodeSeq) : NodeSeq = {
+
+    val attendedCourses = User.currentUser.map(_.getAttendedCourses) openOr List()
+    val attendedCoursesNodeSeq = if (!attendedCourses.isEmpty) {
+      <h2> Attended Courses </h2> ++ { displayAttendedCourses(attendedCourses) }
+    } else {
+      <h2> Där är inga kurser! </h2> ++ NodeSeq.Empty
+    }
+
+    val supervisedCourses = User.currentUser.map(_.getSupervisedCourses) openOr List()
+    val supervisedCoursesNodeSeq = if (!supervisedCourses.isEmpty) {
+      <h2> Supervised Courses </h2> ++ { displaySupervisedCourses(supervisedCourses) }
+    } else {
+      NodeSeq.Empty
+    }
+
+    val currentUserIsInstructor = User.currentUser.map(_.hasInstructorRole) openOr false
+    val createCourseLink = if(currentUserIsInstructor) {
+      SHtml.link("/courses/create", () => (), Text("Create new Course"))
+    } else {
+      NodeSeq.Empty
+    }
+
+    return attendedCoursesNodeSeq ++ supervisedCoursesNodeSeq ++ createCourseLink
+  }
+
   def renderSolvePracticeSet( practiceSet : ProblemSet ) : NodeSeq = {
     val posedProblems = practiceSet.getPosedProblems
     
@@ -316,7 +342,7 @@ class Courses {
         }
       }
 	  if (startDate == null) {		
-		S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )		
+		S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )
 	  } else { 
       	  
 		  val endDate : Date = try { 
@@ -329,7 +355,7 @@ class Courses {
 		  }
 		  
 		  if (endDate == null) {			
-			S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )			
+			S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )
 		  } else {
 			val posedProblemSet = 
 			   PosedProblemSet.create.setStartDate(startDate).setEndDate(endDate).setProblemSet(problemSet).setUseRandomOrder(inRandomOrder)
@@ -405,8 +431,8 @@ class Courses {
     def renderSolveLink ( problem : PosedProblem ) : NodeSeq = {
     	if(problem.isOpen(user, posedProblemSet)) {
     		return SHtml.link("/courses/solveproblem",
-    	      () => { CourseReqVar(course); 
-				PosedProblemSetReqVar(posedProblemSet); 
+    	      () => { CourseReqVar(course);
+				PosedProblemSetReqVar(posedProblemSet);
 				PosedProblemReqVar(problem) },
     	      Text("solve"))
     	} else {

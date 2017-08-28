@@ -68,7 +68,7 @@ class Boot {
           
       Menu.i("Practice Problem Sets") / "practicesets" / "index" >> loggedInPredicate submenus(
           Menu.i("Solve Practice Set Problem") /"practicesets" / "solve" >> Hidden),
-      
+
       Menu.i("Problems") / "problems" / "index" >> isInstructorPredicate submenus(
           Menu.i("Create Problem") / "problems" / "create" >> Hidden,
           Menu.i("Edit Problem") / "problems" / "edit" >> Hidden),

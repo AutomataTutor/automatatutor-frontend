@@ -143,11 +143,12 @@ object GraderConnection {
 
   // Minimization
 
-  //TODO: Adjust to work for Minimization
-  def getMinimizationFeedback(dfaDescription : String, attemptDfaDescription : String, maxGrade : Int) : (Int, NodeSeq) = {
+  //TODO: Pass Minimization Table to variable 'minimizationTableAttempt'
+  def getMinimizationFeedback(dfaDescription : String, minimizationTableDescription : String, attemptDfaDescription : String, maxGrade : Int) : (Int, NodeSeq) = {
 
     val arguments = Map[String, Node](
       "dfaDesc" -> XML.loadString(dfaDescription),
+			"minimizationTableAttempt" -> XML.loadString(minimizationTableDescription),
       "dfaAttemptDesc" -> XML.loadString(attemptDfaDescription),
       "maxGrade" -> Elem(null, "maxGrade", Null, TopScope, true, Text(maxGrade.toString)),
       "feedbackLevel" -> Elem(null, "feedbackLevel", Null, TopScope, true, Text("Hint")),

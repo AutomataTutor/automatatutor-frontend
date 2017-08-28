@@ -104,7 +104,11 @@ object MinimizationSnippet extends ProblemSnippet {
 
     val minimizationProblem = MinimizationProblem.findByGeneralProblem(generalProblem)
 
-    def grade( attemptDfaDescription : String ) : JsCmd = {
+    def grade(minimizationTableDescription : String /*, attemptDfaDescription : String*/ ) : JsCmd = {
+
+      //Temporary:
+      val attemptDfaDescription = ""
+
       if(remainingAttempts() <= 0) {
         return JsShowId("feedbackdisplay") &
           SetHtml("feedbackdisplay",
@@ -118,7 +122,7 @@ object MinimizationSnippet extends ProblemSnippet {
       val attemptTime = Calendar.getInstance.getTime()
       val x = List(correctDfaDescription, correctDfaDescription)
       //TODO: Implement getMinimizationFeedback()
-      val graderResponse = GraderConnection.getMinimizationFeedback(correctDfaDescription, attemptDfaDescription, maxGrade.toInt)
+      val graderResponse = GraderConnection.getMinimizationFeedback(correctDfaDescription, minimizationTableDescription, attemptDfaDescription, maxGrade.toInt)
 
       val numericalGrade = graderResponse._1
       val generalAttempt = recordSolutionAttempt(numericalGrade, attemptTime)
@@ -137,6 +141,25 @@ object MinimizationSnippet extends ProblemSnippet {
     }
 
     val problemAlphabet = minimizationProblem.getAlphabet
+    val automaton = XML.loadString(minimizationProblem.getAutomaton)
+    val n = ((automaton \ "stateSet") \ "_").length
+    val cyk = new Array[ Array[(Int, Int)] ] (n);
+    for(i <- 0 to n - 1) {
+      cyk(i) = new Array[(Int, Int)] (i+1)
+      for(j <- 0 to i) {
+        cyk(i)(j) = (j, i+1)
+      }
+    }
+    val minimizationTable : NodeSeq = <table style="border-collapse: collapse;">{cyk.map(row =>
+                                                  <tr>{row.map(col =>
+                                                    <td style="border: 1px solid black; padding: 2px;">
+                                                      <span style="white-space: nowrap;">{
+                                                        SHtml.text("", value => {}, "class" -> "", "start" -> col._1.toString(), "end" -> col._2.toString(), "size" -> "5")
+                                                        }{
+                                                        Text("(" + col._1.toString() + "," + col._2.toString() + ")") }
+                                                      </span>
+                                                    </td>)}
+                                                  </tr>)} </table>
 
     val alphabetJavaScriptArray = "[\"" + problemAlphabet.mkString("\",\"") + "\"]"
     val setupScript : NodeSeq =
@@ -149,12 +172,13 @@ object MinimizationSnippet extends ProblemSnippet {
     val problemDescriptionNodeSeq = Text(generalProblem.getLongDescription)
 
     val hideSubmitButton : JsCmd = JsHideId("submitbutton")
-    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("Editor.canvasSol.exportAutomaton()"), grade(_))
+    val ajaxCall : JsCmd = SHtml.ajaxCall(JsRaw("buildCYKTableXML()"), grade(_))
     val submitButton : NodeSeq = <button type='button' id='submitbutton' onclick={hideSubmitButton & ajaxCall}>Submit</button>
     val returnLink : NodeSeq = SHtml.link("/courses/show", returnFunc, Text("Return to Course"))
 
     val template : NodeSeq = Templates(List("minimization", "solve")) openOr Text("Template /minimization/solve not found")
     return SHtml.ajaxForm(Helpers.bind("dfaeditform", template,
+      "minimizationtable" -> minimizationTable,
       "setupscript" -> setupScript,
       "alphabettext" -> problemAlphabetNodeSeq,
       "problemdescription" -> problemDescriptionNodeSeq,
