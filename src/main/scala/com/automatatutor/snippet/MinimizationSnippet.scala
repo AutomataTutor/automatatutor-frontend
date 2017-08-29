@@ -107,7 +107,7 @@ object MinimizationSnippet extends ProblemSnippet {
     def grade(minimizationTableDescription : String /*, attemptDfaDescription : String*/ ) : JsCmd = {
 
       //Temporary:
-      val attemptDfaDescription = ""
+      val attemptDfaDescription = minimizationProblem.getXmlDescription.toString
 
       if(remainingAttempts() <= 0) {
         return JsShowId("feedbackdisplay") &
@@ -117,10 +117,8 @@ object MinimizationSnippet extends ProblemSnippet {
               maxGrade.toString + "."))
       }
 
-      val attemptDfaXml = XML.loadString(attemptDfaDescription)
       val correctDfaDescription = minimizationProblem.getXmlDescription.toString
       val attemptTime = Calendar.getInstance.getTime()
-      val x = List(correctDfaDescription, correctDfaDescription)
       //TODO: Implement getMinimizationFeedback()
       val graderResponse = GraderConnection.getMinimizationFeedback(correctDfaDescription, minimizationTableDescription, attemptDfaDescription, maxGrade.toInt)
 
@@ -142,7 +140,7 @@ object MinimizationSnippet extends ProblemSnippet {
 
     val problemAlphabet = minimizationProblem.getAlphabet
     val automaton = XML.loadString(minimizationProblem.getAutomaton)
-    val n = ((automaton \ "stateSet") \ "_").length
+    val n = ((automaton \ "stateSet") \ "_").length - 1
     val cyk = new Array[ Array[(Int, Int)] ] (n);
     for(i <- 0 to n - 1) {
       cyk(i) = new Array[(Int, Int)] (i+1)
@@ -154,7 +152,7 @@ object MinimizationSnippet extends ProblemSnippet {
                                                   <tr>{row.map(col =>
                                                     <td style="border: 1px solid black; padding: 2px;">
                                                       <span style="white-space: nowrap;">{
-                                                        SHtml.text("", value => {}, "class" -> "", "start" -> col._1.toString(), "end" -> col._2.toString(), "size" -> "5")
+                                                        SHtml.text("", value => {}, "class" -> "cyk", "stateCount" -> (n + 1).toString(), "start" -> col._1.toString(), "end" -> col._2.toString(), "size" -> "5")
                                                         }{
                                                         Text("(" + col._1.toString() + "," + col._2.toString() + ")") }
                                                       </span>
@@ -166,6 +164,7 @@ object MinimizationSnippet extends ProblemSnippet {
       <script type="text/javascript">
         Editor.canvasDfaIn.setAutomaton( "{ minimizationProblem.getAutomaton }" )
         Editor.canvasDfaSol.setAlphabet( { alphabetJavaScriptArray } )
+        Editor.canvasDfaSol.setNumberOfStates( "{ minimizationProblem.getAutomaton }", "{ minimizationProblem.getAutomaton }" );
       </script>
 
     val problemAlphabetNodeSeq = Text("{" + problemAlphabet.mkString(",") + "}")

@@ -1,13 +1,17 @@
 <div>
 	<script type="text/javascript">
 		function buildCYKTableXML() {
-			var res = '<cyk>';
+			var res = '<minTable>';
 			var inputs = document.getElementsByClassName('cyk');
+			res += '<stateCount>' + inputs[0].getAttribute("stateCount") + '</stateCount>';
+			res += '<entries>';
 			for (var i = 0; i < inputs.length; ++i) {
-				inputs[i].value = inputs[i].value.replace(/[^A-Z\s]/g, "");
-				res += '<cell start="' + inputs[i].getAttribute("start") + '" end="' + inputs[i].getAttribute("end") + '">' + inputs[i].value + '</cell>';
+				//inputs[i].value = inputs[i].value.replace(/[^A-Z\s]/g, "");
+				res += '<entry><i>' + inputs[i].getAttribute("start") + '</i><j>' + inputs[i].getAttribute("end") + '</j><word>' + inputs[i].value + '</word></entry>';
+				//res += '<cell start="' + inputs[i].getAttribute("start") + '" end="' + inputs[i].getAttribute("end") + '">' + inputs[i].value + '</cell>';
 			}
-			res += '</cyk>';
+			res += '</entries>';
+			res += '</minTable>';
 			return res;
 		}
 	</script>
