@@ -1,12 +1,12 @@
 <div>
-	<h2> Edit a Words in Grammar Problem </h2>
+	<h2> Edit a Words in Grammar problem </h2>
 
 	<h4> Grammar Syntax </h4>
 	<ul style='font-family: "Lucida Console", Monaco, monospace'>
 		<li>e.g. S -> X Y | TEIL1 a TEIL2 | S S |  | a </li>
 		<li>1 line per production</li>
 		<li>first variable is start variable</li>
-		<li>possible terminals: lower case characters a-z or '('  ')'  '['  ']' </li>
+		<li>possible terminals: abcdefghijklmnopqrstuvwxyz()[]{} </li>
 		<li>possible variables: 1 or more upper case characters A-Z or numbers 0-9 (!can't start with number!) </li>
 		<li>empty word: a blank right side (e.g. "S -> " or "S -> a | ")</li>
 	</ul>
@@ -16,11 +16,11 @@
 	<lift:Identity form="POST">
 	<table>
 		<tr>
-			<td> Number of Words IN Grammar: </td>
+			<td> Number of words IN grammar: </td>
 			<td> <editform:inneededfield> </editform:inneededfield> </td>
 		</tr> 
 		<tr>
-			<td> Number of Words NOT IN Grammar: </td>
+			<td> Number of words NOT IN grammar: </td>
 			<td> <editform:outneededfield> </editform:outneededfield> </td>
 		</tr> 
 		<tr>
