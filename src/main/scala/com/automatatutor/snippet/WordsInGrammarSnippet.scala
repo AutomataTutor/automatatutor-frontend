@@ -183,8 +183,10 @@ object WordsInGrammarSnippet extends ProblemSnippet {
 	
     val problemDescription = generalProblem.getLongDescription
 	val grammarText = { specificProblem.getGrammar.replaceAll("->", " -> ").replaceAll("=>", " -> ").replaceAll("\\|", " \\| ").replaceAll("\\s{2,}", " ").split("\\s(?=\\S+\\s*->)").map {Text(_) ++ <br/> } reduceLeft (_ ++ _) }
-	val inNeededText = Text("" + specificProblem.inNeeded)
-	val outNeededText = Text("" + specificProblem.outNeeded)
+	var inNeededText = Text(specificProblem.inNeeded + " words")
+	if (specificProblem.inNeeded == 1) inNeededText = Text(specificProblem.inNeeded + " word")
+	var outNeededText = Text(specificProblem.outNeeded + " words")
+	if (specificProblem.outNeeded == 1) outNeededText = Text(specificProblem.outNeeded + " word")
 	val wordsInFields = new Array[NodeSeq](specificProblem.getInNeeded)
 	for(i <- 0 to specificProblem.getInNeeded - 1) {
 		wordsInFields(i) = SHtml.text("", value => {}, "id" -> ("wordinfield" + i.toString), "maxlength" -> "75")
