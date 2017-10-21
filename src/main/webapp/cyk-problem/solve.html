@@ -3,11 +3,17 @@
 		function buildCYKTableXML() {
 			var res = '<cyk>'; 
 			var inputs = document.getElementsByClassName('cyk');
+			var changedSomething = false;
 			for (var i = 0; i < inputs.length; ++i) {
+				var before = inputs[i].value;
 				inputs[i].value = inputs[i].value.replace(/[^A-Z\s]/g, "");
+				if (inputs[i].value !== before) changedSomething = true;
 				res += '<cell start="' + inputs[i].getAttribute("start") + '" end="' + inputs[i].getAttribute("end") + '">' + inputs[i].value + '</cell>';
 			}
 			res += '</cyk>';
+			
+			if (changedSomething) alert("Please make sure to only use nonterminals (devided by shitespaces) in the table!");
+			
 			return res;
 		}
 	</script>
