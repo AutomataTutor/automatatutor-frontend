@@ -296,3 +296,7 @@ At the time of writing (Dec 11, 2014), Lift libraries do exist for Scala 2.11,
 but they have not been formally released. They only exist in the form of
 milestones and/or release candidates. Thus, we opted for the official release
 which only works with scala 2.10 instead of 2.11.
+
+
+# Follow up work
+Automatic problem generation http://automaticquestion.azurewebsites.net/
