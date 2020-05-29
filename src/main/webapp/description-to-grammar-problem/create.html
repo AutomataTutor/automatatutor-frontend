@@ -1,0 +1,43 @@
+<div>
+	<h2> Create a new Description to Grammar problem </h2>
+
+	<h4> Grammar Syntax </h4>
+	<ul style='font-family: "Lucida Console", Monaco, monospace'>
+		<li>e.g. S -> X Y | TEIL1 a TEIL2 | S S |  | a </li>
+		<li>1 line per production</li>
+		<li>split consecutive variables with a whitespace (e.g. S -> A B C)</li>
+		<li>first variable is start variable</li>
+		<li>possible terminals: abcdefghijklmnopqrstuvwxyz()[]{} </li>
+		<li>possible variables: 1 or more upper case characters A-Z or numbers 0-9 (!can't start with number!) </li>
+		<li>empty word: a blank right side (e.g. "S -> " or "S -> a | ")</li>
+	</ul>
+
+	<h4> Problem Definition </h4>
+
+	<lift:Identity form="POST">
+	<table>
+		<tr>
+			<td> Grammar: </td>
+			<td> <createform:grammarfield> </createform:grammarfield> </td>
+		</tr> 
+		<tr>
+			<td> Short Description: </td>
+			<td> <createform:shortdescription> </createform:shortdescription> </td>
+		</tr>
+		<tr> 
+			<td> Long Description <br />(Will be display after "Find a grammar that recognizes the following language: ..."): </td>
+			<td> <createform:longdescription> </createform:longdescription> </td>
+		</tr>
+		<tr> 
+			<td> </td>
+			<td> <createform:submit> </createform:submit> </td>
+		</tr>
+	</lift:Identity>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Parsing Error: </h3>
+		<ul>
+			<div id="parsingerror"/>
+		</ul>
+	</div>
+</div> 

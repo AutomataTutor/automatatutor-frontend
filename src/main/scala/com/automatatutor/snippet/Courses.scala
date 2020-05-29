@@ -87,6 +87,7 @@ class Courses {
   def displaySupervisedCourses(courses : Seq[Course]) : NodeSeq = {
     return TableHelper.renderTableWithHeader(courses, 
         ("Course Name", (course : Course) => Text(course.getName)),
+		("Password", (course : Course) => Text(course.getPassword)),
         ("Contact", (course : Course) => new CourseRenderer(course).renderContactLink),
         ("", (course : Course) => new CourseRenderer(course).renderManageLink),
         ("", (course : Course) => new CourseRenderer(course).renderDeleteLink))
@@ -315,7 +316,7 @@ class Courses {
         }
       }
 	  if (startDate == null) {		
-		S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )		
+		S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )
 	  } else { 
       	  
 		  val endDate : Date = try { 
@@ -328,7 +329,7 @@ class Courses {
 		  }
 		  
 		  if (endDate == null) {			
-			S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )			
+			S.redirectTo("/courses/poseproblemset", () => { CourseReqVar(course); ProblemSetReqVar(problemSet) } )
 		  } else {
 			val posedProblemSet = 
 			   PosedProblemSet.create.setStartDate(startDate).setEndDate(endDate).setProblemSet(problemSet).setUseRandomOrder(inRandomOrder)
@@ -404,8 +405,8 @@ class Courses {
     def renderSolveLink ( problem : PosedProblem ) : NodeSeq = {
     	if(problem.isOpen(user, posedProblemSet)) {
     		return SHtml.link("/courses/solveproblem",
-    	      () => { CourseReqVar(course); 
-				PosedProblemSetReqVar(posedProblemSet); 
+    	      () => { CourseReqVar(course);
+				PosedProblemSetReqVar(posedProblemSet);
 				PosedProblemReqVar(problem) },
     	      Text("solve"))
     	} else {
@@ -461,7 +462,7 @@ class Courses {
     val problem : Problem = posedProblem.getProblem
     val snippet = problem.getProblemType.getProblemSnippet
     return snippet.renderSolve(posedProblem.getProblem, posedProblem.getMaxGrade, Empty,
-        (grade, date) => SolutionAttempt, () => S.redirectTo("/courses/index"), () => 1, () => 0)
+        (grade, date) => SolutionAttempt, () => S.redirectTo("/practicesets/index"), () => 1, () => 0)
   }
   
   def renderenrollmentform ( xhtml : NodeSeq ) : NodeSeq = {

@@ -40,10 +40,16 @@ class Boot {
 	Schemifier.schemify(true, Schemifier.infoF _, 
 	    User, Attendance, Course, PosedProblem, PosedProblemSet, Problem, ProblemType, 
 	    DFAConstructionProblem, DFAConstructionSolutionAttempt,
+      ProductConstructionProblem, ProductConstructionSolutionAttempt,
+      MinimizationProblem, MinimizationSolutionAttempt,
       NFAConstructionProblem, NFAConstructionSolutionAttempt, 
 	    NFAToDFAProblem, NFAToDFASolutionAttempt, 
       RegExConstructionProblem, RegexConstructionSolutionAttempt,
       PumpingLemmaProblem, PumpingLemmaSolutionAttempt,
+	  WordsInGrammarProblem, WordsInGrammarSolutionAttempt,
+	  GrammarToCNFProblem, GrammarToCNFSolutionAttempt,
+	  DescriptionToGrammarProblem, DescriptionToGrammarSolutionAttempt,
+	  CYKProblem, CYKSolutionAttempt,
 	    ProblemSet, Role, SolutionAttempt, Supervision)
 	
   StartupHooks.hooks map (hook => hook())
@@ -62,7 +68,7 @@ class Boot {
           
       Menu.i("Practice Problem Sets") / "practicesets" / "index" >> loggedInPredicate submenus(
           Menu.i("Solve Practice Set Problem") /"practicesets" / "solve" >> Hidden),
-      
+
       Menu.i("Problems") / "problems" / "index" >> isInstructorPredicate submenus(
           Menu.i("Create Problem") / "problems" / "create" >> Hidden,
           Menu.i("Edit Problem") / "problems" / "edit" >> Hidden),

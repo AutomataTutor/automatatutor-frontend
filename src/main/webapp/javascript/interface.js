@@ -45,6 +45,35 @@ $.SvgCanvas = function(container, config, style) {
 			acceptanceMarker: 'css'
 		},
 
+        //Product automaton: States are labelled as tuples of states of the original automata
+        'prodaut': {
+            node: {
+                label: 'tuple'
+            },
+            transition: {
+                labeled: true,
+                deterministic: true
+            },
+            hasInitialNode: true,
+            twoPlayers: false,
+            acceptanceMarker: 'css'
+        },
+
+        //Powerset automaton: State are labelled as sets of states of the original automaton
+        'powaut': {
+            node: {
+                label: 'set',
+                radius: 25
+            },
+            transition: {
+                labeled: true,
+                deterministic: true
+            },
+            hasInitialNode: true,
+            twoPlayers: false,
+            acceptanceMarker: 'css'
+        },
+
 		'nondetaut': {
 			node: {
 				label: 'id'
@@ -111,7 +140,7 @@ $.SvgCanvas = function(container, config, style) {
 
 	$.extend(true, config, globalConfig, styleConfig[style])
 
-	function useHoverMenu() { return config.transition.labeled === false || config.transition.deterministic === false }
+	function useHoverMenu() { return config.transition.labeled === false || config.transition.deterministic === false || config.node.label === 'tuple' || config.node.label === 'set' }
 
 	/// Returns true iff the hover menu around node d should be displayed
 	function isHoverMenuVisible(d) { return (d.menu_visible && !newLink && !draggingLink && !draggingNode && showMenu)}
@@ -194,6 +223,128 @@ $.SvgCanvas = function(container, config, style) {
 			    .on('mousedown', onLabelMousedown)
 			    .on('mouseout', onLabelMouseout);
 	    }
+	}
+
+    //TODO:
+	function populateHoverMenusWithNumbersBothSides(menus) {
+        var symbolsToDistributeLeft = numberOfNodesOfAutomaton1
+        var symbolsToDistributeRight = numberOfNodesOfAutomaton2
+
+        	function calculateXCoordinateLeft(index) {
+        		var angle = 3*Math.PI/2 - (Math.PI/2 - symbolsToDistributeLeft*config.hoverMenu.step/2) - (index + .5) * config.hoverMenu.step;
+        		return polarToPlanar(config.node.radius + 10, angle).x;
+        	}
+        	function calculateYCoordinateLeft(index) {
+               	var angle = 3*Math.PI/2 - (Math.PI/2 - symbolsToDistributeLeft*config.hoverMenu.step/2) - (index + .5) * config.hoverMenu.step;
+                return polarToPlanar(config.node.radius + 10, angle).y + 5;
+            }
+
+        	function calculateXCoordinateRight(index) {
+                var angle = 3*Math.PI/2 + (Math.PI/2 - symbolsToDistributeRight*config.hoverMenu.step/2) + (index + .5) * config.hoverMenu.step;
+                return polarToPlanar(config.node.radius + 10, angle).x;
+            }
+            function calculateYCoordinateRight(index) {
+                var angle = 3*Math.PI/2 + (Math.PI/2 - symbolsToDistributeRight*config.hoverMenu.step/2) + (index + .5) * config.hoverMenu.step;
+                return polarToPlanar(config.node.radius + 10, angle).y + 5;
+            }
+
+        	function onLabelMouseover(node) {
+        		node.menu_visible = true;
+        		showMenu = true;
+        		restart();
+        	}
+
+        	function onLabelMousedown(node) {
+        	   	node.menu_visible = false;
+        		showMenu = false;
+        		newLink = true;
+        		mousedown_node = node;
+
+                if(this.getAttribute('pos') === 'left')
+        		    mousedown_node.left = this.textContent;
+        		else
+        		    mousedown_node.right = this.textContent;
+
+        		restart();
+        	}
+
+        	function onLabelMouseout(nodeData) { showMenu = false }
+
+        	for(var i = 0; i < symbolsToDistributeLeft; i++){
+        		menus.append('svg:text')
+        		    .attr('class', 'hoverMenu visible')
+        		    .classed('visible', isHoverMenuVisible)
+        		    .text(i)
+        		    .attr('pos', 'left')
+        		    .attr('x', calculateXCoordinateLeft(i))
+        		    .attr('y', calculateYCoordinateLeft(i))
+        		    .on('mouseover', onLabelMouseover)
+        		    .on('mousedown', onLabelMousedown)
+        		    .on('mouseout', onLabelMouseout);
+        	}
+
+        	for(var i = 0; i < symbolsToDistributeRight; i++){
+                menus.append('svg:text')
+                    .attr('class', 'hoverMenu visible')
+                    .classed('visible', isHoverMenuVisible)
+                    .text(i)
+                    .attr('pos', 'right')
+                    .attr('x', calculateXCoordinateRight(i))
+                    .attr('y', calculateYCoordinateRight(i))
+                    .on('mouseover', onLabelMouseover)
+                    .on('mousedown', onLabelMousedown)
+                    .on('mouseout', onLabelMouseout);
+            }
+	}
+
+	function populateHoverMenusWithNumbers(menus) {
+
+        var symbolsToDistribute = numberOfNodesOfAutomaton1
+
+        function calculateXCoordinate(index) {
+            var angle = 3*Math.PI/2 - (symbolsToDistribute-1)/2 * config.hoverMenu.step + index * config.hoverMenu.step;
+            return polarToPlanar(config.node.radius + 10, angle).x;
+        }
+        function calculateYCoordinate(index) {
+            var angle = 3*Math.PI/2 - (symbolsToDistribute-1)/2 * config.hoverMenu.step + index * config.hoverMenu.step;
+            return polarToPlanar(config.node.radius + 10, angle).y + 5;
+        }
+
+        function onLabelMouseover(node){
+            node.menu_visible = true
+            showMenu = true
+            restart();
+        }
+        function onLabelMousedown(node){
+            node.menu_visible = false;
+            showMenu = false;
+        	newLink = true;
+        	mousedown_node = node;
+
+            if(mousedown_node.states.length === 0){
+                for(var i = 0; i < symbolsToDistribute; i++){
+                    mousedown_node.states.push(false);
+                }
+            }
+
+        	mousedown_node.states[this.getAttribute('index')] = !mousedown_node.states[this.getAttribute('index')];
+        }
+        function onLabelMouseout(nodeData){
+            showMenu = false
+        }
+
+        for(var i = 0; i < symbolsToDistribute; i++){
+            menus.append('svg:text')
+                .attr('class', 'hoverMenu visible')
+                .classed('visible', isHoverMenuVisible)
+                .text(i)
+                .attr('index', i)
+                .attr('x', calculateXCoordinate(i))
+                .attr('y', calculateYCoordinate(i))
+                .on('mouseover', onLabelMouseover)
+                .on('mousedown', onLabelMousedown)
+                .on('mouseout', onLabelMouseout);
+        }
 	}
 
 	function populateHoverMenusWithUnlabeled(menus) {
@@ -300,6 +451,8 @@ $.SvgCanvas = function(container, config, style) {
     var width = config.dimensions[0];
     var height = config.dimensions[1];
 
+
+
     var started = false;
     var locked = false;
 
@@ -315,6 +468,10 @@ $.SvgCanvas = function(container, config, style) {
 	alphabet = [];
 
 	var solveMode = false
+
+    //for product construction
+    var numberOfNodesOfAutomaton1 = 4,
+    numberOfNodesOfAutomaton2 = 4;
 
     // init D3 force layout
     var force;
@@ -785,6 +942,21 @@ $.SvgCanvas = function(container, config, style) {
 		case 'id':
 			circle.selectAll('text').text(function (d) { return d.id })
 			break
+	    case 'tuple':
+		    circle.selectAll('text').text(function (d) {return d.left + ',' + d.right })
+		    break
+		case 'set':
+		    circle.selectAll('text').text(
+		        function (d) {
+		            var s = ''
+		            for(var i = 0; i < d.states.length; i++){
+		                if(d.states[i]){
+		                    s += i + ',';
+		                }
+		            }
+		            return s.slice(0, -1)
+		        })
+		    break
 		case 'priority':
 			circle.selectAll('text').text(function (d) { return d.priority })
 			break
@@ -952,6 +1124,7 @@ $.SvgCanvas = function(container, config, style) {
 		restart();
 	}
 
+    //rim of regular node
 	g.append('svg:circle')
 	    .attr('class', 'node')
 	    .attr('id', 'main')
@@ -1018,6 +1191,21 @@ $.SvgCanvas = function(container, config, style) {
 		case 'id':
 			newLabels.text(function (d) { return d.id });
 			break
+		case 'tuple':
+		    newLabels.text(function (d) { return d.left + ',' + d.right });
+			break
+	    case 'set':
+            circle.selectAll('text').text(
+        		function (d) {
+        		    var s = ''
+        		    for(var i = 0; i < d.states.length; i++){
+        		        if(d.states[i]){
+        		            s += i + ',';
+        		        }
+        		    }
+        		    return s.slice(0, -1)
+        		})
+        	break
 		case 'priority':
 			newLabels.text(function (d) { return d.priority });
 			break
@@ -1057,8 +1245,12 @@ $.SvgCanvas = function(container, config, style) {
 	    hoverMenu.selectAll('text').classed('visible', isHoverMenuVisible);
 	    // Hide the prototype transition if the hover menu is not active
 	    hoverMenu.selectAll('path').classed('visible', isHoverMenuVisible);
-	    
-	    if(config.transition.labeled) {
+
+	    if(config.node.label === 'tuple'){
+	        populateHoverMenusWithNumbersBothSides(menus)
+	    } else if(config.node.label === 'set'){
+	        populateHoverMenusWithNumbers(menus)
+	    } else if(config.transition.labeled) {
 	    	populateHoverMenusWithAlphabet(menus)
 		} else {
 			populateHoverMenusWithUnlabeled(menus)
@@ -1755,6 +1947,9 @@ $.SvgCanvas = function(container, config, style) {
 		// Just push the info about the new node to nodes. Canvas will be updated at the next restart()
 		var node = {
 			id: idNum,
+			left: 0,        //for 'prodaut'
+			right: 0,       //for 'prodaut'
+			states: [],     //for 'powaut'
 			initial: false,
 			accepting: false,
 			reflexiveNum: reflNum,
@@ -2013,8 +2208,8 @@ $.SvgCanvas = function(container, config, style) {
 		var stateTags = xmlDoc.getElementsByTagName("stateSet")[0].getElementsByTagName("state");
 		for (i = 0; i < stateTags.length; i++) {
 		    var currState = stateTags[i];
-		    var posX = parseFloat(currState.getElementsByTagName("posX")[0].firstChild.nodeValue);
-		    var posY = parseFloat(currState.getElementsByTagName("posY")[0].firstChild.nodeValue);
+		    var posX = parseFloat(currState.getElementsByTagName("posX")[0].firstChild.nodeValue) * width / 1000;
+		    var posY = parseFloat(currState.getElementsByTagName("posY")[0].firstChild.nodeValue) * height / 1000;
 		    var nodeId = parseInt(currState.getElementsByTagName("label")[0].firstChild.nodeValue);
 		    addNode(posX, posY);
 		    nodes[nodes.length - 1].id = nodeId;
@@ -2137,7 +2332,35 @@ $.SvgCanvas = function(container, config, style) {
 			if(config.node.label === 'priority') {
 				states += "priority='" + nodes[i].priority + "' "
 			}
-			states += "><label>" + nodes[i].id + "</label><posX>" + Math.round(parseFloat(nodes[i].x)) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y)) + "</posY></state>\n";
+			states += "><id>" + nodes[i].id + "</id>";
+			if(config.node.label === 'tuple') {
+			    states += "<label>" + nodes[i].left + "," + nodes[i].right + "</label>"
+			}
+			else if(config.node.label === 'set') {
+			    states += "<label>"
+			    var last = -1
+			    for(var j = 0; j < nodes[i].states.length; j++) {
+			        if(nodes[i].states[j]) {
+			            last = j;
+			        }
+			    }
+			    if(last > -1) {
+			        for(var j = 0; j < last; j++) {
+			            if(nodes[i].states[j]) {
+			                states += j + ","
+			            }
+			        }
+			        if(nodes[i].states[last]) {
+			            states += (last)
+			        }
+			    }
+			    states += "</label>"
+			}
+			else {
+			    states += "<label>" + nodes[i].id + "</label>"
+			}
+
+            states += "<posX>" + Math.round(parseFloat(nodes[i].x) * 1000 / width) + "</posX><posY>" + Math.round(parseFloat(nodes[i].y) * 1000 / height) + "</posY></state>\n";
 
 		}
 		states = states + "	</stateSet>\n";
@@ -2218,6 +2441,25 @@ $.SvgCanvas = function(container, config, style) {
      	}
 
      	this.initialize();
+     }
+
+     /**
+      * Sets the number of states of the automata to construct product from
+      *
+      */
+     this.setNumberOfStates = function(xml1, xml2) {
+
+        var xml1Doc = Utils.text2xml(xml1);
+        var xml2Doc = Utils.text2xml(xml2);
+        var stateTags1 = xml1Doc.getElementsByTagName("stateSet")[0].getElementsByTagName("state");
+        var stateTags2 = xml2Doc.getElementsByTagName("stateSet")[0].getElementsByTagName("state");
+
+        numberOfNodesOfAutomaton1 = stateTags1.length
+        numberOfNodesOfAutomaton2 = stateTags2.length
+
+        this.initialize();
+        this.restart();
+
      }
 
     /**

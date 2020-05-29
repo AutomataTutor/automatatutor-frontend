@@ -1,0 +1,91 @@
+<div>
+	<script type="text/javascript">
+		function buildCYKTableXML() {
+			var res = '<minTable>';
+			var inputs = document.getElementsByClassName('cyk');
+			res += '<stateCount>' + inputs[0].getAttribute("stateCount") + '</stateCount>';
+			res += '<entries>';
+			for (var i = 0; i < inputs.length; ++i) {
+				//inputs[i].value = inputs[i].value.replace(/[^A-Z\s]/g, "");
+				res += '<entry><i>' + inputs[i].getAttribute("start") + '</i><j>' + inputs[i].getAttribute("end") + '</j><word>' + inputs[i].value + '</word></entry>';
+				//res += '<cell start="' + inputs[i].getAttribute("start") + '" end="' + inputs[i].getAttribute("end") + '">' + inputs[i].value + '</cell>';
+			}
+			res += '</entries>';
+			res += '</minTable>';
+			return res;
+		}
+	</script>
+
+	<h3> Solve minimization problem </h3>
+	<div class="probdesc">
+	Construct an automaton that recognizes the following language of strings over the alphabet 
+	<dfaeditform:alphabettext> </dfaeditform:alphabettext>:</br> 
+	<dfaeditform:problemdescription> </dfaeditform:problemdescription> 
+	</div>
+	</br>
+
+	<lift:embed what="/minimization/applet-solve"> </lift:embed><!-- Actually not so necessary any more, is it? -->
+
+	<div>
+		<head>
+			<link rel="stylesheet" href="/stylesheets/proto2.css" type="text/css"/>
+			<link rel="stylesheet" href="/stylesheets/interface.css" type="text/css"/>
+
+			<script type="text/javascript" src="/javascript/lib/d3.min.js"></script>
+			<script type="text/javascript" src="/javascript/lib/jquery-2.1.1.min.js"></script>
+			<script type="text/javascript" src="/javascript/lib/jquery.contextmenu.js"></script>
+			<script type="text/javascript" src="/javascript/lib/browser.js"></script>
+			<script type="text/javascript" src="/javascript/lib/contextmenu.js"></script>
+
+			<script type="text/javascript" src="/javascript/includeMinimizationSolve.js"></script>
+			<script type="text/javascript" src="/javascript/interface.js"></script>
+		</head>
+
+		<div id="automata_tutor">
+
+			<div id="workarea">
+				<div id="svgcanvasdfain"></div>
+				<form class="lift:form">
+					<dfaeditform:minimizationtable></dfaeditform:minimizationtable>
+				</form><br />
+				<!--<lift:MinimizationTable.showall></lift:MinimizationTable.showall>-->
+				<!--<lift:Courses.showAll></lift:Courses.showAll>-->
+				<div id="svgcanvasdfasol"></div>
+			</div>
+
+		</div>
+		<ul id="cmenu_canvas" class="contextMenu">
+			<li class="contextMenuLi"><a href="#add">Add State</a></li>
+			<li class="contextMenuLi"><a href="#remove">Remove State</a></li>
+			<li class="contextMenuLi"><a href="#final">Make Final</a></li>
+			<li class="contextMenuLi"><a href="#non-final">Make Non-final</a></li>
+			<li class="contextMenuLi"><a href="#init">Make Initial</a></li>
+			<li class="contextMenuLi"><a href="#flip">Flip Loop</a></li>
+		</ul>
+
+		<script type='text/javascript'>
+	    initCanvas();
+	    Editor.canvasDfaIn.setAlphabet([]);
+	    Editor.canvasDfaSol.setAlphabet([]);
+	    Editor.canvasDfaIn.lockCanvas();
+    </script>
+	</div>
+
+	<form class="lift:form">
+		<dfaeditform:setupscript> </dfaeditform:setupscript>
+		<dfaeditform:lastattemptscript> </dfaeditform:lastattemptscript>
+		<dfaeditform:automatondescriptionfield> </dfaeditform:automatondescriptionfield>
+		
+		<dfaeditform:submitbutton> </dfaeditform:submitbutton>
+		<dfaeditform:returnlink> </dfaeditform:returnlink>
+	</form>
+
+	<div id="feedbackdisplay" style="display:none" class="gradefeed">
+		<h3> Grade: <span id="grade" /> </h3>
+		<h3> Feedback: </h3>
+		<ul>
+			<div id="feedback"/>
+		</ul>
+	</div>
+
+</div> 

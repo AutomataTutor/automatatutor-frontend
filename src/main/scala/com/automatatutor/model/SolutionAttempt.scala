@@ -22,6 +22,7 @@ object SolutionAttempt extends SolutionAttempt with LongKeyedMetaMapper[Solution
 	}
 }
 
+//DFA Construction
 class DFAConstructionSolutionAttempt extends LongKeyedMapper[DFAConstructionSolutionAttempt] with IdPK {
 	def getSingleton = DFAConstructionSolutionAttempt
 
@@ -31,10 +32,39 @@ class DFAConstructionSolutionAttempt extends LongKeyedMapper[DFAConstructionSolu
 
 object DFAConstructionSolutionAttempt extends DFAConstructionSolutionAttempt with LongKeyedMetaMapper[DFAConstructionSolutionAttempt] {
 	def getByGeneralAttempt ( generalAttempt : SolutionAttempt ) : DFAConstructionSolutionAttempt = {
-	  return this.find(By(DFAConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a DFA construction attempt"
+		return this.find(By(DFAConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a DFA construction attempt"
 	}
 }
 
+//Product Construction
+class ProductConstructionSolutionAttempt extends LongKeyedMapper[ProductConstructionSolutionAttempt] with IdPK {
+	def getSingleton = ProductConstructionSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptAutomaton extends MappedText(this)
+}
+
+object ProductConstructionSolutionAttempt extends ProductConstructionSolutionAttempt with LongKeyedMetaMapper[ProductConstructionSolutionAttempt] {
+	def getByGeneralAttempt ( generalAttempt : SolutionAttempt ) : ProductConstructionSolutionAttempt = {
+		return this.find(By(ProductConstructionSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a product construction attempt"
+	}
+}
+
+//Minimization
+class MinimizationSolutionAttempt extends LongKeyedMapper[MinimizationSolutionAttempt] with IdPK {
+	def getSingleton = MinimizationSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptAutomaton extends MappedText(this)
+}
+
+object MinimizationSolutionAttempt extends MinimizationSolutionAttempt with LongKeyedMetaMapper[MinimizationSolutionAttempt] {
+	def getByGeneralAttempt ( generalAttempt : SolutionAttempt ) : MinimizationSolutionAttempt = {
+		return this.find(By(MinimizationSolutionAttempt.solutionAttemptId, generalAttempt)) openOrThrowException "Must only be called if we are sure that the general attempt also has a minimization attempt"
+	}
+}
+
+//NFA Construction
 class NFAConstructionSolutionAttempt extends LongKeyedMapper[NFAConstructionSolutionAttempt] with IdPK {
 	def getSingleton = NFAConstructionSolutionAttempt
 
@@ -46,6 +76,7 @@ object NFAConstructionSolutionAttempt extends NFAConstructionSolutionAttempt wit
 
 }
 
+//NFA to DFA
 class NFAToDFASolutionAttempt extends LongKeyedMapper[NFAToDFASolutionAttempt] with IdPK {
 	def getSingleton = NFAToDFASolutionAttempt
 
@@ -57,6 +88,7 @@ object NFAToDFASolutionAttempt extends NFAToDFASolutionAttempt with LongKeyedMet
 
 }
 
+//Regex Construction
 class RegexConstructionSolutionAttempt extends LongKeyedMapper[RegexConstructionSolutionAttempt] with IdPK {
 	def getSingleton = RegexConstructionSolutionAttempt
 
@@ -65,6 +97,52 @@ class RegexConstructionSolutionAttempt extends LongKeyedMapper[RegexConstruction
 }
 
 object RegexConstructionSolutionAttempt extends RegexConstructionSolutionAttempt with LongKeyedMetaMapper[RegexConstructionSolutionAttempt] {
+
+}
+
+//Pumping Lemma
+class WordsInGrammarSolutionAttempt extends LongKeyedMapper[WordsInGrammarSolutionAttempt] with IdPK {
+	def getSingleton = WordsInGrammarSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptWordsIn extends MappedText(this)
+	object attemptWordsOut extends MappedText(this)
+}
+
+object WordsInGrammarSolutionAttempt extends WordsInGrammarSolutionAttempt with LongKeyedMetaMapper[WordsInGrammarSolutionAttempt] {
+
+}
+
+class DescriptionToGrammarSolutionAttempt extends LongKeyedMapper[DescriptionToGrammarSolutionAttempt] with IdPK {
+	def getSingleton = DescriptionToGrammarSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptGrammar extends MappedText(this)
+}
+
+object DescriptionToGrammarSolutionAttempt extends DescriptionToGrammarSolutionAttempt with LongKeyedMetaMapper[DescriptionToGrammarSolutionAttempt] {
+
+}
+
+class GrammarToCNFSolutionAttempt extends LongKeyedMapper[GrammarToCNFSolutionAttempt] with IdPK {
+	def getSingleton = GrammarToCNFSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attemptGrammar extends MappedText(this)
+}
+
+object GrammarToCNFSolutionAttempt extends GrammarToCNFSolutionAttempt with LongKeyedMetaMapper[GrammarToCNFSolutionAttempt] {
+
+}
+
+class CYKSolutionAttempt extends LongKeyedMapper[CYKSolutionAttempt] with IdPK {
+	def getSingleton = CYKSolutionAttempt
+
+	object solutionAttemptId extends MappedLongForeignKey(this, SolutionAttempt)
+	object attempt extends MappedText(this)
+}
+
+object CYKSolutionAttempt extends CYKSolutionAttempt with LongKeyedMetaMapper[CYKSolutionAttempt] {
 
 }
 
